@@ -14,6 +14,5 @@ export async function GET(request: Request) {
     }
   }
 
-  // Redireciona para login em caso de erro
   return NextResponse.redirect(`${origin}/login?erro=auth`)
 }
