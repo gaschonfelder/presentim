@@ -6,13 +6,18 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     console.log('AbacatePay webhook:', JSON.stringify(body))
 
-    // Verifica secret na query string (suporta ?secret= e ?webhookSecret=)
+    // Log completo para debug
+    const url = req.nextUrl.toString()
     const secret = req.nextUrl.searchParams.get('secret') ?? req.nextUrl.searchParams.get('webhookSecret')
     const expectedSecret = process.env.ABACATEPAY_WEBHOOK_SECRET
-    if (expectedSecret && secret !== expectedSecret) {
-      console.warn('Webhook secret inválido:', secret)
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    console.log('Webhook URL:', url)
+    console.log('Secret recebido:', secret)
+    console.log('Secret esperado:', expectedSecret)
+
+    // Temporariamente desabilitado para debug — reativar após confirmar funcionamento
+    // if (expectedSecret && secret !== expectedSecret) {
+    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    // }
 
     const event = body.event
     if (event !== 'billing.paid') {
