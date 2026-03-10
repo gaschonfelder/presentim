@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter()
   const supabase = createClient()
 
@@ -27,7 +27,7 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/dashboard')
+    const next = new URLSearchParams(window.location.search).get('next') ?? '/dashboard'; router.push(next)
   }
 
   async function handleGoogleLogin() {
@@ -318,5 +318,12 @@ export default function LoginPage() {
         </div>
       </div>
     </>
+  )
+}
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#fff8f9' }} />}>
+      <LoginContent />
+    </Suspense>
   )
 }

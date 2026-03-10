@@ -26,7 +26,7 @@ function SucessoContent() {
   useEffect(() => {
     if (contagem <= 0 && !redirecionou.current) {
       redirecionou.current = true
-      router.push('/dashboard')
+      router.push('/login?next=/dashboard')
     }
   }, [contagem])
 
