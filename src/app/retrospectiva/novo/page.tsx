@@ -245,7 +245,7 @@ export default function RetrospectivaNovoPage() {
     setSalvando(true)
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      const slug = gerarSlug(`${nome1}-${nome2}`)
+      const slug = gerarSlug()
       // Resolve fotoUrl real a partir do índice
       const conquistasComFoto = conquistas.map(c => ({
         key: c.key,
