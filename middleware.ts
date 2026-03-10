@@ -25,11 +25,20 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Rotas protegidas: redireciona para login se não autenticado
-  const protectedRoutes = ['/dashboard', '/novo', '/editar', '/comprar', '/retrospectiva/novo', '/retrospectiva/editar']
-  const isProtected = protectedRoutes.some(route =>
-    request.nextUrl.pathname.startsWith(route)
-  )
+  // Rotas protegidas — /comprar/sucesso e /comprar/pendente são públicas (redirect pós-pagamento)
+  const protectedRoutes = [
+    '/dashboard',
+    '/novo',
+    '/editar',
+    '/comprar',
+    '/retrospectiva/novo',
+    '/retrospectiva/editar',
+  ]
+  const publicComprar = ['/comprar/sucesso', '/comprar/pendente']
+
+  const pathname = request.nextUrl.pathname
+  const isPublicComprar = publicComprar.some(r => pathname.startsWith(r))
+  const isProtected = !isPublicComprar && protectedRoutes.some(r => pathname.startsWith(r))
 
   if (isProtected && !user) {
     return NextResponse.redirect(new URL('/login', request.url))
@@ -37,9 +46,7 @@ export async function middleware(request: NextRequest) {
 
   // Se já logado, não precisa acessar login/cadastro
   const authRoutes = ['/login', '/cadastro']
-  const isAuthRoute = authRoutes.some(route =>
-    request.nextUrl.pathname.startsWith(route)
-  )
+  const isAuthRoute = authRoutes.some(r => pathname.startsWith(r))
 
   if (isAuthRoute && user) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
