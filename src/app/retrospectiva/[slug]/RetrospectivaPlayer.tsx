@@ -610,7 +610,7 @@ export default function RetrospectivaPlayer({ dados }: { dados: Dados }) {
           ctx.font='bold 52px sans-serif'; ctx.fillStyle='white'; ctx.fillText(a.name, 230, iy+100)
           ctx.font='400 38px sans-serif'; ctx.fillStyle='rgba(255,255,255,.4)'; ctx.fillText(a.desc.slice(0,42)+'…', 230, iy+155)
         } else {
-          const {info}=rest as any; const rc=RARITY_CONFIG[info.rarity]
+          const {info}=rest as any; const rc=RARITY_CONFIG[info.rarity as Rarity]
           ctx.font='80px serif'; ctx.textAlign='left'; ctx.fillText(info.icon, 120, iy+130)
           ctx.font='bold 52px sans-serif'; ctx.fillStyle=rc.color; ctx.fillText(info.label, 230, iy+100)
           ctx.font='500 36px sans-serif'; ctx.fillStyle=rc.color; ctx.globalAlpha=.6
