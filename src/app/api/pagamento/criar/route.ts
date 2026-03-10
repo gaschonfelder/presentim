@@ -23,12 +23,19 @@ export async function POST(req: NextRequest) {
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
 
-    // Busca dados do usuário para passar ao AbacatePay
+    // Busca dados do usuário
     const { data: profile } = await supabase
       .from('profiles')
       .select('email, nome')
       .eq('id', user.id)
       .single()
+
+    // Pega tokens de sessão para restaurar após redirect externo
+    const { data: { session } } = await supabase.auth.getSession()
+    const accessToken = session?.access_token ?? ''
+    const refreshToken = session?.refresh_token ?? ''
+
+    const completionUrl = `${baseUrl}/comprar/sucesso?plano=${plano}&access_token=${accessToken}&refresh_token=${refreshToken}`
 
     const res = await fetch('https://api.abacatepay.com/v1/billing/create', {
       method: 'POST',
@@ -47,7 +54,7 @@ export async function POST(req: NextRequest) {
           price: item.preco,
         }],
         returnUrl: `${baseUrl}/comprar?cancelado=true`,
-        completionUrl: `${baseUrl}/comprar/sucesso?plano=${plano}`,
+        completionUrl,
         customer: {
           name: profile?.nome ?? 'Cliente',
           email: user.email ?? '',
@@ -71,7 +78,6 @@ export async function POST(req: NextRequest) {
 
     const billing = data.data
 
-    // Salva no Supabase
     await supabase.from('pagamentos').insert({
       user_id: user.id,
       preference_id: billing.id,

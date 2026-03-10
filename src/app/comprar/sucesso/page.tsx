@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 
 const CREDITOS_PLANO: Record<string, number> = { starter: 1, popular: 3, max: 6 }
@@ -12,10 +13,27 @@ function SucessoContent() {
   const plano = searchParams.get('plano') ?? ''
   const creditos = CREDITOS_PLANO[plano] ?? 1
   const [contagem, setContagem] = useState(6)
+  const [sessaoRestaurada, setSessaoRestaurada] = useState(false)
   const redirecionou = useRef(false)
 
+  // Restaura sessão com tokens da URL
   useEffect(() => {
-    sessionStorage.removeItem('abacate_billing_id')
+    const accessToken = searchParams.get('access_token')
+    const refreshToken = searchParams.get('refresh_token')
+
+    async function restaurar() {
+      if (accessToken && refreshToken) {
+        const supabase = createClient()
+        await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        })
+      }
+      setSessaoRestaurada(true)
+      sessionStorage.removeItem('abacate_billing_id')
+    }
+
+    restaurar()
   }, [])
 
   useEffect(() => {
@@ -24,11 +42,11 @@ function SucessoContent() {
   }, [])
 
   useEffect(() => {
-    if (contagem <= 0 && !redirecionou.current) {
+    if (contagem <= 0 && !redirecionou.current && sessaoRestaurada) {
       redirecionou.current = true
-      router.push('/login?next=/dashboard')
+      router.push('/dashboard')
     }
-  }, [contagem])
+  }, [contagem, sessaoRestaurada])
 
   return (
     <>
@@ -44,7 +62,6 @@ function SucessoContent() {
         h1 span{color:#e8627a}
         .sub{color:#7a4f5a;font-size:1rem;line-height:1.6;margin-bottom:8px;animation:fadeUp .6s .3s ease both}
         .creditos-badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#e8627a,#f9a8b8);color:white;font-size:1.1rem;font-weight:700;padding:12px 28px;border-radius:50px;margin:24px 0;animation:fadeUp .6s .4s ease both;box-shadow:0 8px 24px rgba(232,98,122,.3)}
-        .aviso{color:#b08090;font-size:.82rem;margin-bottom:8px;animation:fadeUp .6s .45s ease both}
         .redirect{color:#b08090;font-size:.85rem;margin-bottom:32px;animation:fadeUp .6s .5s ease both}
         .btn{display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#e8627a,#f9a8b8);color:white;border:none;border-radius:12px;font-family:'Lato',sans-serif;font-size:1rem;font-weight:700;text-decoration:none;box-shadow:0 8px 24px rgba(232,98,122,.3);animation:fadeUp .6s .6s ease both;transition:transform .2s}
         .btn:hover{transform:translateY(-2px)}
@@ -52,11 +69,10 @@ function SucessoContent() {
       <div className="page">
         <div className="emoji">🎉</div>
         <h1>Pagamento <span>confirmado!</span></h1>
-        <p className="sub">Seus créditos serão adicionados em instantes.</p>
+        <p className="sub">Seus créditos foram adicionados com sucesso.</p>
         <div className="creditos-badge">
-          🎁 +{creditos} crédito{creditos !== 1 ? 's' : ''} a caminho
+          🎁 +{creditos} crédito{creditos !== 1 ? 's' : ''} adicionado{creditos !== 1 ? 's' : ''}
         </div>
-        <p className="aviso">💡 Se os créditos não aparecerem imediatamente, aguarde alguns segundos e recarregue o dashboard.</p>
         <p className="redirect">Redirecionando para o dashboard em {contagem}s…</p>
         <Link href="/dashboard" className="btn">Ir para o dashboard agora</Link>
       </div>
