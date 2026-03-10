@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function SucessoPage() {
+function SucessoContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const plano = searchParams.get('plano')
@@ -94,5 +94,13 @@ export default function SucessoPage() {
         )}
       </div>
     </>
+  )
+}
+
+export default function SucessoPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#fff8f9' }} />}>
+      <SucessoContent />
+    </Suspense>
   )
 }

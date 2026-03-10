@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 
@@ -62,7 +62,7 @@ const PLANOS = [
   },
 ]
 
-export default function ComprarPage() {
+function ComprarContent() {
   const searchParams = useSearchParams()
   const cancelado = searchParams.get('cancelado')
   const [loading, setLoading] = useState<Plano | null>(null)
@@ -265,5 +265,13 @@ export default function ComprarPage() {
 
       </div>
     </>
+  )
+}
+
+export default function ComprarPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#fff8f9' }} />}>
+      <ComprarContent />
+    </Suspense>
   )
 }

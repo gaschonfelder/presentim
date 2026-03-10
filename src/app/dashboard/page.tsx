@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -126,7 +126,7 @@ function ModalCompartilhar({ slug, cor, tipo, onClose }: { slug: string; cor: st
   )
 }
 
-export default function DashboardPage() {
+function DashboardContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
@@ -370,5 +370,13 @@ export default function DashboardPage() {
         )}
       </div>
     </>
+  )
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#fff8f9' }} />}>
+      <DashboardContent />
+    </Suspense>
   )
 }
