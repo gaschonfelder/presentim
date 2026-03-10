@@ -15,13 +15,35 @@ export default function ResetPasswordPage() {
   const [sucesso, setSucesso] = useState(false)
   const [sessaoOk, setSessaoOk] = useState(false)
 
-  // Supabase injeta o token na URL como hash — precisa esperar a sessão ser restaurada
   useEffect(() => {
-    supabase.auth.onAuthStateChange((event) => {
+    // Supabase envia o token no hash: #access_token=...&type=recovery
+    // Precisamos extrair e setar a sessão manualmente
+    const hash = window.location.hash
+    if (hash) {
+      const params = new URLSearchParams(hash.replace('#', ''))
+      const accessToken = params.get('access_token')
+      const refreshToken = params.get('refresh_token')
+      const type = params.get('type')
+
+      if (type === 'recovery' && accessToken && refreshToken) {
+        supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        }).then(({ error }) => {
+          if (!error) setSessaoOk(true)
+        })
+        return
+      }
+    }
+
+    // Fallback: escuta evento PASSWORD_RECOVERY
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
         setSessaoOk(true)
       }
     })
+
+    return () => subscription.unsubscribe()
   }, [])
 
   async function handleSalvar() {
@@ -78,7 +100,7 @@ export default function ResetPasswordPage() {
             <div className="aguardando">
               <div className="spinner" />
               <p>Verificando link de redefinição…</p>
-              <p style={{ fontSize:'.8rem', marginTop:8 }}>Se demorar, <a href="/login" style={{ color:'#e8627a' }}>solicite um novo link</a>.</p>
+              <p style={{ fontSize:'.8rem', marginTop:8 }}>Se demorar, <a href="/esqueci-senha" style={{ color:'#e8627a' }}>solicite um novo link</a>.</p>
             </div>
           ) : (
             <>
