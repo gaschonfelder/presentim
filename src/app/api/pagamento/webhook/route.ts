@@ -1,23 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    console.log('AbacatePay webhook:', JSON.stringify(body))
-
-    // Log completo para debug
-    const url = req.nextUrl.toString()
-    const secret = req.nextUrl.searchParams.get('secret') ?? req.nextUrl.searchParams.get('webhookSecret')
-    const expectedSecret = process.env.ABACATEPAY_WEBHOOK_SECRET
-    console.log('Webhook URL:', url)
-    console.log('Secret recebido:', secret)
-    console.log('Secret esperado:', expectedSecret)
-
-    // Temporariamente desabilitado para debug — reativar após confirmar funcionamento
-    // if (expectedSecret && secret !== expectedSecret) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    // }
+    console.log('AbacatePay webhook recebido:', JSON.stringify(body))
 
     const event = body.event
     if (event !== 'billing.paid') {
@@ -28,17 +15,21 @@ export async function POST(req: NextRequest) {
     if (!billing) return NextResponse.json({ error: 'Payload inválido' }, { status: 400 })
 
     const billingId = billing.id
-    const supabase = await createClient()
 
-    // Busca o pagamento no Supabase pelo billing_id
-    const { data: pag } = await supabase
+    // Usa service role para operar sem cookies/sessão
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    const { data: pag, error } = await supabase
       .from('pagamentos')
       .select('id, user_id, creditos, status')
       .eq('preference_id', billingId)
       .single()
 
-    if (!pag) {
-      console.warn('Pagamento não encontrado para billing_id:', billingId)
+    if (error || !pag) {
+      console.warn('Pagamento não encontrado para billing_id:', billingId, error)
       return NextResponse.json({ error: 'Pagamento não encontrado' }, { status: 404 })
     }
 
@@ -47,16 +38,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, jaProcessado: true })
     }
 
-    // Adiciona créditos
+    // Busca créditos atuais
     const { data: profile } = await supabase
-      .from('profiles').select('creditos').eq('id', pag.user_id).single()
+      .from('profiles')
+      .select('creditos')
+      .eq('id', pag.user_id)
+      .single()
 
+    // Adiciona créditos
     await supabase
       .from('profiles')
       .update({ creditos: (profile?.creditos ?? 0) + pag.creditos })
       .eq('id', pag.user_id)
 
-    // Marca como aprovado
+    // Marca pagamento como aprovado
     await supabase
       .from('pagamentos')
       .update({ status: 'aprovado' })
@@ -64,6 +59,7 @@ export async function POST(req: NextRequest) {
 
     console.log(`✅ Webhook: ${pag.creditos} crédito(s) adicionado(s) para ${pag.user_id}`)
     return NextResponse.json({ ok: true })
+
   } catch (err) {
     console.error('Erro webhook:', err)
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
