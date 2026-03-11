@@ -10,59 +10,45 @@ export async function POST(req: NextRequest) {
     const { plano } = await req.json()
 
     const planos: Record<string, { nome: string; preco: number; creditos: number }> = {
-      starter: { nome: '1 Crédito — Presentim',  preco:  590, creditos: 1 },
-      popular: { nome: '3 Créditos — Presentim',  preco: 1490, creditos: 3 },
-      max:     { nome: '6 Créditos — Presentim',  preco: 2490, creditos: 6 },
+      starter: { nome: '1 Crédito — Presentim', preco: 5.90, creditos: 1 },
+      popular: { nome: '3 Créditos — Presentim', preco: 14.90, creditos: 3 },
+      max:     { nome: '6 Créditos — Presentim', preco: 24.90, creditos: 6 },
     }
 
     const item = planos[plano]
     if (!item) return NextResponse.json({ error: 'Plano inválido' }, { status: 400 })
 
-    const token = process.env.ABACATEPAY_API_KEY
+    const token = process.env.MERCADOPAGO_ACCESS_TOKEN
     if (!token) return NextResponse.json({ error: 'Configuração incompleta' }, { status: 500 })
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
 
-    // Busca dados do usuário
     const { data: profile } = await supabase
       .from('profiles')
       .select('email, nome')
       .eq('id', user.id)
       .single()
 
-    // Pega tokens de sessão para restaurar após redirect externo
-    const { data: { session } } = await supabase.auth.getSession()
-    const accessToken = session?.access_token ?? ''
-    const refreshToken = session?.refresh_token ?? ''
-
-    const completionUrl = `${baseUrl}/comprar/sucesso?plano=${plano}&access_token=${accessToken}&refresh_token=${refreshToken}`
-
-    const res = await fetch('https://api.abacatepay.com/v1/billing/create', {
+    // Cria preferência PIX no Mercado Pago
+    const res = await fetch('https://api.mercadopago.com/v1/payments', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
+        'X-Idempotency-Key': `${user.id}-${plano}-${Date.now()}`,
       },
       body: JSON.stringify({
-        frequency: 'ONE_TIME',
-        methods: ['PIX'],
-        products: [{
-          externalId: `${plano}-${user.id}`,
-          name: item.nome,
-          description: `${item.creditos} crédito${item.creditos > 1 ? 's' : ''} para criar presentes no Presentim`,
-          quantity: 1,
-          price: item.preco,
-        }],
-        returnUrl: `${baseUrl}/comprar?cancelado=true`,
-        completionUrl,
-        customer: {
-          name: profile?.nome ?? 'Cliente',
-          email: user.email ?? '',
-          cellphone: '11999999999',
-          taxId: '53523992060',
+        transaction_amount: item.preco,
+        description: item.nome,
+        payment_method_id: 'pix',
+        payer: {
+          email: user.email ?? profile?.email ?? 'comprador@presentim.com.br',
+          first_name: profile?.nome?.split(' ')[0] ?? 'Cliente',
+          last_name: profile?.nome?.split(' ').slice(1).join(' ') || 'Presentim',
         },
+        notification_url: `${baseUrl}/api/pagamento/webhook`,
         metadata: {
-          userId: user.id,
+          user_id: user.id,
           plano,
           creditos: item.creditos,
         },
@@ -70,24 +56,32 @@ export async function POST(req: NextRequest) {
     })
 
     const data = await res.json()
-    console.log('AbacatePay criar:', res.status, JSON.stringify(data))
+    console.log('MercadoPago criar:', res.status, JSON.stringify(data))
 
     if (!res.ok || data.error) {
       return NextResponse.json({ error: 'Erro ao criar cobrança', detail: data }, { status: 500 })
     }
 
-    const billing = data.data
+    const paymentId = String(data.id)
+    const pixData = data.point_of_interaction?.transaction_data
+    const pixCopiaECola = pixData?.qr_code
+    const pixQrcode = pixData?.qr_code_base64
 
     await supabase.from('pagamentos').insert({
       user_id: user.id,
-      preference_id: billing.id,
+      preference_id: paymentId,
       plano,
       creditos: item.creditos,
-      valor: item.preco / 100,
+      valor: item.preco,
       status: 'pendente',
     })
 
-    return NextResponse.json({ url: billing.url, billing_id: billing.id })
+    return NextResponse.json({
+      payment_id: paymentId,
+      pix_copia_e_cola: pixCopiaECola,
+      pix_qrcode_base64: pixQrcode ? `data:image/png;base64,${pixQrcode}` : null,
+    })
+
   } catch (err) {
     console.error('Erro criar pagamento:', err)
     return NextResponse.json({ error: 'Erro interno', detail: String(err) }, { status: 500 })

@@ -7,22 +7,19 @@ export async function POST(req: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
 
-    const { billing_id, plano } = await req.json()
-    const token = process.env.ABACATEPAY_API_KEY
-    const isDevMode = token?.startsWith('abc_dev_')
+    const { payment_id } = await req.json()
 
-    // Busca pagamento pendente no Supabase
+    // Busca pagamento pelo payment_id ou pelo mais recente pendente
     let pagamento: any = null
-    if (billing_id) {
+    if (payment_id) {
       const { data } = await supabase
         .from('pagamentos')
         .select('id, status, creditos, preference_id')
-        .eq('preference_id', billing_id)
+        .eq('preference_id', payment_id)
         .eq('user_id', user.id)
         .single()
       pagamento = data
     }
-    // Fallback: pega o pendente mais recente
     if (!pagamento) {
       const { data } = await supabase
         .from('pagamentos')
@@ -36,30 +33,25 @@ export async function POST(req: NextRequest) {
     }
 
     if (!pagamento) return NextResponse.json({ error: 'Pagamento não encontrado' }, { status: 404 })
-    if (pagamento.status === 'aprovado') return NextResponse.json({ ok: true, creditos: pagamento.creditos })
 
-    // Em dev mode, confiar no redirect e adicionar créditos direto
-    // Em produção, verificar na API
-    let pago = isDevMode
-
-    if (!isDevMode) {
-      const url = `https://api.abacatepay.com/v1/billing/get?id=${pagamento.preference_id}`
-      console.log('Verificando na AbacatePay:', url)
-      const res = await fetch(url, {
-        headers: { 'Authorization': `Bearer ${token}` },
-      })
-      const data = await res.json()
-      console.log('AbacatePay get:', res.status, JSON.stringify(data))
-      pago = data.data?.status === 'PAID'
-    } else {
-      console.log('⚠️ Dev mode: pulando verificação AbacatePay, adicionando créditos direto')
+    // Se já aprovado no banco (via webhook), retorna ok direto
+    if (pagamento.status === 'aprovado') {
+      return NextResponse.json({ ok: true, creditos: pagamento.creditos })
     }
 
-    if (!pago) {
-      return NextResponse.json({ error: 'Pagamento não confirmado' }, { status: 402 })
+    // Consulta status real na API do Mercado Pago
+    const token = process.env.MERCADOPAGO_ACCESS_TOKEN
+    const res = await fetch(`https://api.mercadopago.com/v1/payments/${pagamento.preference_id}`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    })
+    const data = await res.json()
+    console.log('MP verificar:', data.status)
+
+    if (data.status !== 'approved') {
+      return NextResponse.json({ error: 'Pagamento não confirmado', mp_status: data.status }, { status: 402 })
     }
 
-    // Adiciona créditos
+    // Aprovado — adiciona créditos
     const { data: profile } = await supabase
       .from('profiles').select('creditos').eq('id', user.id).single()
 
@@ -73,10 +65,11 @@ export async function POST(req: NextRequest) {
       .update({ status: 'aprovado' })
       .eq('id', pagamento.id)
 
-    console.log(`✅ ${pagamento.creditos} crédito(s) adicionado(s) para ${user.id}`)
+    console.log(`✅ Verificar MP: ${pagamento.creditos} crédito(s) para ${user.id}`)
     return NextResponse.json({ ok: true, creditos: pagamento.creditos })
+
   } catch (err) {
-    console.error('Erro verificar pagamento:', err)
+    console.error('Erro verificar:', err)
     return NextResponse.json({ error: 'Erro interno', detail: String(err) }, { status: 500 })
   }
 }
