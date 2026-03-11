@@ -10,9 +10,9 @@ export async function POST(req: NextRequest) {
     const { plano } = await req.json()
 
     const planos: Record<string, { nome: string; preco: number; creditos: number }> = {
-      starter: { nome: '1 Crédito — Presentim', preco: 1.00, creditos: 1 },
-      popular: { nome: '3 Créditos — Presentim', preco: 1.00, creditos: 3 },
-      max:     { nome: '6 Créditos — Presentim', preco: 1.00, creditos: 6 },
+      starter: { nome: '1 Crédito — Presentim', preco: 1.90, creditos: 1 },
+      popular: { nome: '3 Créditos — Presentim', preco: 14.90, creditos: 3 },
+      max:     { nome: '6 Créditos — Presentim', preco: 24.90, creditos: 6 },
     }
 
     const item = planos[plano]
