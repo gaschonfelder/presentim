@@ -12,24 +12,25 @@ export async function POST(req: NextRequest) {
     }
 
     const billing = body.data?.billing
-    if (!billing) return NextResponse.json({ error: 'Payload inválido' }, { status: 400 })
+    if (!billing?.id) {
+      return NextResponse.json({ error: 'Payload inválido' }, { status: 400 })
+    }
 
     const billingId = billing.id
 
-    // Usa service role para operar sem cookies/sessão
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    const { data: pag, error } = await supabase
+    const { data: pag, error: pagError } = await supabase
       .from('pagamentos')
       .select('id, user_id, creditos, status')
       .eq('preference_id', billingId)
       .single()
 
-    if (error || !pag) {
-      console.warn('Pagamento não encontrado para billing_id:', billingId, error)
+    if (pagError || !pag) {
+      console.warn('Pagamento não encontrado para billing_id:', billingId, pagError)
       return NextResponse.json({ error: 'Pagamento não encontrado' }, { status: 404 })
     }
 
@@ -38,26 +39,58 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, jaProcessado: true })
     }
 
-    // Busca créditos atuais
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('creditos')
-      .eq('id', pag.user_id)
-      .single()
-
-    // Adiciona créditos
-    await supabase
-      .from('profiles')
-      .update({ creditos: (profile?.creditos ?? 0) + pag.creditos })
-      .eq('id', pag.user_id)
-
-    // Marca pagamento como aprovado
-    await supabase
+    // Primeiro tenta "travar" o processamento mudando de pendente -> aprovado
+    const { data: pagamentoAtualizado, error: updatePagamentoError } = await supabase
       .from('pagamentos')
       .update({ status: 'aprovado' })
       .eq('preference_id', billingId)
+      .eq('status', 'pendente')
+      .select('id, user_id, creditos')
+      .single()
 
-    console.log(`✅ Webhook: ${pag.creditos} crédito(s) adicionado(s) para ${pag.user_id}`)
+    if (updatePagamentoError || !pagamentoAtualizado) {
+      console.log('Pagamento já foi processado por outra execução:', billingId)
+      return NextResponse.json({ ok: true, jaProcessado: true })
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('creditos')
+      .eq('id', pagamentoAtualizado.user_id)
+      .single()
+
+    if (profileError) {
+      console.error('Erro ao buscar profile:', profileError)
+
+      // rollback simples
+      await supabase
+        .from('pagamentos')
+        .update({ status: 'pendente' })
+        .eq('id', pagamentoAtualizado.id)
+
+      return NextResponse.json({ error: 'Erro ao buscar profile' }, { status: 500 })
+    }
+
+    const novosCreditos = (profile?.creditos ?? 0) + pagamentoAtualizado.creditos
+
+    const { error: creditosError } = await supabase
+      .from('profiles')
+      .update({ creditos: novosCreditos })
+      .eq('id', pagamentoAtualizado.user_id)
+
+    if (creditosError) {
+      console.error('Erro ao adicionar créditos:', creditosError)
+
+      // rollback simples
+      await supabase
+        .from('pagamentos')
+        .update({ status: 'pendente' })
+        .eq('id', pagamentoAtualizado.id)
+
+      return NextResponse.json({ error: 'Erro ao adicionar créditos' }, { status: 500 })
+    }
+
+    console.log(`✅ Webhook: ${pagamentoAtualizado.creditos} crédito(s) adicionado(s) para ${pagamentoAtualizado.user_id}`)
     return NextResponse.json({ ok: true })
 
   } catch (err) {
