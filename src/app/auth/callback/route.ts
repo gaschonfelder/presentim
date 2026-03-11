@@ -16,10 +16,11 @@ export async function GET(request: Request) {
     if (!error) return NextResponse.redirect(`${origin}${next}`)
   }
 
-  // Flow token_hash (reset de senha)
-  if (token_hash && type) {
-    const { error } = await supabase.auth.verifyOtp({ token_hash, type: type as 'recovery' })
-    if (!error) return NextResponse.redirect(`${origin}${next}`)
+  // Flow token_hash (reset de senha) — passa os params para a página client-side processar
+  if (token_hash && type === 'recovery') {
+    return NextResponse.redirect(
+      `${origin}/auth/reset-password?token_hash=${token_hash}&type=${type}`
+    )
   }
 
   return NextResponse.redirect(`${origin}/login?erro=auth`)

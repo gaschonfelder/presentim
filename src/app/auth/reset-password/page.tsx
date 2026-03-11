@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
   const [senha, setSenha] = useState('')
   const [confirmar, setConfirmar] = useState('')
@@ -16,31 +17,27 @@ export default function ResetPasswordPage() {
   const [sessaoOk, setSessaoOk] = useState(false)
 
   useEffect(() => {
-    // Supabase envia o token no hash: #access_token=...&type=recovery
-    // Precisamos extrair e setar a sessão manualmente
-    const hash = window.location.hash
-    if (hash) {
-      const params = new URLSearchParams(hash.replace('#', ''))
-      const accessToken = params.get('access_token')
-      const refreshToken = params.get('refresh_token')
-      const type = params.get('type')
+    const token_hash = searchParams.get('token_hash')
+    const type = searchParams.get('type')
 
-      if (type === 'recovery' && accessToken && refreshToken) {
-        supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken,
-        }).then(({ error }) => {
-          if (!error) setSessaoOk(true)
+    async function verificar() {
+      if (token_hash && type === 'recovery') {
+        const { error } = await supabase.auth.verifyOtp({
+          token_hash,
+          type: 'recovery',
         })
-        return
+        if (!error) {
+          setSessaoOk(true)
+          return
+        }
       }
+      // Fallback: escuta evento PASSWORD_RECOVERY (hash fragment)
     }
 
-    // Fallback: escuta evento PASSWORD_RECOVERY
+    verificar()
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        setSessaoOk(true)
-      }
+      if (event === 'PASSWORD_RECOVERY') setSessaoOk(true)
     })
 
     return () => subscription.unsubscribe()
@@ -73,13 +70,11 @@ export default function ResetPasswordPage() {
         input{width:100%;padding:12px 16px;border:2px solid #fce4ea;border-radius:12px;font-family:'Lato',sans-serif;font-size:.92rem;color:#3d1f28;outline:none;transition:border-color .2s;margin-bottom:16px}
         input:focus{border-color:#e8627a}
         .btn{width:100%;padding:14px;background:linear-gradient(135deg,#e8627a,#c94f68);color:white;border:none;border-radius:12px;font-family:'Lato',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 6px 20px rgba(232,98,122,.28)}
-        .btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 28px rgba(232,98,122,.4)}
-        .btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+        .btn:hover:not(:disabled){transform:translateY(-2px)}
+        .btn:disabled{opacity:.6;cursor:not-allowed}
         .erro{background:#fff0f2;border:1px solid #f9a8b8;border-radius:10px;padding:12px 16px;color:#c0415a;font-size:.85rem;margin-bottom:16px}
-        .sucesso-wrap{text-align:center;animation:fadeUp .5s ease}
+        .sucesso-wrap{text-align:center}
         .sucesso-emoji{font-size:4rem;animation:popIn .6s ease;margin-bottom:16px}
-        .link{display:block;text-align:center;margin-top:20px;font-size:.85rem;color:#7a4f5a}
-        .link a{color:#e8627a;font-weight:700;text-decoration:none}
         .aguardando{text-align:center;padding:20px 0}
         .aguardando p{color:#7a4f5a;font-size:.9rem;margin-top:12px}
         @keyframes spin{to{transform:rotate(360deg)}}
@@ -106,35 +101,27 @@ export default function ResetPasswordPage() {
             <>
               <h1>Nova senha</h1>
               <p className="sub">Digite sua nova senha abaixo.</p>
-
               {erro && <div className="erro">⚠️ {erro}</div>}
-
               <label>Nova senha</label>
-              <input
-                type="password"
-                placeholder="Mínimo 6 caracteres"
-                value={senha}
-                onChange={e => setSenha(e.target.value)}
-              />
-
+              <input type="password" placeholder="Mínimo 6 caracteres" value={senha} onChange={e => setSenha(e.target.value)} />
               <label>Confirmar senha</label>
-              <input
-                type="password"
-                placeholder="Repita a nova senha"
-                value={confirmar}
-                onChange={e => setConfirmar(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleSalvar()}
-              />
-
+              <input type="password" placeholder="Repita a nova senha" value={confirmar} onChange={e => setConfirmar(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSalvar()} />
               <button className="btn" onClick={handleSalvar} disabled={loading}>
                 {loading ? '⏳ Salvando…' : 'Salvar nova senha'}
               </button>
-
-              <p className="link"><a href="/login">← Voltar ao login</a></p>
+              <p style={{ textAlign:'center', marginTop:20, fontSize:'.85rem' }}><a href="/login" style={{ color:'#e8627a' }}>← Voltar ao login</a></p>
             </>
           )}
         </div>
       </div>
     </>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight:'100vh', background:'#fff8f9' }} />}>
+      <ResetPasswordContent />
+    </Suspense>
   )
 }
