@@ -498,14 +498,18 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
     if (!presente?.musica_info?.videoId) return
     loadYouTubeApi()
     const videoId = presente.musica_info.videoId
+    let cancelled = false
     const init = () => {
+      if (cancelled) return
       if (!(window as any).YT?.Player) { setTimeout(init, 200); return }
+      if (!ytContainerRef.current) return
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       new (window as any).YT.Player(ytContainerRef.current, {
         videoId,
         playerVars: { autoplay: 0, loop: 1, playlist: videoId, controls: 0, mute: 0 },
         events: {
           onReady: (e: { target: { setVolume(v: number): void; playVideo(): void } }) => {
+            cancelled = true // criado com sucesso, bloqueia reinit
             e.target.setVolume(40)
             setYtPlayer(e.target)
             if (pendingPlayRef.current) {
@@ -519,6 +523,7 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
     }
     ;(window as any).onYouTubeIframeAPIReady = init
     init()
+    return () => { cancelled = true }
   }, [presente])
 
   function toggleMusica() {
