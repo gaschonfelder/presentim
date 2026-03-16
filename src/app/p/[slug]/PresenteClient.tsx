@@ -120,7 +120,6 @@ function RoletaSection({ opcoes, cor }: { opcoes: string[]; cor: string }) {
       ctx.restore()
     }
 
-    // Centro
     ctx.beginPath()
     ctx.arc(center, center, 22, 0, Math.PI * 2)
     ctx.fillStyle = cor
@@ -161,7 +160,6 @@ function RoletaSection({ opcoes, cor }: { opcoes: string[]; cor: string }) {
     function animate(now: number) {
       const elapsed = now - start
       const progress = Math.min(elapsed / duration, 1)
-      // easing cubic-bezier(0.17, 0.67, 0.2, 1)
       const ease = 1 - Math.pow(1 - progress, 3)
       const currentRot = startRot + (finalRotation - startRot) * ease
       drawWheel(currentRot)
@@ -185,7 +183,6 @@ function RoletaSection({ opcoes, cor }: { opcoes: string[]; cor: string }) {
       <p style={{ fontSize:'.85rem', color:'#6e424d', marginBottom:28 }}>Gire e descubra nosso próximo encontro 💖</p>
 
       <div style={{ position:'relative', width:300, height:300, margin:'0 auto 24px' }}>
-        {/* Ponteiro */}
         <div style={{
           position:'absolute', top:-4, left:'50%', transform:'translateX(-50%)',
           width:0, height:0,
@@ -306,7 +303,6 @@ function TermoSection({ palavra, dica, cor }: { palavra: string; dica: string; c
         💡 Dica: {dica}
       </div>
 
-      {/* Board */}
       <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:20 }}>
         {Array.from({ length: MAX_TENTATIVAS }).map((_, row) => {
           const guess = tentativas[row]
@@ -339,7 +335,6 @@ function TermoSection({ palavra, dica, cor }: { palavra: string; dica: string; c
         })}
       </div>
 
-      {/* Input */}
       {!gameOver && (
         <div style={{ display:'flex', gap:8, marginBottom:12, maxWidth:320, width:'100%' }}>
           <input
@@ -396,7 +391,7 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
   const ytContainerRef = useRef<HTMLDivElement>(null)
   const startBtnRef = useRef<HTMLButtonElement>(null)
   const sectionsRef = useRef<(HTMLDivElement | null)[]>([])
-  const pendingPlayRef = useRef(false)
+  const pendingUnmuteRef = useRef(false)
 
   useEffect(() => {
     async function carregar() {
@@ -484,33 +479,37 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
   function handleAbrir() {
     setAberto(true)
     if (audioRef.current) { audioRef.current.volume = 0.5; audioRef.current.play().catch(() => {}) }
-    // Chama playVideo() diretamente no gesto do usuário — único jeito de funcionar no mobile
     if (ytPlayer) {
-      ytPlayer.playVideo()
+      ytPlayer.unMute()
+      ytPlayer.setVolume(40)
       setMusicaPlaying(true)
     } else if (presente?.musica_info) {
-      pendingPlayRef.current = true
+      pendingUnmuteRef.current = true
     }
   }
 
-  // Pré-carrega o YouTube player assim que os dados chegam (antes do clique)
+  // ─── YouTube: inicializa assim que os dados chegam, div sempre no DOM ───────
   useEffect(() => {
     if (!presente?.musica_info?.videoId) return
     loadYouTubeApi()
     const videoId = presente.musica_info.videoId
+    let cancelled = false
+
     const init = () => {
+      if (cancelled) return
       if (!(window as any).YT?.Player) { setTimeout(init, 200); return }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      new (window as any).YT.Player(ytContainerRef.current, {
+      // usa o ID fixo — o div está sempre no DOM
+      new (window as any).YT.Player('yt-player', {
         videoId,
-        playerVars: { autoplay: 0, loop: 1, playlist: videoId, controls: 0, mute: 0 },
+        playerVars: { autoplay: 1, mute: 1, loop: 1, playlist: videoId, controls: 0 },
         events: {
-          onReady: (e: { target: { setVolume(v: number): void; playVideo(): void } }) => {
-            e.target.setVolume(40)
+          onReady: (e: { target: { unMute(): void; mute(): void; setVolume(v: number): void } }) => {
+            cancelled = true
             setYtPlayer(e.target)
-            if (pendingPlayRef.current) {
-              e.target.playVideo()
-              pendingPlayRef.current = false
+            if (pendingUnmuteRef.current) {
+              e.target.unMute()
+              e.target.setVolume(40)
+              pendingUnmuteRef.current = false
             }
           },
           onStateChange: (e: { data: number }) => setMusicaPlaying(e.data === 1),
@@ -519,12 +518,13 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
     }
     ;(window as any).onYouTubeIframeAPIReady = init
     init()
+    return () => { cancelled = true }
   }, [presente])
 
   function toggleMusica() {
     if (!ytPlayer) return
-    if (musicaPlaying) { ytPlayer.pauseVideo(); setMusicaPlaying(false) }
-    else { ytPlayer.playVideo(); setMusicaPlaying(true) }
+    if (musicaPlaying) { ytPlayer.mute(); setMusicaPlaying(false) }
+    else { ytPlayer.unMute(); ytPlayer.setVolume(40); setMusicaPlaying(true) }
   }
 
   if (loading) return (
@@ -568,7 +568,6 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
         @keyframes shimmer{0%,100%{opacity:1}50%{opacity:.75}}
         @keyframes popIn{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
         @keyframes musicPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.7}}
-        @keyframes slideUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
 
         .start-section{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:40px 24px}
         .btnInicial{display:block;margin:30px auto;padding:24px 48px;font-size:3.5rem;background-color:${cor};color:white;border:none;border-radius:8px;cursor:pointer;transition:background-color .2s,transform .2s;box-shadow:0 12px 40px ${cor}55;animation:shimmer 2s infinite;position:relative}
@@ -597,20 +596,6 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
         }
         .text.visible{opacity:1;transform:translateY(0)}
 
-        /* Seções extras (roleta e termo) */
-        .extra-section{
-          background:white;
-          border-radius:24px;
-          margin:0 auto 40px;
-          max-width:500px;
-          width:calc(100% - 48px);
-          box-shadow:0 8px 32px rgba(0,0,0,.08);
-          opacity:0;transform:translateY(32px);
-          transition:opacity .7s ease,transform .7s ease;
-          pointer-events:none;
-        }
-        .extra-section.visible{opacity:1;transform:translateY(0);pointer-events:auto;}
-
         .textoFinal{
           position:fixed;top:50%;left:50%;width:100vw;height:100vh;
           transform:translate(-50%,-50%) scale(0.9);
@@ -631,11 +616,13 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
         @media(max-width:500px){.polaroid{top:22%;left:50%}.btnInicial{font-size:2.5rem;padding:18px 36px}}
       `}</style>
 
+      {/* div do YouTube — SEMPRE no DOM, fora de qualquer condicional */}
+      <div id="yt-player" ref={ytContainerRef} style={{ position:'fixed', width:1, height:1, opacity:0, pointerEvents:'none', zIndex:-1 }} />
+
       {isDirectAudio && <audio ref={audioRef} src={presente.musica_url!} loop preload="none" />}
       {aberto && scEmbedUrl && <iframe src={scEmbedUrl} style={{ display:'none' }} allow="autoplay" title="música" />}
-      {aberto && presente.musica_info && (
-        <div ref={ytContainerRef} style={{ position:'fixed', width:1, height:1, opacity:0, pointerEvents:'none', zIndex:-1 }} />
-      )}
+
+      {/* Chip flutuante de música */}
       {aberto && (presente.musica_info || presente.musica_url) && (
         <div
           onClick={presente.musica_info ? toggleMusica : undefined}
@@ -681,8 +668,6 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
       {/* SCROLL CONTAINER */}
       {aberto && (
         <div id="scrollContainer">
-
-          {/* Fotos com polaroid */}
           {fotos.map((fotoUrl, i) => (
             <div key={i} className="scroll-section" ref={el => { sectionsRef.current[i] = el }}>
               <div
@@ -694,10 +679,8 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
             </div>
           ))}
 
-          {/* Espaçador final */}
           <div style={{ height: '80vh' }} />
 
-          {/* Texto final fullscreen */}
           <div className={`textoFinal ${atBottom ? 'visible' : ''}`}>
             <h1>{presente.texto_final}</h1>
             <button className="btn-share" onClick={() => setMostrarQR(true)}>📱 Compartilhar este presente</button>
@@ -721,21 +704,18 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
         </div>
       )}
 
-      {/* polaroidText FIXO */}
-      {aberto && frases.length > 0 && (
+      {/* polaroidText FIXO — só aparece quando estamos na zona de fotos */}
+      {aberto && frases.length > 0 && visibleSections.some(v => v) && (
         <div className="polaroidText">
           {frases.map((_, i) => (
-            <p
-              key={i}
-              className={`text ${displayedTexts[i] ? 'visible' : ''}`}
-            >
+            <p key={i} className={`text ${displayedTexts[i] ? 'visible' : ''}`}>
               {displayedTexts[i] ?? ''}
             </p>
           ))}
         </div>
       )}
 
-      {/* Seções extras — fora do scroll fixo, sempre interativas */}
+      {/* Seções extras — sempre interativas */}
       {aberto && (temTermo || temRoleta) && (
         <div style={{ position:'relative', zIndex:10, background:fundo, paddingBottom:220 }}>
           {temTermo && (
