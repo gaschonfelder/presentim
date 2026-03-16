@@ -392,17 +392,11 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
   const [atBottom, setAtBottom] = useState(false)
   const [ytPlayer, setYtPlayer] = useState<any>(null)
   const [musicaPlaying, setMusicaPlaying] = useState(false)
-  // visibilidade das seções extras
-  const [roletaVisible, setRoletaVisible] = useState(false)
-  const [termoVisible, setTermoVisible] = useState(false)
-
   const audioRef = useRef<HTMLAudioElement>(null)
   const ytContainerRef = useRef<HTMLDivElement>(null)
   const startBtnRef = useRef<HTMLButtonElement>(null)
   const sectionsRef = useRef<(HTMLDivElement | null)[]>([])
   const pendingPlayRef = useRef(false)
-  const roletaRef = useRef<HTMLDivElement>(null)
-  const termoRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     async function carregar() {
@@ -464,7 +458,7 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
       sectionsRef.current.forEach((el, i) => {
         if (!el) return
         const rect = el.getBoundingClientRect()
-        const visivel = rect.top < wh * 0.6
+        const visivel = rect.top < wh * 0.6 && rect.top > -wh
 
         setVisibleSections(prev => { const n = [...prev]; n[i] = visivel; return n })
 
@@ -490,24 +484,6 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
     return () => window.removeEventListener('scroll', onScroll)
   }, [aberto, presente])
 
-  // Checa visibilidade das seções extras ao montar e no scroll
-  useEffect(() => {
-    if (!aberto) return
-    function checkExtras() {
-      const wh = window.innerHeight
-      if (roletaRef.current) {
-        const rect = roletaRef.current.getBoundingClientRect()
-        if (rect.top < wh * 0.92) setRoletaVisible(true)
-      }
-      if (termoRef.current) {
-        const rect = termoRef.current.getBoundingClientRect()
-        if (rect.top < wh * 0.92) setTermoVisible(true)
-      }
-    }
-    checkExtras()
-    window.addEventListener('scroll', checkExtras)
-    return () => window.removeEventListener('scroll', checkExtras)
-  }, [aberto, presente])
   function handleAbrir() {
     setAberto(true)
     if (audioRef.current) { audioRef.current.volume = 0.5; audioRef.current.play().catch(() => {}) }
@@ -721,26 +697,8 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
             </div>
           ))}
 
-          {/* Seção do Termo */}
-          {temTermo && (
-            <div ref={termoRef} className={`extra-section ${termoVisible ? 'visible' : ''}`}>
-              <TermoSection
-                palavra={presente.termo_config!.palavra}
-                dica={presente.termo_config!.dica}
-                cor={cor}
-              />
-            </div>
-          )}
-
-          {/* Seção da Roleta — última antes do texto final */}
-          {temRoleta && (
-            <div ref={roletaRef} className={`extra-section ${roletaVisible ? 'visible' : ''}`}>
-              <RoletaSection opcoes={presente.roleta_opcoes!} cor={cor} />
-            </div>
-          )}
-
           {/* Espaçador final */}
-          <div style={{ height: '150vh' }} />
+          <div style={{ height: '80vh' }} />
 
           {/* Texto final fullscreen */}
           <div className={`textoFinal ${atBottom ? 'visible' : ''}`}>
@@ -777,6 +735,26 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
               {displayedTexts[i] ?? ''}
             </p>
           ))}
+        </div>
+      )}
+
+      {/* Seções extras — fora do scroll fixo, sempre interativas */}
+      {aberto && (temTermo || temRoleta) && (
+        <div style={{ position:'relative', zIndex:10, background:fundo, paddingBottom:60 }}>
+          {temTermo && (
+            <div style={{ background:'white', borderRadius:24, margin:'40px auto 0', maxWidth:500, width:'calc(100% - 48px)', boxShadow:'0 8px 32px rgba(0,0,0,.08)' }}>
+              <TermoSection
+                palavra={presente.termo_config!.palavra}
+                dica={presente.termo_config!.dica}
+                cor={cor}
+              />
+            </div>
+          )}
+          {temRoleta && (
+            <div style={{ background:'white', borderRadius:24, margin:'32px auto 0', maxWidth:500, width:'calc(100% - 48px)', boxShadow:'0 8px 32px rgba(0,0,0,.08)' }}>
+              <RoletaSection opcoes={presente.roleta_opcoes!} cor={cor} />
+            </div>
+          )}
         </div>
       )}
 
