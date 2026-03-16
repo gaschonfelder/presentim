@@ -87,6 +87,7 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
   const ytContainerRef = useRef<HTMLDivElement>(null)
   const startBtnRef = useRef<HTMLButtonElement>(null)
   const sectionsRef = useRef<(HTMLDivElement | null)[]>([])
+  const pendingPlayRef = useRef(false)
 
   useEffect(() => {
     async function carregar() {
@@ -181,28 +182,42 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
   function handleAbrir() {
     setAberto(true)
     if (audioRef.current) { audioRef.current.volume = 0.5; audioRef.current.play().catch(() => {}) }
+    // Chama playVideo() diretamente no gesto do usuário — único jeito de funcionar no mobile
+    if (ytPlayer) {
+      ytPlayer.playVideo()
+      setMusicaPlaying(true)
+    } else if (presente?.musica_info) {
+      pendingPlayRef.current = true
+    }
   }
 
-  // Inicia YouTube player após abrir
+  // Pré-carrega o YouTube player assim que os dados chegam (antes do clique)
   useEffect(() => {
-    if (!aberto || !presente?.musica_info?.videoId) return
+    if (!presente?.musica_info?.videoId) return
     loadYouTubeApi()
     const videoId = presente.musica_info.videoId
     const init = () => {
-      if (!(window as any).YT?.Player) { setTimeout(init, 300); return }
-      const p = new (window as any).YT.Player(ytContainerRef.current, {
+      if (!(window as any).YT?.Player) { setTimeout(init, 200); return }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      new (window as any).YT.Player(ytContainerRef.current, {
         videoId,
-        playerVars: { autoplay: 1, loop: 1, playlist: videoId, controls: 0, mute: 0 },
+        playerVars: { autoplay: 0, loop: 1, playlist: videoId, controls: 0, mute: 0 },
         events: {
-          onReady: (e: any) => { e.target.setVolume(40); e.target.playVideo(); setMusicaPlaying(true) },
-          onStateChange: (e: any) => setMusicaPlaying(e.data === 1),
+          onReady: (e: { target: { setVolume(v: number): void; playVideo(): void } }) => {
+            e.target.setVolume(40)
+            setYtPlayer(e.target)
+            if (pendingPlayRef.current) {
+              e.target.playVideo()
+              pendingPlayRef.current = false
+            }
+          },
+          onStateChange: (e: { data: number }) => setMusicaPlaying(e.data === 1),
         },
       })
-      setYtPlayer(p)
     }
     ;(window as any).onYouTubeIframeAPIReady = init
     init()
-  }, [aberto, presente])
+  }, [presente])
 
   function toggleMusica() {
     if (!ytPlayer) return
@@ -302,8 +317,8 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
 
       {isDirectAudio && <audio ref={audioRef} src={presente.musica_url!} loop preload="none" />}
       {aberto && scEmbedUrl && <iframe src={scEmbedUrl} style={{ display:'none' }} allow="autoplay" title="música" />}
-      {/* YouTube player invisível */}
-      {aberto && presente.musica_info && (
+      {/* YouTube player invisível — sempre montado para pré-carregar antes do clique */}
+      {presente.musica_info && (
         <div ref={ytContainerRef} style={{ position:'fixed', width:1, height:1, opacity:0, pointerEvents:'none', zIndex:-1 }} />
       )}
       {/* Chip flutuante de música */}
