@@ -5,6 +5,11 @@ export type Profile = {
   created_at: string
 }
 
+export type TermoConfig = {
+  palavra: string
+  dica: string
+}
+
 export type Presente = {
   id: string
   user_id: string
@@ -24,6 +29,8 @@ export type Presente = {
   visualizacoes: number
   ativo: boolean
   created_at: string
+  roleta_opcoes: string[] | null
+  termo_config: TermoConfig | null
 }
 
 export type Pagamento = {

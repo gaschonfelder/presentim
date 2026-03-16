@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef, use } from 'react'
+import { useEffect, useState, useRef, use, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { urlPresente } from '@/lib/utils'
 import type { Presente } from '@/types'
@@ -14,7 +14,6 @@ function getSoundCloudEmbedUrl(url: string): string | null {
   return null
 }
 
-// Injeta YouTube IFrame API uma vez
 let ytApiLoaded = false
 function loadYouTubeApi() {
   if (ytApiLoaded || typeof window === 'undefined') return
@@ -68,6 +67,317 @@ function QRModal({ url, cor, onClose }: { url: string; cor: string; onClose: () 
   )
 }
 
+// ─── Roleta ───────────────────────────────────────────────────────────────────
+function RoletaSection({ opcoes, cor }: { opcoes: string[]; cor: string }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [spinning, setSpinning] = useState(false)
+  const [resultado, setResultado] = useState<string | null>(null)
+  const [showResult, setShowResult] = useState(false)
+  const rotationRef = useRef(0)
+
+  const colors = [
+    `${cor}55`, `${cor}77`, `${cor}44`, `${cor}88`,
+    `${cor}33`, `${cor}66`, `${cor}99`, `${cor}22`,
+  ]
+
+  const drawWheel = useCallback((rotation: number) => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')!
+    const size = canvas.width
+    const center = size / 2
+    const radius = center - 10
+    const sliceAngle = (Math.PI * 2) / opcoes.length
+
+    ctx.clearRect(0, 0, size, size)
+    ctx.save()
+    ctx.translate(center, center)
+    ctx.rotate((rotation * Math.PI) / 180)
+    ctx.translate(-center, -center)
+
+    for (let i = 0; i < opcoes.length; i++) {
+      const startAngle = i * sliceAngle - Math.PI / 2
+      const endAngle = startAngle + sliceAngle
+
+      ctx.beginPath()
+      ctx.moveTo(center, center)
+      ctx.arc(center, center, radius, startAngle, endAngle)
+      ctx.closePath()
+      ctx.fillStyle = colors[i % colors.length]
+      ctx.fill()
+      ctx.strokeStyle = '#ffffff'
+      ctx.lineWidth = 3
+      ctx.stroke()
+
+      ctx.save()
+      ctx.translate(center, center)
+      ctx.rotate(startAngle + sliceAngle / 2)
+      ctx.textAlign = 'right'
+      ctx.fillStyle = '#3d1f28'
+      ctx.font = 'bold 14px Arial'
+      const text = opcoes[i].length > 20 ? opcoes[i].slice(0, 18) + '…' : opcoes[i]
+      ctx.fillText(text, radius - 14, 5)
+      ctx.restore()
+    }
+
+    // Centro
+    ctx.beginPath()
+    ctx.arc(center, center, 22, 0, Math.PI * 2)
+    ctx.fillStyle = cor
+    ctx.fill()
+    ctx.beginPath()
+    ctx.arc(center, center, 8, 0, Math.PI * 2)
+    ctx.fillStyle = '#fff'
+    ctx.fill()
+
+    ctx.restore()
+  }, [opcoes, cor, colors])
+
+  useEffect(() => { drawWheel(0) }, [drawWheel])
+
+  function getSelected(finalDeg: number): string {
+    const normalized = ((finalDeg % 360) + 360) % 360
+    const pointerAngle = (360 - normalized) % 360
+    const sliceDeg = 360 / opcoes.length
+    const index = Math.floor(pointerAngle / sliceDeg) % opcoes.length
+    return opcoes[index]
+  }
+
+  function spin() {
+    if (spinning) return
+    setSpinning(true)
+    setShowResult(false)
+    setResultado(null)
+
+    const extraSpins = 5 + Math.floor(Math.random() * 3)
+    const randomStop = Math.floor(Math.random() * 360)
+    const finalRotation = rotationRef.current + extraSpins * 360 + randomStop
+    rotationRef.current = finalRotation
+
+    const duration = 4800
+    const start = performance.now()
+    const startRot = finalRotation - (extraSpins * 360 + randomStop)
+
+    function animate(now: number) {
+      const elapsed = now - start
+      const progress = Math.min(elapsed / duration, 1)
+      // easing cubic-bezier(0.17, 0.67, 0.2, 1)
+      const ease = 1 - Math.pow(1 - progress, 3)
+      const currentRot = startRot + (finalRotation - startRot) * ease
+      drawWheel(currentRot)
+      if (progress < 1) {
+        requestAnimationFrame(animate)
+      } else {
+        drawWheel(finalRotation)
+        const selected = getSelected(finalRotation)
+        setResultado(selected)
+        setShowResult(true)
+        setSpinning(false)
+      }
+    }
+    requestAnimationFrame(animate)
+  }
+
+  return (
+    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', padding:'40px 24px 20px', textAlign:'center' }}>
+      <p style={{ fontFamily:"'Dancing Script',cursive", fontSize:'1.1rem', color:'#888', marginBottom:6, letterSpacing:1 }}>✨ Mini jogo</p>
+      <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:'clamp(1.6rem,4vw,2.2rem)', color:'#3d1f28', marginBottom:4 }}>Roleta do próximo date</h2>
+      <p style={{ fontSize:'.85rem', color:'#7a4f5a', marginBottom:28 }}>Gire e descubra nosso próximo encontro 💖</p>
+
+      <div style={{ position:'relative', width:300, height:300, margin:'0 auto 24px' }}>
+        {/* Ponteiro */}
+        <div style={{
+          position:'absolute', top:-4, left:'50%', transform:'translateX(-50%)',
+          width:0, height:0,
+          borderLeft:'16px solid transparent', borderRight:'16px solid transparent',
+          borderTop:`28px solid ${cor}`,
+          zIndex:3, filter:'drop-shadow(0 3px 5px rgba(0,0,0,.2))',
+        }} />
+        <canvas ref={canvasRef} width={300} height={300}
+          style={{ width:'100%', height:'100%', display:'block', borderRadius:'50%', boxShadow:'0 8px 28px rgba(0,0,0,.12)' }}
+        />
+      </div>
+
+      <button onClick={spin} disabled={spinning} style={{
+        border:'none', background: spinning ? '#ccc' : `linear-gradient(135deg,${cor},${cor}cc)`,
+        color:'white', padding:'14px 36px', borderRadius:50, cursor: spinning ? 'not-allowed' : 'pointer',
+        fontSize:'1rem', fontWeight:700, boxShadow: spinning ? 'none' : `0 6px 20px ${cor}55`,
+        transition:'all .2s', marginBottom:16,
+      }}>
+        {spinning ? 'Girando…' : '💫 Girar roleta'}
+      </button>
+
+      <div style={{
+        minHeight:56, padding:'14px 20px', borderRadius:16,
+        background: showResult ? `linear-gradient(135deg,${cor}22,${cor}11)` : '#f5f0f2',
+        border:`1.5px solid ${showResult ? cor+'66' : '#e0d0d4'}`,
+        color:'#3d1f28', fontWeight:700, fontSize:'1rem',
+        transition:'all .4s', maxWidth:320, width:'100%',
+        display:'flex', alignItems:'center', justifyContent:'center',
+        animation: showResult ? 'popIn .5s ease' : 'none',
+      }}>
+        {resultado ? `Próximo date: ${resultado}` : 'Seu próximo date aparecerá aqui ✨'}
+      </div>
+    </div>
+  )
+}
+
+// ─── Termo ────────────────────────────────────────────────────────────────────
+function TermoSection({ palavra, dica, cor }: { palavra: string; dica: string; cor: string }) {
+  const MAX_TENTATIVAS = 5
+  const answer = palavra.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim()
+  const wordLen = answer.length
+
+  const [tentativas, setTentativas] = useState<string[]>([])
+  const [input, setInput] = useState('')
+  const [msg, setMsg] = useState('')
+  const [gameOver, setGameOver] = useState(false)
+  const [animating, setAnimating] = useState(false)
+  const [revealRow, setRevealRow] = useState<number | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  function normalize(w: string) {
+    return w.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim()
+  }
+
+  function getStatus(guess: string): ('correct' | 'present' | 'absent')[] {
+    const result: ('correct' | 'present' | 'absent')[] = Array(guess.length).fill('absent')
+    const answerLetters = answer.split('')
+    const used = Array(answer.length).fill(false)
+    for (let i = 0; i < guess.length; i++) {
+      if (guess[i] === answer[i]) { result[i] = 'correct'; used[i] = true }
+    }
+    for (let i = 0; i < guess.length; i++) {
+      if (result[i] === 'correct') continue
+      for (let j = 0; j < answerLetters.length; j++) {
+        if (!used[j] && guess[i] === answerLetters[j]) { result[i] = 'present'; used[j] = true; break }
+      }
+    }
+    return result
+  }
+
+  async function submit() {
+    if (gameOver || animating) return
+    const guess = normalize(input)
+    if (guess.length !== wordLen) { setMsg(`A palavra deve ter ${wordLen} letras.`); return }
+
+    const newTentativas = [...tentativas, guess]
+    setTentativas(newTentativas)
+    setInput('')
+    setAnimating(true)
+    setRevealRow(newTentativas.length - 1)
+
+    await new Promise(r => setTimeout(r, wordLen * 200 + 500))
+    setRevealRow(null)
+    setAnimating(false)
+
+    if (guess === answer) {
+      setMsg('Parabéns! Você acertou 💘')
+      setGameOver(true)
+      return
+    }
+    if (newTentativas.length >= MAX_TENTATIVAS) {
+      setMsg(`Fim de jogo! A resposta era: ${palavra.toUpperCase()}`)
+      setGameOver(true)
+      return
+    }
+    setMsg(`Tentativa ${newTentativas.length} de ${MAX_TENTATIVAS}`)
+    setTimeout(() => inputRef.current?.focus(), 50)
+  }
+
+  function reset() {
+    setTentativas([]); setInput(''); setMsg(''); setGameOver(false); setAnimating(false); setRevealRow(null)
+    setTimeout(() => inputRef.current?.focus(), 50)
+  }
+
+  const statusColors: Record<string, string> = {
+    correct: cor,
+    present: `${cor}99`,
+    absent: '#c9b7bd',
+  }
+
+  return (
+    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', padding:'40px 24px 20px', textAlign:'center' }}>
+      <p style={{ fontFamily:"'Dancing Script',cursive", fontSize:'1.1rem', color:'#888', marginBottom:6, letterSpacing:1 }}>🎮 Mini jogo</p>
+      <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:'clamp(1.6rem,4vw,2.2rem)', color:'#3d1f28', marginBottom:4 }}>Descubra a palavra</h2>
+      <p style={{ fontSize:'.85rem', color:'#7a4f5a', marginBottom:16 }}>Você tem {MAX_TENTATIVAS} tentativas para acertar</p>
+
+      <div style={{ background:`${cor}22`, border:`1.5px solid ${cor}55`, padding:'12px 20px', borderRadius:14, marginBottom:20, fontWeight:700, color:'#3d1f28', fontSize:'.9rem', maxWidth:320, width:'100%' }}>
+        💡 Dica: {dica}
+      </div>
+
+      {/* Board */}
+      <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:20 }}>
+        {Array.from({ length: MAX_TENTATIVAS }).map((_, row) => {
+          const guess = tentativas[row]
+          const status = guess ? getStatus(guess) : null
+          const isRevealing = revealRow === row
+
+          return (
+            <div key={row} style={{ display:'flex', justifyContent:'center', gap:6 }}>
+              {Array.from({ length: wordLen }).map((_, col) => {
+                const letter = guess?.[col] ?? ''
+                const s = status?.[col]
+                const delay = isRevealing ? col * 180 : 0
+                return (
+                  <div key={col} style={{
+                    width:48, height:48, borderRadius:10,
+                    border: s ? 'none' : '2px solid #e2a9b6',
+                    background: s ? statusColors[s] : '#fff',
+                    color: s ? 'white' : '#3d1f28',
+                    display:'flex', alignItems:'center', justifyContent:'center',
+                    fontSize:'1.3rem', fontWeight:700, textTransform:'uppercase',
+                    transition: `background ${delay}ms, border ${delay}ms`,
+                    boxShadow: s === 'correct' ? `0 0 12px ${cor}66` : 'none',
+                  }}>
+                    {letter}
+                  </div>
+                )
+              })}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Input */}
+      {!gameOver && (
+        <div style={{ display:'flex', gap:8, marginBottom:12, maxWidth:320, width:'100%' }}>
+          <input
+            ref={inputRef}
+            value={input}
+            onChange={e => setInput(e.target.value.toUpperCase())}
+            onKeyDown={e => e.key === 'Enter' && submit()}
+            maxLength={wordLen}
+            placeholder={`Palavra com ${wordLen} letras`}
+            disabled={animating}
+            style={{
+              flex:1, padding:'12px 14px', borderRadius:12,
+              border:'2px solid #e2a9b6', outline:'none', fontSize:'1rem',
+              textTransform:'uppercase', fontFamily:'Lato,sans-serif',
+              background:'#fff', color:'#3d1f28',
+            }}
+          />
+          <button onClick={submit} disabled={animating || !input} style={{
+            border:'none', background: `linear-gradient(135deg,${cor},${cor}cc)`,
+            color:'white', padding:'0 18px', borderRadius:12,
+            fontWeight:700, cursor: animating || !input ? 'not-allowed' : 'pointer',
+            opacity: !input ? .5 : 1, fontSize:'1rem',
+          }}>Tentar</button>
+        </div>
+      )}
+
+      {msg && (
+        <p style={{ fontWeight:700, color: msg.includes('Parabéns') ? cor : '#6d2e40', marginBottom:12, fontSize:'.95rem' }}>{msg}</p>
+      )}
+
+      <button onClick={reset} style={{
+        padding:'10px 28px', border:'none', borderRadius:50,
+        background:'#f5e0e5', color:'#7a3244', fontWeight:700, cursor:'pointer', fontSize:'.85rem',
+      }}>🔄 Reiniciar</button>
+    </div>
+  )
+}
+
 export default function PresenteClient({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params)
   const supabase = createClient()
@@ -82,12 +392,16 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
   const [atBottom, setAtBottom] = useState(false)
   const [ytPlayer, setYtPlayer] = useState<any>(null)
   const [musicaPlaying, setMusicaPlaying] = useState(false)
+  // visibilidade das seções extras
+  const [roletaVisible, setRoletaVisible] = useState(false)
+  const [termoVisible, setTermoVisible] = useState(false)
 
   const audioRef = useRef<HTMLAudioElement>(null)
   const ytContainerRef = useRef<HTMLDivElement>(null)
   const startBtnRef = useRef<HTMLButtonElement>(null)
   const sectionsRef = useRef<(HTMLDivElement | null)[]>([])
-  const pendingPlayRef = useRef(false)
+  const roletaRef = useRef<HTMLDivElement>(null)
+  const termoRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     async function carregar() {
@@ -126,7 +440,6 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
     return () => { btn.removeEventListener('mouseenter', start); btn.removeEventListener('mouseleave', stop); clearInterval(interval) }
   }, [aberto, presente])
 
-  // Typewriter para um texto específico
   function typeText(index: number, text: string) {
     let c = 0
     function tick() {
@@ -139,7 +452,6 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
     tick()
   }
 
-  // Scroll listener — fiel ao original
   useEffect(() => {
     if (!aberto || !presente) return
     const fotos: string[] = Array.isArray(presente.fotos) ? presente.fotos : []
@@ -147,6 +459,7 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
 
     const onScroll = () => {
       const wh = window.innerHeight
+
       sectionsRef.current.forEach((el, i) => {
         if (!el) return
         const rect = el.getBoundingClientRect()
@@ -154,11 +467,9 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
 
         setVisibleSections(prev => { const n = [...prev]; n[i] = visivel; return n })
 
-        // Typewriter: digita ao entrar, some ao sair (igual ao original)
         if (visivel) {
           setDigitados(prev => {
             if (!prev[i]) {
-              // ainda não digitou — inicia
               const frases: string[] = Array.isArray(presente.frases) ? presente.frases as string[] : []
               if (frases[i]) typeText(i, frases[i])
               const n = [...prev]; n[i] = true; return n
@@ -166,11 +477,20 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
             return prev
           })
         } else {
-          // Sai da área — reseta para poder digitar de novo
           setDigitados(prev => { const n = [...prev]; n[i] = false; return n })
           setDisplayedTexts(prev => { const n = [...prev]; n[i] = ''; return n })
         }
       })
+
+      // Visibilidade das seções extras
+      if (roletaRef.current) {
+        const rect = roletaRef.current.getBoundingClientRect()
+        setRoletaVisible(rect.top < wh * 0.75)
+      }
+      if (termoRef.current) {
+        const rect = termoRef.current.getBoundingClientRect()
+        setTermoVisible(rect.top < wh * 0.75)
+      }
 
       setAtBottom(window.scrollY + wh >= document.body.offsetHeight - 50)
     }
@@ -182,42 +502,27 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
   function handleAbrir() {
     setAberto(true)
     if (audioRef.current) { audioRef.current.volume = 0.5; audioRef.current.play().catch(() => {}) }
-    // Chama playVideo() diretamente no gesto do usuário — único jeito de funcionar no mobile
-    if (ytPlayer) {
-      ytPlayer.playVideo()
-      setMusicaPlaying(true)
-    } else if (presente?.musica_info) {
-      pendingPlayRef.current = true
-    }
   }
 
-  // Pré-carrega o YouTube player assim que os dados chegam (antes do clique)
   useEffect(() => {
-    if (!presente?.musica_info?.videoId) return
+    if (!aberto || !presente?.musica_info?.videoId) return
     loadYouTubeApi()
     const videoId = presente.musica_info.videoId
     const init = () => {
-      if (!(window as any).YT?.Player) { setTimeout(init, 200); return }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      new (window as any).YT.Player(ytContainerRef.current, {
+      if (!(window as any).YT?.Player) { setTimeout(init, 300); return }
+      const p = new (window as any).YT.Player(ytContainerRef.current, {
         videoId,
-        playerVars: { autoplay: 0, loop: 1, playlist: videoId, controls: 0, mute: 0 },
+        playerVars: { autoplay: 1, loop: 1, playlist: videoId, controls: 0, mute: 0 },
         events: {
-          onReady: (e: { target: { setVolume(v: number): void; playVideo(): void } }) => {
-            e.target.setVolume(40)
-            setYtPlayer(e.target)
-            if (pendingPlayRef.current) {
-              e.target.playVideo()
-              pendingPlayRef.current = false
-            }
-          },
-          onStateChange: (e: { data: number }) => setMusicaPlaying(e.data === 1),
+          onReady: (e: any) => { e.target.setVolume(40); e.target.playVideo(); setMusicaPlaying(true) },
+          onStateChange: (e: any) => setMusicaPlaying(e.data === 1),
         },
       })
+      setYtPlayer(p)
     }
     ;(window as any).onYouTubeIframeAPIReady = init
     init()
-  }, [presente])
+  }, [aberto, presente])
 
   function toggleMusica() {
     if (!ytPlayer) return
@@ -251,6 +556,9 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
   const isDirectAudio = !!presente.musica_url && !scEmbedUrl
   const shareUrl = urlPresente(slug)
 
+  const temRoleta = Array.isArray(presente.roleta_opcoes) && presente.roleta_opcoes.length > 0
+  const temTermo = !!presente.termo_config?.palavra && !!presente.termo_config?.dica
+
   return (
     <>
       <style>{`
@@ -263,15 +571,14 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
         @keyframes shimmer{0%,100%{opacity:1}50%{opacity:.75}}
         @keyframes popIn{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
         @keyframes musicPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.7}}
+        @keyframes slideUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
 
         .start-section{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:40px 24px}
         .btnInicial{display:block;margin:30px auto;padding:24px 48px;font-size:3.5rem;background-color:${cor};color:white;border:none;border-radius:8px;cursor:pointer;transition:background-color .2s,transform .2s;box-shadow:0 12px 40px ${cor}55;animation:shimmer 2s infinite;position:relative}
         .btnInicial:hover{background-color:${cor}cc;transform:scale(1.05);animation:none}
 
-        /* Igual ao original — scroll-section como espaçador */
         .scroll-section{height:70vh;position:relative}
 
-        /* Polaroid fixo no viewport */
         .polaroid{
           position:fixed;top:50%;left:25%;
           transform:translate(-50%,-50%) scale(0.9) rotate(var(--rotation,0deg));
@@ -283,7 +590,6 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
         .polaroid.visible{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(var(--rotation))}
         .polaroid img{width:100%;border:4px solid white;box-shadow:0 4px 12px rgba(0,0,0,.2);border-radius:4px;display:block}
 
-        /* polaroidText fixo — contém TODOS os textos, cada um some/aparece */
         .polaroidText{position:fixed;top:20%;left:48%;width:40%}
         .text{
           font-family:'Dancing Script',cursive;
@@ -294,7 +600,19 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
         }
         .text.visible{opacity:1;transform:translateY(0)}
 
-        /* Texto final fullscreen */
+        /* Seções extras (roleta e termo) */
+        .extra-section{
+          background:white;
+          border-radius:24px;
+          margin:0 auto 40px;
+          max-width:500px;
+          width:calc(100% - 48px);
+          box-shadow:0 8px 32px rgba(0,0,0,.08);
+          opacity:0;transform:translateY(32px);
+          transition:opacity .7s ease,transform .7s ease;
+        }
+        .extra-section.visible{opacity:1;transform:translateY(0)}
+
         .textoFinal{
           position:fixed;top:50%;left:50%;width:100vw;height:100vh;
           transform:translate(-50%,-50%) scale(0.9);
@@ -305,7 +623,7 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
           color:white;text-align:center;padding:20px;
         }
         .textoFinal.visible{opacity:1;transform:translate(-50%,-50%) scale(1)}
-        .textoFinal h1{font-family:'Dancing Script',cursive;font-size:clamp(2.5rem,6vw,5rem);line-height:1.3}
+        .textoFinal h1{font-family:'Dancing Script',cursive;font-size:clamp(2.5rem,6vw,5rem);line-height:1.3;color:white}
         .btn-share{background:white;color:${cor};border:none;border-radius:50px;padding:14px 32px;font-family:'Lato',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.15);transition:transform .2s}
         .btn-share:hover{transform:scale(1.05)}
 
@@ -317,11 +635,9 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
 
       {isDirectAudio && <audio ref={audioRef} src={presente.musica_url!} loop preload="none" />}
       {aberto && scEmbedUrl && <iframe src={scEmbedUrl} style={{ display:'none' }} allow="autoplay" title="música" />}
-      {/* YouTube player invisível — sempre montado para pré-carregar antes do clique */}
-      {presente.musica_info && (
+      {aberto && presente.musica_info && (
         <div ref={ytContainerRef} style={{ position:'fixed', width:1, height:1, opacity:0, pointerEvents:'none', zIndex:-1 }} />
       )}
-      {/* Chip flutuante de música */}
       {aberto && (presente.musica_info || presente.musica_url) && (
         <div
           onClick={presente.musica_info ? toggleMusica : undefined}
@@ -364,11 +680,11 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
         )}
       </div>
 
-      {/* SCROLL CONTAINER — estrutura fiel ao original */}
+      {/* SCROLL CONTAINER */}
       {aberto && (
         <div id="scrollContainer">
 
-          {/* Uma scroll-section por foto */}
+          {/* Fotos com polaroid */}
           {fotos.map((fotoUrl, i) => (
             <div key={i} className="scroll-section" ref={el => { sectionsRef.current[i] = el }}>
               <div
@@ -379,6 +695,24 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
               </div>
             </div>
           ))}
+
+          {/* Seção da Roleta */}
+          {temRoleta && (
+            <div ref={roletaRef} className={`extra-section ${roletaVisible ? 'visible' : ''}`}>
+              <RoletaSection opcoes={presente.roleta_opcoes!} cor={cor} />
+            </div>
+          )}
+
+          {/* Seção do Termo */}
+          {temTermo && (
+            <div ref={termoRef} className={`extra-section ${termoVisible ? 'visible' : ''}`}>
+              <TermoSection
+                palavra={presente.termo_config!.palavra}
+                dica={presente.termo_config!.dica}
+                cor={cor}
+              />
+            </div>
+          )}
 
           {/* Espaçador final */}
           <div style={{ height: '150vh' }} />
@@ -407,8 +741,7 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
         </div>
       )}
 
-      {/* polaroidText FIXO — fora do scrollContainer, igual ao original */}
-      {/* Cada <p> corresponde à foto do mesmo index */}
+      {/* polaroidText FIXO */}
       {aberto && frases.length > 0 && (
         <div className="polaroidText">
           {frases.map((_, i) => (
