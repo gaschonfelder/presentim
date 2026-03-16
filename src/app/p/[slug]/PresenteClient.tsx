@@ -482,6 +482,16 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
         }
       })
 
+      // Visibilidade das seções extras
+      if (roletaRef.current) {
+        const rect = roletaRef.current.getBoundingClientRect()
+        setRoletaVisible(rect.top < wh * 0.75)
+      }
+      if (termoRef.current) {
+        const rect = termoRef.current.getBoundingClientRect()
+        setTermoVisible(rect.top < wh * 0.75)
+      }
+
       setAtBottom(window.scrollY + wh >= document.body.offsetHeight - 50)
     }
 
@@ -489,24 +499,7 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
     return () => window.removeEventListener('scroll', onScroll)
   }, [aberto, presente])
 
-  // Checa visibilidade das seções extras ao montar e no scroll
-  useEffect(() => {
-    if (!aberto) return
-    function checkExtras() {
-      const wh = window.innerHeight
-      if (roletaRef.current) {
-        const rect = roletaRef.current.getBoundingClientRect()
-        if (rect.top < wh * 0.92) setRoletaVisible(true)
-      }
-      if (termoRef.current) {
-        const rect = termoRef.current.getBoundingClientRect()
-        if (rect.top < wh * 0.92) setTermoVisible(true)
-      }
-    }
-    checkExtras()
-    window.addEventListener('scroll', checkExtras)
-    return () => window.removeEventListener('scroll', checkExtras)
-  }, [aberto, presente])
+  function handleAbrir() {
     setAberto(true)
     if (audioRef.current) { audioRef.current.volume = 0.5; audioRef.current.play().catch(() => {}) }
   }
@@ -617,9 +610,8 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
           box-shadow:0 8px 32px rgba(0,0,0,.08);
           opacity:0;transform:translateY(32px);
           transition:opacity .7s ease,transform .7s ease;
-          pointer-events:none;
         }
-        .extra-section.visible{opacity:1;transform:translateY(0);pointer-events:auto;}
+        .extra-section.visible{opacity:1;transform:translateY(0)}
 
         .textoFinal{
           position:fixed;top:50%;left:50%;width:100vw;height:100vh;
@@ -704,6 +696,13 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
             </div>
           ))}
 
+          {/* Seção da Roleta */}
+          {temRoleta && (
+            <div ref={roletaRef} className={`extra-section ${roletaVisible ? 'visible' : ''}`}>
+              <RoletaSection opcoes={presente.roleta_opcoes!} cor={cor} />
+            </div>
+          )}
+
           {/* Seção do Termo */}
           {temTermo && (
             <div ref={termoRef} className={`extra-section ${termoVisible ? 'visible' : ''}`}>
@@ -712,13 +711,6 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
                 dica={presente.termo_config!.dica}
                 cor={cor}
               />
-            </div>
-          )}
-
-          {/* Seção da Roleta — última antes do texto final */}
-          {temRoleta && (
-            <div ref={roletaRef} className={`extra-section ${roletaVisible ? 'visible' : ''}`}>
-              <RoletaSection opcoes={presente.roleta_opcoes!} cor={cor} />
             </div>
           )}
 
