@@ -396,7 +396,7 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
   const ytContainerRef = useRef<HTMLDivElement>(null)
   const startBtnRef = useRef<HTMLButtonElement>(null)
   const sectionsRef = useRef<(HTMLDivElement | null)[]>([])
-  const pendingPlayRef = useRef(false)
+  const pendingUnmuteRef = useRef(false)
 
   useEffect(() => {
     async function carregar() {
@@ -486,10 +486,11 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
     if (audioRef.current) { audioRef.current.volume = 0.5; audioRef.current.play().catch(() => {}) }
     // Chama playVideo() diretamente no gesto do usuário — único jeito de funcionar no mobile
     if (ytPlayer) {
-      ytPlayer.playVideo()
+      ytPlayer.unMute()
+      ytPlayer.setVolume(40)
       setMusicaPlaying(true)
     } else if (presente?.musica_info) {
-      pendingPlayRef.current = true
+      pendingUnmuteRef.current = true
     }
   }
 
@@ -506,15 +507,15 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       new (window as any).YT.Player(ytContainerRef.current, {
         videoId,
-        playerVars: { autoplay: 0, loop: 1, playlist: videoId, controls: 0, mute: 0 },
+        playerVars: { autoplay: 1, mute: 1, loop: 1, playlist: videoId, controls: 0 },
         events: {
-          onReady: (e: { target: { setVolume(v: number): void; playVideo(): void } }) => {
+          onReady: (e: { target: { unMute(): void; mute(): void; setVolume(v: number): void } }) => {
             cancelled = true // criado com sucesso, bloqueia reinit
-            e.target.setVolume(40)
             setYtPlayer(e.target)
-            if (pendingPlayRef.current) {
-              e.target.playVideo()
-              pendingPlayRef.current = false
+            if (pendingUnmuteRef.current) {
+              e.target.unMute()
+              e.target.setVolume(40)
+              pendingUnmuteRef.current = false
             }
           },
           onStateChange: (e: { data: number }) => setMusicaPlaying(e.data === 1),
@@ -528,8 +529,8 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
 
   function toggleMusica() {
     if (!ytPlayer) return
-    if (musicaPlaying) { ytPlayer.pauseVideo(); setMusicaPlaying(false) }
-    else { ytPlayer.playVideo(); setMusicaPlaying(true) }
+    if (musicaPlaying) { ytPlayer.mute(); setMusicaPlaying(false) }
+    else { ytPlayer.unMute(); ytPlayer.setVolume(40); setMusicaPlaying(true) }
   }
 
   if (loading) return (
