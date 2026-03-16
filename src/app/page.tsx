@@ -597,6 +597,7 @@ export default function LandingPage() {
           <a href="#como-funciona">Como funciona</a>
           <a href="#precos">Preços</a>
           <a href="#faq">FAQ</a>
+          <Link href="/demo">Ver demo</Link>
           <Link href="/cadastro" className="btn-nav">Criar presente 🎁</Link>
         </div>
       </nav>
@@ -613,7 +614,7 @@ export default function LandingPage() {
         </p>
         <div className="hero-ctas">
           <Link href="/cadastro" className="btn-primary">Criar meu presente 💝</Link>
-          <a href="#como-funciona" className="btn-secondary">Ver como funciona</a>
+          <Link href="/demo" className="btn-secondary">Ver exemplos 👀</Link>
         </div>
         <p className="hero-note">🔒 Sem assinatura — pague só pelo que usar</p>
 
