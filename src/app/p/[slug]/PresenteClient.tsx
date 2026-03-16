@@ -704,8 +704,8 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
         </div>
       )}
 
-      {/* polaroidText FIXO */}
-      {aberto && frases.length > 0 && (
+      {/* polaroidText FIXO — só aparece quando estamos na zona de fotos */}
+      {aberto && frases.length > 0 && visibleSections.some(v => v) && (
         <div className="polaroidText">
           {frases.map((_, i) => (
             <p key={i} className={`text ${displayedTexts[i] ? 'visible' : ''}`}>
