@@ -182,7 +182,7 @@ function RoletaSection({ opcoes, cor }: { opcoes: string[]; cor: string }) {
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', padding:'40px 24px 20px', textAlign:'center' }}>
       <p style={{ fontFamily:"'Dancing Script',cursive", fontSize:'1.1rem', color:'#888', marginBottom:6, letterSpacing:1 }}>✨ Roleta de date</p>
       <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:'clamp(1.6rem,4vw,2.2rem)', color:'#3d1f28', marginBottom:4 }}>Roleta do próximo date</h2>
-      <p style={{ fontSize:'.85rem', color:'#7a4f5a', marginBottom:28 }}>Gire e descubra nosso próximo encontro 💖</p>
+      <p style={{ fontSize:'.85rem', color:'#6e424d', marginBottom:28 }}>Gire e descubra nosso próximo encontro 💖</p>
 
       <div style={{ position:'relative', width:300, height:300, margin:'0 auto 24px' }}>
         {/* Ponteiro */}
