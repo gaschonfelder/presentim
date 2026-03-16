@@ -29,7 +29,8 @@ function Countdown({ target, cor }: { target: string; cor: string }) {
     if (diff <= 0) return null
     return { dias: Math.floor(diff/86400000), horas: Math.floor((diff%86400000)/3600000), mins: Math.floor((diff%3600000)/60000), segs: Math.floor((diff%60000)/1000) }
   }
-  const [time, setTime] = useState(calc())
+  const [time, setTime] = useState(calc)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { const t = setInterval(() => setTime(calc()), 1000); return () => clearInterval(t) }, [])
   if (!time) return null
   return (
@@ -75,12 +76,11 @@ function RoletaSection({ opcoes, cor }: { opcoes: string[]; cor: string }) {
   const [showResult, setShowResult] = useState(false)
   const rotationRef = useRef(0)
 
-  const colors = [
-    `${cor}55`, `${cor}77`, `${cor}44`, `${cor}88`,
-    `${cor}33`, `${cor}66`, `${cor}99`, `${cor}22`,
-  ]
-
   const drawWheel = useCallback((rotation: number) => {
+    const colors = [
+      `${cor}55`, `${cor}77`, `${cor}44`, `${cor}88`,
+      `${cor}33`, `${cor}66`, `${cor}99`, `${cor}22`,
+    ]
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')!
@@ -131,7 +131,7 @@ function RoletaSection({ opcoes, cor }: { opcoes: string[]; cor: string }) {
     ctx.fill()
 
     ctx.restore()
-  }, [opcoes, cor, colors])
+  }, [opcoes, cor])
 
   useEffect(() => { drawWheel(0) }, [drawWheel])
 
@@ -400,6 +400,7 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
   const ytContainerRef = useRef<HTMLDivElement>(null)
   const startBtnRef = useRef<HTMLButtonElement>(null)
   const sectionsRef = useRef<(HTMLDivElement | null)[]>([])
+  const pendingPlayRef = useRef(false)
   const roletaRef = useRef<HTMLDivElement>(null)
   const termoRef = useRef<HTMLDivElement>(null)
 
@@ -482,16 +483,6 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
         }
       })
 
-      // Visibilidade das seções extras
-      if (roletaRef.current) {
-        const rect = roletaRef.current.getBoundingClientRect()
-        setRoletaVisible(rect.top < wh * 0.75)
-      }
-      if (termoRef.current) {
-        const rect = termoRef.current.getBoundingClientRect()
-        setTermoVisible(rect.top < wh * 0.75)
-      }
-
       setAtBottom(window.scrollY + wh >= document.body.offsetHeight - 50)
     }
 
@@ -499,30 +490,63 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
     return () => window.removeEventListener('scroll', onScroll)
   }, [aberto, presente])
 
+  // Checa visibilidade das seções extras ao montar e no scroll
+  useEffect(() => {
+    if (!aberto) return
+    function checkExtras() {
+      const wh = window.innerHeight
+      if (roletaRef.current) {
+        const rect = roletaRef.current.getBoundingClientRect()
+        if (rect.top < wh * 0.92) setRoletaVisible(true)
+      }
+      if (termoRef.current) {
+        const rect = termoRef.current.getBoundingClientRect()
+        if (rect.top < wh * 0.92) setTermoVisible(true)
+      }
+    }
+    checkExtras()
+    window.addEventListener('scroll', checkExtras)
+    return () => window.removeEventListener('scroll', checkExtras)
+  }, [aberto, presente])
   function handleAbrir() {
     setAberto(true)
     if (audioRef.current) { audioRef.current.volume = 0.5; audioRef.current.play().catch(() => {}) }
+    // Chama playVideo() diretamente no gesto do usuário — único jeito de funcionar no mobile
+    if (ytPlayer) {
+      ytPlayer.playVideo()
+      setMusicaPlaying(true)
+    } else if (presente?.musica_info) {
+      pendingPlayRef.current = true
+    }
   }
 
+  // Pré-carrega o YouTube player assim que os dados chegam (antes do clique)
   useEffect(() => {
-    if (!aberto || !presente?.musica_info?.videoId) return
+    if (!presente?.musica_info?.videoId) return
     loadYouTubeApi()
     const videoId = presente.musica_info.videoId
     const init = () => {
-      if (!(window as any).YT?.Player) { setTimeout(init, 300); return }
-      const p = new (window as any).YT.Player(ytContainerRef.current, {
+      if (!(window as any).YT?.Player) { setTimeout(init, 200); return }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      new (window as any).YT.Player(ytContainerRef.current, {
         videoId,
-        playerVars: { autoplay: 1, loop: 1, playlist: videoId, controls: 0, mute: 0 },
+        playerVars: { autoplay: 0, loop: 1, playlist: videoId, controls: 0, mute: 0 },
         events: {
-          onReady: (e: any) => { e.target.setVolume(40); e.target.playVideo(); setMusicaPlaying(true) },
-          onStateChange: (e: any) => setMusicaPlaying(e.data === 1),
+          onReady: (e: { target: { setVolume(v: number): void; playVideo(): void } }) => {
+            e.target.setVolume(40)
+            setYtPlayer(e.target)
+            if (pendingPlayRef.current) {
+              e.target.playVideo()
+              pendingPlayRef.current = false
+            }
+          },
+          onStateChange: (e: { data: number }) => setMusicaPlaying(e.data === 1),
         },
       })
-      setYtPlayer(p)
     }
     ;(window as any).onYouTubeIframeAPIReady = init
     init()
-  }, [aberto, presente])
+  }, [presente])
 
   function toggleMusica() {
     if (!ytPlayer) return
@@ -610,8 +634,9 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
           box-shadow:0 8px 32px rgba(0,0,0,.08);
           opacity:0;transform:translateY(32px);
           transition:opacity .7s ease,transform .7s ease;
+          pointer-events:none;
         }
-        .extra-section.visible{opacity:1;transform:translateY(0)}
+        .extra-section.visible{opacity:1;transform:translateY(0);pointer-events:auto;}
 
         .textoFinal{
           position:fixed;top:50%;left:50%;width:100vw;height:100vh;
@@ -696,13 +721,6 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
             </div>
           ))}
 
-          {/* Seção da Roleta */}
-          {temRoleta && (
-            <div ref={roletaRef} className={`extra-section ${roletaVisible ? 'visible' : ''}`}>
-              <RoletaSection opcoes={presente.roleta_opcoes!} cor={cor} />
-            </div>
-          )}
-
           {/* Seção do Termo */}
           {temTermo && (
             <div ref={termoRef} className={`extra-section ${termoVisible ? 'visible' : ''}`}>
@@ -711,6 +729,13 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
                 dica={presente.termo_config!.dica}
                 cor={cor}
               />
+            </div>
+          )}
+
+          {/* Seção da Roleta — última antes do texto final */}
+          {temRoleta && (
+            <div ref={roletaRef} className={`extra-section ${roletaVisible ? 'visible' : ''}`}>
+              <RoletaSection opcoes={presente.roleta_opcoes!} cor={cor} />
             </div>
           )}
 
