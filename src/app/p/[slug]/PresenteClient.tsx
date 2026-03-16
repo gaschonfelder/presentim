@@ -471,9 +471,6 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
             }
             return prev
           })
-        } else {
-          setDigitados(prev => { const n = [...prev]; n[i] = false; return n })
-          setDisplayedTexts(prev => { const n = [...prev]; n[i] = ''; return n })
         }
       })
 
@@ -590,7 +587,7 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
         .polaroid.visible{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(var(--rotation))}
         .polaroid img{width:100%;border:4px solid white;box-shadow:0 4px 12px rgba(0,0,0,.2);border-radius:4px;display:block}
 
-        .polaroidText{position:fixed;top:20%;left:48%;width:40%}
+        .polaroidText{position:fixed;top:50%;left:48%;width:40%;transform:translateY(-50%);display:flex;flex-direction:column;justify-content:center;gap:.4rem;max-height:70vh;overflow:hidden;pointer-events:none}
         .text{
           font-family:'Dancing Script',cursive;
           font-size:clamp(1.4rem,2.5vw,2.5rem);
@@ -630,8 +627,8 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
 
         #mainContent h2{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,4rem);text-align:center;color:#3d1f28;opacity:0;animation:fadeUp .8s .1s ease forwards}
 
-        @media(max-width:700px){.polaroid{top:30%;left:45%;width:clamp(180px,80vw,320px)}.polaroidText{width:90%;top:55%;left:5%}.text{font-size:1.4rem}}
-        @media(max-width:500px){.polaroid{top:25%;left:40%}.polaroidText{top:48%}.btnInicial{font-size:2.5rem;padding:18px 36px}}
+        @media(max-width:700px){.polaroid{top:28%;left:50%;width:clamp(160px,72vw,300px)}.polaroidText{width:88%;top:auto;bottom:6%;left:6%;transform:none;max-height:28vh;justify-content:flex-end}.text{font-size:1.2rem}}
+        @media(max-width:500px){.polaroid{top:22%;left:50%}.btnInicial{font-size:2.5rem;padding:18px 36px}}
       `}</style>
 
       {isDirectAudio && <audio ref={audioRef} src={presente.musica_url!} loop preload="none" />}
@@ -730,7 +727,7 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
           {frases.map((_, i) => (
             <p
               key={i}
-              className={`text ${visibleSections[i] ? 'visible' : ''}`}
+              className={`text ${displayedTexts[i] ? 'visible' : ''}`}
             >
               {displayedTexts[i] ?? ''}
             </p>
