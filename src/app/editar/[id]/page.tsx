@@ -12,14 +12,16 @@ type Config = {
   frases: string[]; cor_primaria: string; cor_fundo: string
   emoji: string; data_liberacao: string; fotos: string[]
   musica_url: string; musica_info: MusicaInfo | null; retro_slug: string
+  roleta_ativa: boolean; roleta_opcoes: string[]
+  termo_ativo: boolean; termo_palavra: string; termo_dica: string
 }
 
 const EMOJIS = ['🎁', '💝', '💖', '🌸', '🎂', '🥂', '✨', '🦋', '🌹', '💌', '🎉', '🫶']
 
 function Preview({ cfg }: { cfg: Config }) {
-  const [tick, setTick] = useState(0)
-  useEffect(() => { const t = setInterval(() => setTick(x => x + 1), 1000); return () => clearInterval(t) }, [])
-  const diff = cfg.data_liberacao ? new Date(cfg.data_liberacao).getTime() - Date.now() : 0
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t) }, [])
+  const diff = cfg.data_liberacao ? new Date(cfg.data_liberacao).getTime() - now : 0
   const passou = diff <= 0
   return (
     <div style={{ background: cfg.cor_fundo, borderRadius: 20, width: '100%', aspectRatio: '9/16', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', gap: 16, position: 'relative', overflow: 'hidden' }}>
@@ -111,6 +113,13 @@ export default function EditarPage({ params }: { params: Promise<{ id: string }>
         musica_url: data.musica_url ?? '',
         musica_info: data.musica_info ?? null,
         retro_slug: data.retro_slug ?? '',
+        roleta_ativa: Array.isArray(data.roleta_opcoes) && data.roleta_opcoes.length > 0,
+        roleta_opcoes: Array.isArray(data.roleta_opcoes) && data.roleta_opcoes.length > 0
+          ? data.roleta_opcoes
+          : ['🍝 Jantar romântico', '🎬 Cinema juntinhos', '🍦 Tomar sorvete', '🌅 Ver o pôr do sol', '🧺 Piquenique', '🎮 Noite de jogos', '🚗 Passeio surpresa', '🍕 Noite de pizza'],
+        termo_ativo: !!(data.termo_config?.palavra),
+        termo_palavra: data.termo_config?.palavra ?? '',
+        termo_dica: data.termo_config?.dica ?? '',
       })
       setLoading(false)
     }
@@ -170,6 +179,10 @@ export default function EditarPage({ params }: { params: Promise<{ id: string }>
       musica_url: cfg.musica_url || null,
       musica_info: cfg.musica_info || null,
       retro_slug: cfg.retro_slug.trim() || null,
+      roleta_opcoes: cfg.roleta_ativa && cfg.roleta_opcoes.filter(Boolean).length > 0
+        ? cfg.roleta_opcoes.filter(Boolean) : null,
+      termo_config: cfg.termo_ativo && cfg.termo_palavra.trim()
+        ? { palavra: cfg.termo_palavra.trim(), dica: cfg.termo_dica.trim() } : null,
       cor_primaria: cfg.cor_primaria, cor_fundo: cfg.cor_fundo, emoji: cfg.emoji,
       data_liberacao: cfg.data_liberacao ? new Date(cfg.data_liberacao).toISOString() : null,
     }).eq('id', id)
@@ -373,6 +386,58 @@ export default function EditarPage({ params }: { params: Promise<{ id: string }>
                       </>
                     )}
                   </>
+                )}
+
+                {/* ── Roleta ── */}
+                <p className="section-title" style={{ marginTop: 24 }}>Roleta do próximo date <span style={{ fontWeight:400, color:'var(--text-soft)', fontSize:'.8rem' }}>(opcional)</span></p>
+                <p style={{ fontSize:'.8rem', color:'var(--text-soft)', marginBottom:10, lineHeight:1.5 }}>Ative para adicionar uma roleta interativa com sugestões de encontros.</p>
+                <label style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer', marginBottom:14 }}>
+                  <div onClick={() => set('roleta_ativa', !cfg.roleta_ativa)} style={{ width:44, height:24, borderRadius:12, background: cfg.roleta_ativa ? 'var(--rose)' : '#ddd', position:'relative', cursor:'pointer', transition:'background .2s', flexShrink:0 }}>
+                    <div style={{ position:'absolute', top:3, left: cfg.roleta_ativa ? 23 : 3, width:18, height:18, borderRadius:'50%', background:'white', transition:'left .2s', boxShadow:'0 1px 4px rgba(0,0,0,.2)' }} />
+                  </div>
+                  <span style={{ fontSize:'.85rem', color:'var(--text)', fontWeight:600 }}>{cfg.roleta_ativa ? '🎡 Roleta ativada' : 'Ativar roleta'}</span>
+                </label>
+                {cfg.roleta_ativa && (
+                  <div style={{ background:'var(--rose-pale)', border:'1px solid var(--rose-mid)', borderRadius:12, padding:'14px 16px', marginBottom:8 }}>
+                    <p style={{ fontSize:'.78rem', fontWeight:700, color:'var(--text)', marginBottom:10 }}>Opções da roleta (mín. 2, máx. 10):</p>
+                    {cfg.roleta_opcoes.map((op, i) => (
+                      <div key={i} style={{ display:'flex', gap:6, marginBottom:6 }}>
+                        <input value={op} onChange={e => { const arr = [...cfg.roleta_opcoes]; arr[i] = e.target.value; set('roleta_opcoes', arr) }} placeholder={`Opção ${i+1}…`} maxLength={40}
+                          style={{ flex:1, padding:'8px 12px', border:'2px solid var(--rose-mid)', borderRadius:8, fontSize:'.85rem', fontFamily:'Lato,sans-serif', outline:'none', background:'white' }} />
+                        {cfg.roleta_opcoes.length > 2 && (
+                          <button onClick={() => set('roleta_opcoes', cfg.roleta_opcoes.filter((_, idx) => idx !== i))} style={{ background:'none', border:'none', cursor:'pointer', color:'#ccc', fontSize:'1rem', padding:'0 4px' }}>✕</button>
+                        )}
+                      </div>
+                    ))}
+                    {cfg.roleta_opcoes.length < 10 && (
+                      <button onClick={() => set('roleta_opcoes', [...cfg.roleta_opcoes, ''])} style={{ background:'none', border:'2px dashed var(--rose-mid)', borderRadius:8, width:'100%', padding:'7px', fontSize:'.8rem', color:'var(--text-soft)', cursor:'pointer', marginTop:4 }}>+ Adicionar opção</button>
+                    )}
+                  </div>
+                )}
+
+                {/* ── Termo ── */}
+                <p className="section-title" style={{ marginTop: 24 }}>Jogo de adivinhar a palavra <span style={{ fontWeight:400, color:'var(--text-soft)', fontSize:'.8rem' }}>(opcional)</span></p>
+                <p style={{ fontSize:'.8rem', color:'var(--text-soft)', marginBottom:10, lineHeight:1.5 }}>Ative para incluir um mini jogo estilo Wordle. A pessoa tem 5 tentativas para adivinhar.</p>
+                <label style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer', marginBottom:14 }}>
+                  <div onClick={() => set('termo_ativo', !cfg.termo_ativo)} style={{ width:44, height:24, borderRadius:12, background: cfg.termo_ativo ? 'var(--rose)' : '#ddd', position:'relative', cursor:'pointer', transition:'background .2s', flexShrink:0 }}>
+                    <div style={{ position:'absolute', top:3, left: cfg.termo_ativo ? 23 : 3, width:18, height:18, borderRadius:'50%', background:'white', transition:'left .2s', boxShadow:'0 1px 4px rgba(0,0,0,.2)' }} />
+                  </div>
+                  <span style={{ fontSize:'.85rem', color:'var(--text)', fontWeight:600 }}>{cfg.termo_ativo ? '🎮 Jogo ativado' : 'Ativar jogo de palavras'}</span>
+                </label>
+                {cfg.termo_ativo && (
+                  <div style={{ background:'var(--rose-pale)', border:'1px solid var(--rose-mid)', borderRadius:12, padding:'14px 16px', marginBottom:8, display:'flex', flexDirection:'column', gap:10 }}>
+                    <div>
+                      <label style={{ fontSize:'.78rem', fontWeight:700, color:'var(--text)', display:'block', marginBottom:4 }}>Palavra secreta <span style={{ fontWeight:400, color:'var(--text-soft)' }}>(sem acento, só letras)</span></label>
+                      <input value={cfg.termo_palavra} onChange={e => set('termo_palavra', e.target.value.toUpperCase().replace(/[^A-ZÁÉÍÓÚÂÊÔÃÕÜÇÀÈÌ]/gi, ''))} placeholder="Ex: AMOR" maxLength={8}
+                        style={{ width:'100%', padding:'8px 12px', border:'2px solid var(--rose-mid)', borderRadius:8, fontSize:'.9rem', fontFamily:'Lato,sans-serif', outline:'none', background:'white', textTransform:'uppercase', letterSpacing:2 }} />
+                      {cfg.termo_palavra && <p style={{ fontSize:'.72rem', color:'var(--rose)', marginTop:4 }}>{cfg.termo_palavra.length} letra{cfg.termo_palavra.length !== 1 ? 's' : ''} — a pessoa terá que adivinhar esta palavra</p>}
+                    </div>
+                    <div>
+                      <label style={{ fontSize:'.78rem', fontWeight:700, color:'var(--text)', display:'block', marginBottom:4 }}>Dica <span style={{ fontWeight:400, color:'var(--text-soft)' }}>(aparece no jogo)</span></label>
+                      <input value={cfg.termo_dica} onChange={e => set('termo_dica', e.target.value)} placeholder="Ex: O que eu mais gosto em você" maxLength={80}
+                        style={{ width:'100%', padding:'8px 12px', border:'2px solid var(--rose-mid)', borderRadius:8, fontSize:'.85rem', fontFamily:'Lato,sans-serif', outline:'none', background:'white' }} />
+                    </div>
+                  </div>
                 )}
 
                 <p className="section-title" style={{ marginTop: 24 }}>Vincular Retrospectiva <span style={{ fontWeight:400, color:'var(--text-soft)', fontSize:'.8rem' }}>(opcional)</span></p>

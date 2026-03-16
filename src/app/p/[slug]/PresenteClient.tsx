@@ -737,7 +737,7 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
 
       {/* Seções extras — fora do scroll fixo, sempre interativas */}
       {aberto && (temTermo || temRoleta) && (
-        <div style={{ position:'relative', zIndex:10, background:fundo, paddingBottom:120 }}>
+        <div style={{ position:'relative', zIndex:10, background:fundo, paddingBottom:220 }}>
           {temTermo && (
             <div style={{ background:'white', borderRadius:24, margin:'40px auto 0', maxWidth:500, width:'calc(100% - 48px)', boxShadow:'0 8px 32px rgba(0,0,0,.08)' }}>
               <TermoSection
