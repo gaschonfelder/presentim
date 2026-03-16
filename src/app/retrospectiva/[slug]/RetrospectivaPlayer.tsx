@@ -992,7 +992,7 @@ export default function RetrospectivaPlayer({ dados }: { dados: Dados }) {
           <div className="au" style={{width:130,height:130,borderRadius:'50%',background:'linear-gradient(135deg,#f857a6,#ff5858 50%,#ffa726)',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:'2rem',animation:'endpulse 2.5s ease-in-out infinite'}}>
             <div style={{width:110,height:110,borderRadius:'50%',background:'#07071a',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'3.2rem'}}>❤️</div>
           </div>
-          <h2 className="au" style={{fontFamily:"'DM Serif Display',serif",fontSize:'2rem',textAlign:'center',marginBottom:'.5rem'}}>Para sempre,<br/>{nome1} & {nome2}</h2>
+          <h2 className="au" style={{fontFamily:"'DM Serif Display',serif",fontSize:'2rem',textAlign:'center',marginBottom:'.5rem',color: 'white'}}>Para sempre,<br/>{nome1} & {nome2}</h2>
           <p className="au" style={{fontSize:'.85rem',color:'rgba(255,255,255,.4)',textAlign:'center',fontWeight:300,maxWidth:260,lineHeight:1.65,marginBottom:'1.5rem'}}>Que essa história continue sendo escrita todos os dias.</p>
           <div className="au" style={{display:'flex',flexDirection:'column',gap:10,alignItems:'center',width:'100%',maxWidth:280}}>
             {/* Botão principal: compartilhar Stories */}
