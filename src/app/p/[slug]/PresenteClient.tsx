@@ -617,13 +617,13 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
         .textoFinal{
           position:fixed;top:50%;left:50%;width:100vw;height:100vh;
           transform:translate(-50%,-50%) scale(0.9);
-          opacity:0;transition:opacity .8s ease,transform .8s ease;
+          opacity:0;pointer-events:none;transition:opacity .8s ease,transform .8s ease;
           z-index:999;display:flex;flex-direction:column;
           align-items:center;justify-content:center;gap:28px;
           background:linear-gradient(135deg,${cor},${cor}bb);
           color:white;text-align:center;padding:20px;
         }
-        .textoFinal.visible{opacity:1;transform:translate(-50%,-50%) scale(1)}
+        .textoFinal.visible{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
         .textoFinal h1{font-family:'Dancing Script',cursive;font-size:clamp(2.5rem,6vw,5rem);line-height:1.3;color:white}
         .btn-share{background:white;color:${cor};border:none;border-radius:50px;padding:14px 32px;font-family:'Lato',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.15);transition:transform .2s}
         .btn-share:hover{transform:scale(1.05)}
@@ -740,7 +740,7 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
 
       {/* Seções extras — fora do scroll fixo, sempre interativas */}
       {aberto && (temTermo || temRoleta) && (
-        <div style={{ position:'relative', zIndex:10, background:fundo, paddingBottom:60 }}>
+        <div style={{ position:'relative', zIndex:10, background:fundo, paddingBottom:120 }}>
           {temTermo && (
             <div style={{ background:'white', borderRadius:24, margin:'40px auto 0', maxWidth:500, width:'calc(100% - 48px)', boxShadow:'0 8px 32px rgba(0,0,0,.08)' }}>
               <TermoSection
