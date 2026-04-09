@@ -597,6 +597,7 @@ export default function LandingPage() {
           <a href="#como-funciona">Como funciona</a>
           <a href="#precos">Preços</a>
           <a href="#faq">FAQ</a>
+          <Link href="/historia">História</Link>
           <Link href="/demo">Ver demo</Link>
           <Link href="/cadastro" className="btn-nav">Criar presente 🎁</Link>
         </div>
@@ -818,7 +819,7 @@ export default function LandingPage() {
         <span className="footer-logo">Presentim</span>
         <p>Feito com 💝 para eternizar momentos especiais</p>
         <p style={{ marginTop: 8 }}>
-          <Link href="/termos">Termos de uso</Link> · <Link href="/privacidade">Privacidade</Link> · <Link href="/contato">Contato</Link>
+          <Link href="/termos">Termos de uso</Link> · <Link href="/privacidade">Privacidade</Link> · <Link href="/contato">Contato</Link> · <Link href="/historia">História</Link>
         </p>
       </footer>
     </>

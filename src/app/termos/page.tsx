@@ -73,7 +73,7 @@ export default function TermosPage() {
       </div>
 
       <footer>
-        <Link href="/privacidade">Privacidade</Link> · <Link href="/termos">Termos</Link> · <Link href="/contato">Contato</Link>
+        <Link href="/privacidade">Privacidade</Link> · <Link href="/termos">Termos</Link> · <Link href="/contato">Contato</Link> · <Link href="/historia">História</Link>
       </footer>
     </>
   )
