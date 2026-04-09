@@ -584,9 +584,28 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
           box-shadow:0 8px 32px rgba(0,0,0,.18);
         }
         .polaroid.visible{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(var(--rotation))}
-        .polaroid img{width:100%;border:4px solid white;box-shadow:0 4px 12px rgba(0,0,0,.2);border-radius:4px;display:block}
+        .polaroid .frame{
+          width:100%;
+          aspect-ratio:4/3;
+          background:${cor}15;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          overflow:hidden;
+          border:4px solid white;
+          box-shadow:0 4px 12px rgba(0,0,0,.2);
+          border-radius:4px;
+        }
+        .polaroid .frame img{
+          max-width:100%;
+          max-height:100%;
+          width:auto;
+          height:auto;
+          object-fit:contain;
+          display:block;
+        }
 
-        .polaroidText{position:fixed;top:50%;left:48%;width:40%;transform:translateY(-50%);display:flex;flex-direction:column;justify-content:center;gap:.4rem;max-height:70vh;overflow:hidden;pointer-events:none}
+        .polaroidText{position:fixed;top:50%;left:48%;width:40%;transform:translateY(-50%);display:flex;flex-direction:column;justify-content:center;gap:.4rem;max-height:70vh;overflow:hidden;pointer-events:none;z-index:5}
         .text{
           font-family:'Dancing Script',cursive;
           font-size:clamp(1.4rem,2.5vw,2.5rem);
@@ -612,8 +631,13 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
 
         #mainContent h2{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,4rem);text-align:center;color:#3d1f28;opacity:0;animation:fadeUp .8s .1s ease forwards}
 
-        @media(max-width:700px){.polaroid{top:28%;left:50%;width:clamp(160px,72vw,300px)}.polaroidText{width:88%;top:auto;bottom:6%;left:6%;transform:none;max-height:28vh;justify-content:flex-end}.text{font-size:1.2rem}}
-        @media(max-width:500px){.polaroid{top:22%;left:50%}.btnInicial{font-size:2.5rem;padding:18px 36px}}
+        @media(max-width:700px){
+          .polaroid{top:22%;left:50%;width:clamp(160px,72vw,300px)}
+          .polaroidText{width:88%;top:50%;bottom:13%;left:6%;transform:none;max-height:42vh;justify-content:flex-start}
+          .text{font-size:1.2rem;margin:.3rem 0;line-height:1.4}
+          .music-badge{left:50% !important;right:auto !important;bottom:20px !important;transform:translateX(-50%);max-width:calc(100vw - 32px) !important}
+        }
+        @media(max-width:500px){.polaroid{top:23%;left:50%}.btnInicial{font-size:2.5rem;padding:18px 36px}}
       `}</style>
 
       {/* div do YouTube — SEMPRE no DOM, fora de qualquer condicional */}
@@ -625,6 +649,7 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
       {/* Chip flutuante de música */}
       {aberto && (presente.musica_info || presente.musica_url) && (
         <div
+          className="music-badge"
           onClick={presente.musica_info ? toggleMusica : undefined}
           style={{
             position:'fixed', bottom:24, left:24, zIndex:1000,
@@ -674,7 +699,9 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
                 className={`polaroid ${visibleSections[i] ? 'visible' : ''}`}
                 style={{ '--rotation': rotations[i % rotations.length] } as React.CSSProperties}
               >
-                <img src={fotoUrl} alt={`Foto ${i+1}`} />
+                <div className="frame">
+                  <img src={fotoUrl} alt={`Foto ${i+1}`} />
+                </div>
               </div>
             </div>
           ))}
