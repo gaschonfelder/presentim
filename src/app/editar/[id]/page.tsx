@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, use } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import ImageCropper from '@/components/ImageCropper'
 
 type MusicaInfo = { videoId: string; title: string }
 
@@ -77,6 +78,10 @@ export default function EditarPage({ params }: { params: Promise<{ id: string }>
   const fileInputRef = useRef<HTMLInputElement>(null)
   const musicInputRef = useRef<HTMLInputElement>(null)
 
+  // Fila de crop — quando há arquivos aqui, o modal ImageCropper é mostrado
+  const [cropQueue, setCropQueue] = useState<File[]>([])
+  const [cropIndex, setCropIndex] = useState(0)
+
   function extrairVideoId(url: string): string | null {
     const m = url.match(/(?:v=|youtu\.be\/|shorts\/)([\w-]{11})/)
     return m ? m[1] : null
@@ -136,19 +141,68 @@ export default function EditarPage({ params }: { params: Promise<{ id: string }>
     let files = Array.from(e.target.files ?? [])
     if (!files.length) return
     const restante = 5 - cfg.fotos.length
-    if (files.length > restante) { files = files.slice(0, restante); setErro(`Máximo de 5 fotos. Apenas ${restante} adicionada${restante !== 1 ? 's' : ''}.`) }
-    setUploadingFoto(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    const novas: string[] = []
-    for (const file of files) {
-      const ext = file.name.split('.').pop()
-      const path = `${user!.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-      const { error } = await supabase.storage.from('fotos').upload(path, file)
-      if (!error) { const { data: { publicUrl } } = supabase.storage.from('fotos').getPublicUrl(path); novas.push(publicUrl) }
-    }
-    set('fotos', [...cfg.fotos, ...novas])
-    setUploadingFoto(false)
+    if (files.length > restante) { files = files.slice(0, restante); setErro(`Máximo de 5 fotos. Apenas ${restante} será${restante !== 1 ? 'ão' : ''} adicionada${restante !== 1 ? 's' : ''}.`) }
+    // Abre a fila de crop — cada arquivo passa pelo ImageCropper em sequência
+    setCropQueue(files)
+    setCropIndex(0)
+    // Limpa o input pra permitir re-selecionar os mesmos arquivos depois
     if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  // Sobe um Blob/File pro Supabase Storage e retorna a URL pública
+  async function uploadFotoBlob(blob: Blob, originalName: string): Promise<string | null> {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+    const ext = blob.type === 'image/jpeg' ? 'jpg' : (originalName.split('.').pop() || 'jpg')
+    const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    const { error } = await supabase.storage.from('fotos').upload(path, blob, {
+      contentType: blob.type || 'image/jpeg',
+    })
+    if (error) return null
+    const { data: { publicUrl } } = supabase.storage.from('fotos').getPublicUrl(path)
+    return publicUrl
+  }
+
+  async function handleCropConfirm(croppedBlob: Blob) {
+    if (!cfg) return
+    setUploadingFoto(true)
+    const currentFile = cropQueue[cropIndex]
+    const url = await uploadFotoBlob(croppedBlob, currentFile?.name ?? 'foto.jpg')
+    if (url) {
+      set('fotos', [...cfg.fotos, url])
+    } else {
+      setErro('Erro ao enviar a foto. Tente novamente.')
+    }
+    setUploadingFoto(false)
+    if (cropIndex + 1 < cropQueue.length) {
+      setCropIndex(cropIndex + 1)
+    } else {
+      setCropQueue([])
+      setCropIndex(0)
+    }
+  }
+
+  async function handleCropSkip(originalFile: File) {
+    if (!cfg) return
+    setUploadingFoto(true)
+    const url = await uploadFotoBlob(originalFile, originalFile.name)
+    if (url) {
+      set('fotos', [...cfg.fotos, url])
+    } else {
+      setErro('Erro ao enviar a foto. Tente novamente.')
+    }
+    setUploadingFoto(false)
+    if (cropIndex + 1 < cropQueue.length) {
+      setCropIndex(cropIndex + 1)
+    } else {
+      setCropQueue([])
+      setCropIndex(0)
+    }
+  }
+
+  function handleCropCancel() {
+    setCropQueue([])
+    setCropIndex(0)
   }
 
   async function handleMusicaUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -211,6 +265,20 @@ export default function EditarPage({ params }: { params: Promise<{ id: string }>
 
   return (
     <>
+      {/* Cropper modal — ativo quando há fila de crop */}
+      {cropQueue.length > 0 && cropQueue[cropIndex] && (
+        <ImageCropper
+          file={cropQueue[cropIndex]}
+          aspect={4 / 3}
+          currentIndex={cropIndex}
+          totalCount={cropQueue.length}
+          allowSkip
+          onConfirm={handleCropConfirm}
+          onSkip={handleCropSkip}
+          onCancel={handleCropCancel}
+        />
+      )}
+
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Lato:wght@300;400;700&family=Dancing+Script:wght@700&display=swap');
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
