@@ -1,0 +1,83 @@
+.creditsRow {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.creditCard {
+  background: white;
+  border-radius: 20px;
+  border: 1px solid var(--rose-mid);
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 220px;
+  box-shadow: 0 2px 12px rgba(232, 98, 122, 0.06);
+}
+
+.creditCardHighlight {
+  background: linear-gradient(135deg, var(--rose), var(--rose-dark));
+  border-color: transparent;
+  color: white;
+}
+
+.creditIcon {
+  font-size: 2rem;
+}
+
+.num {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--rose);
+}
+
+.creditCardHighlight .num {
+  color: white;
+}
+
+.label {
+  font-size: 0.82rem;
+  color: var(--text-soft);
+  margin-top: 2px;
+}
+
+.creditCardHighlight .label {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.highlightLabel {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.btnComprar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.btnComprar:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 640px) {
+  .creditsRow {
+    flex-direction: column;
+  }
+}

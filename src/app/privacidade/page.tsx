@@ -37,7 +37,7 @@ export default function PrivacidadePage() {
         <ul>
           <li><strong>Cadastro:</strong> nome e endereço de email</li>
           <li><strong>Presentes:</strong> fotos, textos e músicas que você adiciona voluntariamente</li>
-          <li><strong>Pagamentos:</strong> histórico de compras (sem armazenar dados de cartão — processados pelo AbacatePay)</li>
+          <li><strong>Pagamentos:</strong> histórico de compras (sem armazenar dados de cartão — processados pelo Mercado Pago)</li>
           <li><strong>Uso:</strong> número de visualizações dos presentes</li>
         </ul>
 
@@ -52,7 +52,7 @@ export default function PrivacidadePage() {
         <h2>3. Compartilhamento de dados</h2>
         <p>Não vendemos nem compartilhamos seus dados pessoais com terceiros, exceto:</p>
         <ul>
-          <li><strong>AbacatePay:</strong> para processamento de pagamentos via Pix</li>
+          <li><strong>Mercado Pago:</strong> para processamento de pagamentos via Pix</li>
           <li><strong>Supabase:</strong> infraestrutura de banco de dados e armazenamento de arquivos</li>
           <li><strong>Resend:</strong> serviço de envio de emails transacionais</li>
         </ul>
@@ -85,7 +85,7 @@ export default function PrivacidadePage() {
       </div>
 
       <footer>
-        <Link href="/privacidade">Privacidade</Link> · <Link href="/termos">Termos</Link> · <Link href="/contato">Contato</Link>
+        <Link href="/privacidade">Privacidade</Link> · <Link href="/termos">Termos</Link> · <Link href="/contato">Contato</Link> · <Link href="/historia">História</Link>
       </footer>
     </>
   )

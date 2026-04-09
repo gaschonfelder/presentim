@@ -374,7 +374,7 @@ export default function RetrospectivaNovoPage() {
 
         <div className="creditos-aviso">
           <span style={{ fontSize:'1.2rem' }}>💳</span>
-          <span>Esta retrospectiva usa <strong>3 créditos</strong>. Você tem <strong>{creditos}</strong>.</span>
+          <span>Esta retrospectiva usa <strong>2 créditos</strong>. Você tem <strong>{creditos}</strong>.</span>
         </div>
 
         {/* Nomes e data */}
