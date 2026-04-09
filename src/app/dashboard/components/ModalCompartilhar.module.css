@@ -1,0 +1,90 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.modal {
+  background: white;
+  border-radius: 24px;
+  padding: 40px 32px;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.15);
+}
+
+.icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.qrWrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  padding: 12px;
+  background: var(--cream);
+  border-radius: 16px;
+}
+
+.urlBox {
+  background: #f5f0f2;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.78rem;
+  color: var(--text-soft);
+  word-break: break-all;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.btnCopiar {
+  width: 100%;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 13px;
+  font-family: 'Lato', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: background 0.3s;
+}
+
+.btnCopiarSuccess {
+  background: #4caf50;
+}
+
+.btnFechar {
+  width: 100%;
+  background: none;
+  border: 2px solid #e0d0d4;
+  border-radius: 12px;
+  padding: 11px;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.9rem;
+  color: var(--text-soft);
+  cursor: pointer;
+}

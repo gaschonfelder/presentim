@@ -1,6 +1,26 @@
 import type { Metadata } from 'next'
+import { Playfair_Display, Lato } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://presentim.app'
+import './globals.css'
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://presentim.com.br'
+
+// Playfair Display — títulos (serif italic)
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-playfair',
+  display: 'swap',
+})
+
+// Lato — corpo de texto
+const lato = Lato({
+  subsets: ['latin'],
+  weight: ['300', '400', '700'],
+  variable: '--font-lato',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -8,8 +28,16 @@ export const metadata: Metadata = {
     default: 'Presentim — Presentes virtuais que emocionam de verdade',
     template: '%s | Presentim',
   },
-  description: 'Crie um presente virtual personalizado com fotos, músicas e mensagens. Compartilhe um link único e surpreenda quem você ama.',
-  keywords: ['presente virtual', 'presente online', 'aniversário', 'dia dos namorados', 'retrospectiva casal', 'presente personalizado'],
+  description:
+    'Crie um presente virtual personalizado com fotos, músicas e mensagens. Compartilhe um link único e surpreenda quem você ama.',
+  keywords: [
+    'presente virtual',
+    'presente online',
+    'aniversário',
+    'dia dos namorados',
+    'retrospectiva casal',
+    'presente personalizado',
+  ],
   authors: [{ name: 'Presentim' }],
   creator: 'Presentim',
   openGraph: {
@@ -18,7 +46,8 @@ export const metadata: Metadata = {
     url: BASE_URL,
     siteName: 'Presentim',
     title: 'Presentim — Presentes virtuais que emocionam de verdade',
-    description: 'Crie um presente virtual personalizado com fotos, músicas e mensagens. Compartilhe um link único e surpreenda quem você ama.',
+    description:
+      'Crie um presente virtual personalizado com fotos, músicas e mensagens. Compartilhe um link único e surpreenda quem você ama.',
     images: [
       {
         url: '/og-default.png',
@@ -47,10 +76,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className={`${playfair.variable} ${lato.variable}`}>
       <body>
         {children}
-<Analytics />
+        <Analytics />
       </body>
     </html>
   )
