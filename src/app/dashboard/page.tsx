@@ -54,14 +54,14 @@ function ModalEscolherTipo({ creditos, onClose }: { creditos: number; onClose: (
           {/* Opção 2: Retrospectiva */}
           <button
             onClick={() => { onClose(); router.push('/retrospectiva/novo') }}
-            disabled={creditos < 3}
+            disabled={creditos < 2}
             style={{
-              background: creditos >= 3 ? 'linear-gradient(135deg,#0e0b1f,#1a1035)' : '#f5f5f5',
-              border: creditos >= 3 ? '2px solid #7b5ea7' : '2px solid #e0e0e0',
+              background: creditos >= 2 ? 'linear-gradient(135deg,#0e0b1f,#1a1035)' : '#f5f5f5',
+              border: creditos >= 2 ? '2px solid #7b5ea7' : '2px solid #e0e0e0',
               borderRadius: 20, padding: '22px 24px',
-              cursor: creditos >= 3 ? 'pointer' : 'not-allowed',
+              cursor: creditos >= 2 ? 'pointer' : 'not-allowed',
               textAlign: 'left', transition: 'all .2s', width: '100%',
-              opacity: creditos >= 3 ? 1 : 0.6,
+              opacity: creditos >= 2 ? 1 : 0.6,
               position: 'relative', overflow: 'hidden',
             }}
           >
@@ -70,19 +70,19 @@ function ModalEscolherTipo({ creditos, onClose }: { creditos: number; onClose: (
               <div style={{ fontSize: '2.4rem', flexShrink: 0 }}>💫</div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.1rem', color: creditos >= 3 ? 'white' : '#3d1f28', fontWeight: 700 }}>Retrospectiva</span>
-                  <span style={{ background: 'rgba(248,87,166,.25)', color: '#f857a6', fontSize: '.75rem', fontWeight: 700, padding: '3px 10px', borderRadius: 50, marginLeft: 40 }}>3 créditos</span>
+                  <span style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.1rem', color: creditos >= 2 ? 'white' : '#3d1f28', fontWeight: 700 }}>Retrospectiva</span>
+                  <span style={{ background: 'rgba(248,87,166,.25)', color: '#f857a6', fontSize: '.75rem', fontWeight: 700, padding: '3px 10px', borderRadius: 50, marginLeft: 40 }}>2 créditos</span>
                 </div>
-                <p style={{ fontSize: '.82rem', color: creditos >= 3 ? 'rgba(255,255,255,.65)' : '#7a4f5a', lineHeight: 1.5, margin: 0 }}>
+                <p style={{ fontSize: '.82rem', color: creditos >= 2 ? 'rgba(255,255,255,.65)' : '#7a4f5a', lineHeight: 1.5, margin: 0 }}>
                   Stories imersivos estilo Spotify Wrapped com céu estrelado, contador ao vivo, fotos e conquistas do casal.
                 </p>
               </div>
             </div>
           </button>
 
-          {creditos < 3 && (
+          {creditos < 2 && (
             <p style={{ textAlign: 'center', fontSize: '.8rem', color: '#7a4f5a', marginTop: 4 }}>
-              Você tem <strong>{creditos}</strong> crédito{creditos !== 1 ? 's' : ''}. A Retrospectiva exige 3.{' '}
+              Você tem <strong>{creditos}</strong> crédito{creditos !== 1 ? 's' : ''}. A Retrospectiva exige 2.{' '}
               <Link href="/comprar" style={{ color: '#e8627a', fontWeight: 700 }} onClick={onClose}>Comprar mais</Link>
             </p>
           )}
