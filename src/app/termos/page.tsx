@@ -48,7 +48,7 @@ export default function TermosPage() {
         </ul>
 
         <h2>4. Créditos e Pagamentos</h2>
-        <p>Os créditos adquiridos não possuem prazo de validade. Pagamentos são processados via Pix através da plataforma AbacatePay. Após a confirmação do pagamento, os créditos são adicionados automaticamente à sua conta.</p>
+        <p>Os créditos adquiridos não possuem prazo de validade. Pagamentos são processados via Pix através da plataforma Mercado Pago. Após a confirmação do pagamento, os créditos são adicionados automaticamente à sua conta.</p>
         <p>Não realizamos reembolsos de créditos já utilizados para criação de presentes.</p>
 
         <h2>5. Validade dos Links</h2>
