@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { gerarSlug } from '@/lib/utils'
+import ImageCropper from '@/components/ImageCropper'
 
 // ─── Raridades ────────────────────────────────────────────────────────────────
 export type Rarity = 'comum' | 'incomum' | 'raro' | 'epico' | 'lendario'
@@ -127,6 +128,8 @@ const CUSTO_CREDITOS = 2
 
 export type ConquistaItem = { key: string; fotoIdx?: number }  // fotoIdx = índice em fotos[]
 
+type CropItem = { file: File; targetSlot: number }
+
 export default function RetrospectivaNovoPage() {
   const router = useRouter()
   const supabase = createClient()
@@ -149,6 +152,10 @@ export default function RetrospectivaNovoPage() {
 
   const [fotos, setFotos] = useState<(string | null)[]>(Array(6).fill(null))
   const fotosPreenchidas = fotos.filter(Boolean) as string[]
+
+  // Fila de crop — cada item sabe em qual slot vai cair
+  const [cropQueue, setCropQueue] = useState<CropItem[]>([])
+  const [cropIndex, setCropIndex] = useState(0)
 
   // Música
   const [musicaLink, setMusicaLink] = useState('')
@@ -218,20 +225,85 @@ export default function RetrospectivaNovoPage() {
     }
   }
 
-  async function handleFotoGeral(e: React.ChangeEvent<HTMLInputElement>, idx: number) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setUploadando(idx)
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      const ext = file.name.split('.').pop()
-      const path = `${user!.id}/retro-${Date.now()}-${idx}.${ext}`
-      const { error } = await supabase.storage.from('fotos').upload(path, file, { upsert: true })
-      if (error) throw error
-      const { data: { publicUrl } } = supabase.storage.from('fotos').getPublicUrl(path)
-      setFotos(prev => { const n = [...prev]; n[idx] = publicUrl; return n })
-    } catch (err) { console.error(err) }
-    finally { setUploadando(null) }
+  async function handleFotoGeral(e: React.ChangeEvent<HTMLInputElement>, clickedIdx: number) {
+    const files: File[] = Array.from(e.target.files ?? [])
+    if (!files.length) return
+
+    // Calcula slots destino: começa do slot clicado, pula ocupados, para no 6
+    // Ex: clickedIdx=1, fotos=[X, null, X, null, null, null] → targets=[1, 3, 4, 5]
+    const targets: number[] = []
+    for (let i = clickedIdx; i < 6 && targets.length < files.length; i++) {
+      if (!fotos[i]) targets.push(i)
+    }
+
+    // Pareia arquivo ↔ slot destino
+    const queue: CropItem[] = files.slice(0, targets.length).map((file: File, i: number) => ({
+      file,
+      targetSlot: targets[i],
+    }))
+
+    if (queue.length === 0) return
+
+    setCropQueue(queue)
+    setCropIndex(0)
+    // Limpa o input pra permitir re-selecionar os mesmos arquivos
+    ;(e.target as HTMLInputElement).value = ''
+  }
+
+  // Sobe um Blob/File pro Supabase Storage e retorna a URL pública
+  async function uploadFotoBlob(blob: Blob, originalName: string, slotIdx: number): Promise<string | null> {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+    const ext = blob.type === 'image/jpeg' ? 'jpg' : (originalName.split('.').pop() || 'jpg')
+    const path = `${user.id}/retro-${Date.now()}-${slotIdx}.${ext}`
+    const { error } = await supabase.storage.from('fotos').upload(path, blob, {
+      contentType: blob.type || 'image/jpeg',
+      upsert: true,
+    })
+    if (error) return null
+    const { data: { publicUrl } } = supabase.storage.from('fotos').getPublicUrl(path)
+    return publicUrl
+  }
+
+  async function handleCropConfirm(croppedBlob: Blob) {
+    const current = cropQueue[cropIndex]
+    if (!current) return
+    setUploadando(current.targetSlot)
+    const url = await uploadFotoBlob(croppedBlob, current.file.name, current.targetSlot)
+    if (url) {
+      setFotos(prev => { const n = [...prev]; n[current.targetSlot] = url; return n })
+    }
+    setUploadando(null)
+    // Próxima da fila, ou encerra
+    if (cropIndex + 1 < cropQueue.length) {
+      setCropIndex(cropIndex + 1)
+    } else {
+      setCropQueue([])
+      setCropIndex(0)
+    }
+  }
+
+  async function handleCropSkip(originalFile: File) {
+    const current = cropQueue[cropIndex]
+    if (!current) return
+    setUploadando(current.targetSlot)
+    const url = await uploadFotoBlob(originalFile, originalFile.name, current.targetSlot)
+    if (url) {
+      setFotos(prev => { const n = [...prev]; n[current.targetSlot] = url; return n })
+    }
+    setUploadando(null)
+    if (cropIndex + 1 < cropQueue.length) {
+      setCropIndex(cropIndex + 1)
+    } else {
+      setCropQueue([])
+      setCropIndex(0)
+    }
+  }
+
+  function handleCropCancel() {
+    setCropQueue([])
+    setCropIndex(0)
+    setUploadando(null)
   }
 
   async function handleSalvar() {
@@ -284,6 +356,20 @@ export default function RetrospectivaNovoPage() {
 
   return (
     <>
+      {/* Cropper modal — ativo quando há fila de crop */}
+      {cropQueue.length > 0 && cropQueue[cropIndex] && (
+        <ImageCropper
+          file={cropQueue[cropIndex].file}
+          aspect={9 / 16}
+          currentIndex={cropIndex}
+          totalCount={cropQueue.length}
+          allowSkip
+          onConfirm={handleCropConfirm}
+          onSkip={handleCropSkip}
+          onCancel={handleCropCancel}
+        />
+      )}
+
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -411,7 +497,7 @@ export default function RetrospectivaNovoPage() {
           </p>
           <div className="photo-grid">
             {fotos.map((foto, idx) => (
-              <div key={idx} className="photo-slot" onClick={() => { if (!foto && uploadando === null) document.getElementById(`foto-g-${idx}`)?.click() }}>
+              <div key={idx} className="photo-slot" onClick={() => { if (!foto && uploadando === null && cropQueue.length === 0) document.getElementById(`foto-g-${idx}`)?.click() }}>
                 {foto ? (
                   <>
                     <img src={foto} alt="" />
@@ -431,7 +517,7 @@ export default function RetrospectivaNovoPage() {
                     <div className="slot-text">{idx===0 ? 'Adicionar foto' : `Foto ${idx+1}`}</div>
                   </>
                 )}
-                <input id={`foto-g-${idx}`} type="file" accept="image/*" style={{ display:'none' }} onChange={e => handleFotoGeral(e, idx)} />
+                <input id={`foto-g-${idx}`} type="file" accept="image/*" multiple style={{ display:'none' }} onChange={e => handleFotoGeral(e, idx)} />
               </div>
             ))}
           </div>
