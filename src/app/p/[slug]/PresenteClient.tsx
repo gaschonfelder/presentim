@@ -635,11 +635,11 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
 
         @media(max-width:700px){
           .polaroid{top:22%;left:50%;width:clamp(160px,72vw,300px)}
-          .polaroidText{width:88%;top:auto;bottom:13%;left:6%;transform:none;max-height:42vh;justify-content:flex-start}
+          .polaroidText{width:88%;top:auto;bottom:20%;left:6%;transform:none;max-height:42vh;justify-content:flex-start}
           .text{font-size:1.2rem;margin:.3rem 0;line-height:1.4}
           .music-badge{left:50% !important;right:auto !important;bottom:20px !important;transform:translateX(-50%);max-width:calc(100vw - 32px) !important}
         }
-        @media(max-width:500px){.polaroid{top:18%;left:50%}.btnInicial{font-size:2.5rem;padding:18px 36px}}
+        @media(max-width:500px){.polaroid{top:25%;left:50%}.btnInicial{font-size:2.5rem;padding:18px 36px}}
       `}</style>
 
       {/* Falling particles — sempre que estiver habilitado (inclui countdown e tela inicial) */}
