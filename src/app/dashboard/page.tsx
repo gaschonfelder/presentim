@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { Presente, Profile } from '@/types'
@@ -115,8 +116,8 @@ function DashboardContent() {
       {toast && <Toast mensagem={toast} />}
 
       <nav className={styles.navbar}>
-        <Link href="/" className={styles.navbarLogo}>
-          Presentim
+        <Link href="/" className="nav-logo">
+          <Image src="/logo.png" alt="Presentim" width={1024} height={272} priority style={{ height: 44, width: 'auto' }} />
         </Link>
         <div className={styles.navbarRight}>
           <span className={styles.navbarUser}>Olá, {nomeExibido} 👋</span>

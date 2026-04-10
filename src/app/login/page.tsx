@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
@@ -248,7 +249,9 @@ function LoginContent() {
       <div className="auth-layout">
         {/* Lado esquerdo */}
         <div className="auth-left">
-          <Link href="/" className="auth-left-logo">Presentim</Link>
+                  <Link href="/" className="nav-logo">
+          <Image src="/logo.png" alt="Presentim" width={1024} height={272} priority style={{ height: 44, width: 'auto' }} />
+        </Link>
           <h2>Crie presentes que<br /><em>emocionam de verdade</em></h2>
           <p>Fotos, músicas e mensagens num link único. A experiência mais carinhosa para quem você ama.</p>
           <div className="auth-testimonial">

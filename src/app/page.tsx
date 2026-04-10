@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 // ─── Floating petals background ───────────────────────────────────────────────
 function Petals() {
@@ -10,7 +11,7 @@ function Petals() {
   }>>([])
 
   useEffect(() => {
-    setPetals(Array.from({ length: 18 }, (_, i) => ({
+    setPetals(Array.from({ length: 25 }, (_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
       delay: `${Math.random() * 8}s`,
@@ -118,6 +119,36 @@ export default function LandingPage() {
     window.addEventListener('scroll', onScroll)
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+const words = [  'ama!', 'cuida!', 'adora!', 'quer!', 'valoriza!', 'respeita!', 'admira!', 'protege!']
+
+const [currentWordIndex, setCurrentWordIndex] = useState(0)
+const [displayText, setDisplayText] = useState('')
+const [isDeleting, setIsDeleting] = useState(false)
+
+useEffect(() => {
+  const currentWord = words[currentWordIndex]
+  
+  const timeout = setTimeout(() => {
+    if (!isDeleting) {
+      setDisplayText(currentWord.substring(0, displayText.length + 1))
+
+      if (displayText === currentWord) {
+        setTimeout(() => setIsDeleting(true), 3000) // pausa antes de apagar
+      }
+    } else {
+      setDisplayText(currentWord.substring(0, displayText.length - 1))
+
+      if (displayText === '') {
+        setIsDeleting(false)
+        setCurrentWordIndex((prev) => (prev + 1) % words.length)
+      }
+    }
+  }, isDeleting ? 100 : 150)
+
+  return () => clearTimeout(timeout)
+}, [displayText, isDeleting, currentWordIndex])
+
 
   return (
     <>
@@ -241,13 +272,7 @@ export default function LandingPage() {
           font-style: italic; color: var(--rose);
           position: relative;
         }
-        .hero h1 em::after {
-          content: '';
-          position: absolute; bottom: 2px; left: 0; right: 0;
-          height: 3px;
-          background: linear-gradient(90deg, var(--rose-light), var(--rose));
-          border-radius: 2px;
-        }
+
         .hero-sub {
           margin-top: 24px;
           font-size: 1.15rem; color: var(--text-soft);
@@ -493,6 +518,17 @@ export default function LandingPage() {
           border: 1px solid var(--rose-mid);
           transition: transform .2s;
         }
+
+@keyframes blink {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0; }
+}
+.word-animated {
+  display: inline-block;
+  min-width: 90px; /* ajuste aqui */
+  text-align: left;
+}
+
         .tcard:hover { transform: translateY(-4px); }
         .tcard-top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
         .tcard-avatar {
@@ -586,13 +622,16 @@ export default function LandingPage() {
           .nav-links { gap: 16px; }
           .nav-links a:not(.btn-nav) { display: none; }
         }
+
       `}</style>
 
       <Petals />
 
       {/* NAVBAR */}
       <nav className={scrolled ? 'scrolled' : ''}>
-        <Link href="/" className="nav-logo">Presenti<span>m</span></Link>
+        <Link href="/" className="nav-logo">
+          <Image src="/logo.png" alt="Presentim" width={1024} height={272} priority style={{ height: 44, width: 'auto' }} />
+        </Link>
         <div className="nav-links">
           <a href="#como-funciona">Como funciona</a>
           <a href="#precos">Preços</a>
@@ -606,9 +645,13 @@ export default function LandingPage() {
       {/* HERO */}
       <section className="hero">
         <div className="hero-badge">✨ Presente virtual que emociona de verdade</div>
-        <h1>
+        <h1 className="hero-title">
           Surpreenda quem você<br />
-          <em>ama de verdade</em>
+          <em>
+            <span className="word-animated">
+            {displayText}
+            </span>
+          </em>
         </h1>
         <p className="hero-sub">
           Crie uma <strong>Página Virtual</strong> ou uma <strong>Retrospectiva animada</strong> com fotos, músicas e mensagens. Compartilhe um link único — e veja a emoção no rosto de quem você ama.

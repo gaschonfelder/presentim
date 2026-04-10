@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
@@ -247,7 +248,9 @@ export default function CadastroPage() {
       <div className="auth-layout">
         {/* Lado esquerdo */}
         <div className="auth-left">
-          <Link href="/" className="auth-left-logo">Presentim</Link>
+        <Link href="/" className="nav-logo">
+          <Image src="/logo.png" alt="Presentim" width={1024} height={272} priority style={{ height: 44, width: 'auto' }} />
+        </Link>
           <h2>Seu presente em<br /><em>menos de 5 minutos</em></h2>
           <p>Crie, personalize e compartilhe. É simples assim.</p>
           <ul className="steps-list">

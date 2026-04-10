@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-
+import Image from 'next/image'
 const DEMO_RETRO = 'https://www.presentim.com.br/retrospectiva/ai4469tu'
 const DEMO_PAGINA = 'https://www.presentim.com.br/p/pcr3h7hp'
 
@@ -113,7 +113,9 @@ export default function DemoPage() {
 
       {/* HEADER */}
       <header className="demo-header">
-        <Link href="/" className="logo">Presenti<span>m</span></Link>
+                <Link href="/" className="nav-logo">
+          <Image src="/logo.png" alt="Presentim" width={1024} height={272} priority style={{ height: 44, width: 'auto' }} />
+        </Link>
         <Link href="/cadastro" className="btn-criar">Criar o meu 💝</Link>
       </header>
 

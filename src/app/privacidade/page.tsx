@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function PrivacidadePage() {
   return (
@@ -24,7 +25,9 @@ export default function PrivacidadePage() {
       `}</style>
 
       <nav className="navbar">
-        <Link href="/" className="nav-logo">Presentim</Link>
+                <Link href="/" className="nav-logo">
+          <Image src="/logo.png" alt="Presentim" width={1024} height={272} priority style={{ height: 44, width: 'auto' }} />
+        </Link>
         <Link href="/" className="nav-back">← Voltar</Link>
       </nav>
 

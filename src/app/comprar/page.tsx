@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 
 type Plano = 'starter' | 'popular' | 'max'
@@ -268,7 +269,9 @@ function ComprarContent() {
       `}</style>
 
       <nav className="navbar">
-        <Link href="/" className="nav-logo">Presentim</Link>
+                <Link href="/" className="nav-logo">
+          <Image src="/logo.png" alt="Presentim" width={1024} height={272} priority style={{ height: 44, width: 'auto' }} />
+        </Link>
         <Link href="/dashboard" className="nav-back">← Voltar ao dashboard</Link>
       </nav>
 
