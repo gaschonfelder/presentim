@@ -95,6 +95,7 @@ function NovoWizardContent() {
           cfg.termo_ativo && cfg.termo_palavra.trim()
             ? { palavra: cfg.termo_palavra.trim(), dica: cfg.termo_dica.trim() }
             : null,
+            falling_animation: cfg.falling_animation?.enabled ? cfg.falling_animation : null,
       })
 
       if (error) {
