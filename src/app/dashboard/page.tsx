@@ -13,6 +13,7 @@ import ModalEscolherTipo from './components/ModalEscolherTipo'
 import ModalCompartilhar from './components/ModalCompartilhar'
 import Toast from './components/Toast'
 
+
 import styles from './dashboard.module.css'
 
 function DashboardContent() {

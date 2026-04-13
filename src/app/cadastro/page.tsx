@@ -6,6 +6,14 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
+import {
+  Gift, Heart, Music, Link2,
+  PenLine, Calendar, Share, HeartHandshake,
+  Stars, Trophy, Images, Smartphone,
+  Star, Flame,
+  ChevronDown,
+} from 'lucide-react'
+
 export default function CadastroPage() {
   const router = useRouter()
   const supabase = createClient()
@@ -127,18 +135,7 @@ export default function CadastroPage() {
           padding: 48px;
           position: relative; overflow: hidden;
         }
-        .auth-left::before {
-          content: '🎁';
-          position: absolute; font-size: 22rem;
-          opacity: .07; bottom: -60px; left: -60px;
-          pointer-events: none;
-        }
-        .auth-left-logo {
-          font-family: 'Playfair Display', serif;
-          font-size: 2.2rem; font-weight: 700;
-          color: var(--rose); margin-bottom: 32px;
-          text-decoration: none;
-        }
+
         .auth-left h2 {
           font-family: 'Playfair Display', serif;
           font-size: 2.2rem; color: var(--text);
@@ -254,17 +251,17 @@ export default function CadastroPage() {
           <h2>Seu presente em<br /><em>menos de 5 minutos</em></h2>
           <p>Crie, personalize e compartilhe. É simples assim.</p>
           <ul className="steps-list">
-            <li><span>✍️</span><span>Escreva textos e adicione fotos</span></li>
-            <li><span>🎵</span><span>Escolha uma música especial</span></li>
-            <li><span>🔗</span><span>Receba um link único + QR Code</span></li>
-            <li><span>💝</span><span>Compartilhe e emocione!</span></li>
+            <li><span><Gift size={25} strokeWidth={2} color="#ff4d6d" /></span><span>Escreva textos e adicione fotos</span></li>
+            <li><span><Music size={25} strokeWidth={2} color="#ff4d6d" /></span><span>Escolha uma música especial</span></li>
+            <li><span><Link2 size={25} strokeWidth={2} color="#ff4d6d" /></span><span>Receba um link único + QR Code</span></li>
+            <li><span><Heart size={25} strokeWidth={2} color="#ff4d6d" /></span><span>Compartilhe e emocione!</span></li>
           </ul>
         </div>
 
         {/* Lado direito */}
         <div className="auth-right">
           <div className="auth-form-wrap">
-            <h1>Criar conta grátis 🎁</h1>
+            <h1>Criar conta</h1>
             <p className="subtitle">Comece agora — criar a conta é gratuito.</p>
 
             <button className="btn-google" onClick={handleGoogleLogin} disabled={loading}>

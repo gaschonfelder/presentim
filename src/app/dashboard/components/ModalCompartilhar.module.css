@@ -23,6 +23,9 @@
 .icon {
   font-size: 2.5rem;
   margin-bottom: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .title {
@@ -58,7 +61,12 @@
   margin-bottom: 20px;
   text-align: left;
 }
-
+.btnContent {
+  display: flex;
+  align-items: center;   /* ALINHA verticalmente */
+  justify-content: center;
+  gap: 8px;              /* espaço entre ícone e texto */
+}
 .btnCopiar {
   width: 100%;
   color: white;

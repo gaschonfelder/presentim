@@ -4,6 +4,10 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import styles from './ModalEscolherTipo.module.css'
 
+import {
+  Gift,Sparkles,
+} from 'lucide-react'
+
 type ModalEscolherTipoProps = {
   creditos: number
   onClose: () => void
@@ -18,7 +22,7 @@ export default function ModalEscolherTipo({ creditos, onClose }: ModalEscolherTi
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <div className={styles.headerIcon}>✨</div>
+          <div className={styles.headerIcon}><Sparkles size={30} strokeWidth={2} /></div>
           <h2>Que tipo de presente?</h2>
           <p>Escolha o formato ideal para surpreender quem você ama.</p>
         </div>
@@ -34,7 +38,7 @@ export default function ModalEscolherTipo({ creditos, onClose }: ModalEscolherTi
             className={`${styles.opcao} ${styles.opcaoPagina}`}
           >
             <div className={styles.opcaoConteudo}>
-              <div className={styles.opcaoEmoji}>🎁</div>
+              <div className={styles.opcaoEmoji}><Gift size={30} strokeWidth={2} /></div>
               <div className={styles.opcaoInfo}>
                 <div className={styles.opcaoTituloRow}>
                   <span className={`${styles.opcaoTitulo} ${styles.opcaoTituloLight}`}>

@@ -24,9 +24,20 @@
 
 .titulo {
   font-family: 'Playfair Display', serif;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   color: var(--text);
   margin-bottom: 4px;
+}
+.titulo {
+  display: flex;
+  flex-direction: column;
+}
+
+.badges {
+  display: flex;
+  gap: 0 10px 0 0;
+  margin: 10px 0;
+  flex-wrap: wrap; /* quebra linha se precisar */
 }
 
 .data {
@@ -87,10 +98,12 @@
 
 .btnCompartilhar {
   color: #7b5ea7;
+  border-left: 1px solid var(--rose-pale);
 }
 
 .btnCompartilhar:hover {
   background: #f5eeff;
+  
 }
 
 .btnEditar {
@@ -100,7 +113,7 @@
 }
 
 .btnDeletar {
-  color: #e05555;
+  color: red;
 }
 
 .btnDeletar:hover {
@@ -111,7 +124,7 @@
   display: inline-block;
   padding: 2px 10px;
   border-radius: 50px;
-  font-size: 0.72rem;
+  font-size: .9rem;
   font-weight: 700;
   margin-left: 8px;
 }
@@ -132,7 +145,7 @@
   gap: 4px;
   padding: 2px 8px;
   border-radius: 50px;
-  font-size: 0.68rem;
+  font-size: .9rem;
   font-weight: 700;
   margin-left: 6px;
 }

@@ -81,12 +81,6 @@ function LoginContent() {
           padding: 48px;
           position: relative; overflow: hidden;
         }
-        .auth-left::before {
-          content: '💝';
-          position: absolute; font-size: 24rem;
-          opacity: .07; top: -60px; right: -80px;
-          pointer-events: none;
-        }
         .auth-left-logo {
           font-family: 'Playfair Display', serif;
           font-size: 2.2rem; font-weight: 700;
@@ -269,7 +263,7 @@ function LoginContent() {
         {/* Lado direito */}
         <div className="auth-right">
           <div className="auth-form-wrap">
-            <h1>Bem-vindo de volta 💝</h1>
+            <h1>Bem-vindo de volta</h1>
             <p className="subtitle">Entre na sua conta para gerenciar seus presentes.</p>
 
             {/* Google */}

@@ -3,6 +3,13 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import {
+  Gift, Heart, Sparkles, Lock,
+  PenLine, Calendar, Share, HeartHandshake,
+  Stars, Trophy, Images, Smartphone,
+  Star, Flame,
+  ChevronDown,
+} from 'lucide-react'
 
 // ─── Floating petals background ───────────────────────────────────────────────
 function Petals() {
@@ -103,7 +110,12 @@ function FaqItem({ q, a }: { q: string; a: string }) {
     >
       <div className="faq-question">
         <span>{q}</span>
-        <span className="faq-icon">{open ? '−' : '+'}</span>
+        <ChevronDown
+          className="faq-icon"
+          size={20}
+          strokeWidth={2}
+          style={{ transition: 'transform .2s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+        />
       </div>
       {open && <div className="faq-answer">{a}</div>}
     </div>
@@ -423,7 +435,7 @@ useEffect(() => {
           margin-bottom: 12px;
         }
         .step p { font-size: .92rem; color: var(--text-soft); line-height: 1.7; }
-        .step-emoji { font-size: 2.2rem; margin-bottom: 16px; }
+        .step-emoji { font-size: 2.2rem; margin-bottom: 16px; align-items: center; justify-content: center; display: inline-flex; color: var(--rose); }
 
         /* ── Pricing ── */
         .pricing {
@@ -638,13 +650,17 @@ useEffect(() => {
           <a href="#faq">FAQ</a>
           <Link href="/historia">História</Link>
           <Link href="/demo">Ver demo</Link>
-          <Link href="/cadastro" className="btn-nav">Criar presente 🎁</Link>
+          <Link href="/cadastro" className="btn-nav" style={{ display:'inline-flex', alignItems:'center', gap:6 }}>
+            <Gift size={16} strokeWidth={2} /> Criar presente
+          </Link>
         </div>
       </nav>
 
       {/* HERO */}
       <section className="hero">
-        <div className="hero-badge">✨ Presente virtual que emociona de verdade</div>
+        <div className="hero-badge" style={{ display:'inline-flex', alignItems:'center', gap:6 }}>
+          <Sparkles size={14} strokeWidth={2} /> Presente virtual que emociona de verdade
+        </div>
         <h1 className="hero-title">
           Surpreenda quem você<br />
           <em>
@@ -657,10 +673,14 @@ useEffect(() => {
           Crie uma <strong>Página Virtual</strong> ou uma <strong>Retrospectiva animada</strong> com fotos, músicas e mensagens. Compartilhe um link único — e veja a emoção no rosto de quem você ama.
         </p>
         <div className="hero-ctas">
-          <Link href="/cadastro" className="btn-primary">Criar meu presente 💝</Link>
-          <Link href="/demo" className="btn-secondary">Ver exemplos 👀</Link>
+          <Link href="/cadastro" className="btn-primary" style={{ display:'inline-flex', alignItems:'center', gap:8 }}>
+            <Gift size={20} strokeWidth={2} /> Criar meu presente
+          </Link>
+          <Link href="/demo" className="btn-secondary">Ver exemplos</Link>
         </div>
-        <p className="hero-note">🔒 Sem assinatura — pague só pelo que usar</p>
+        <p className="hero-note" style={{ display:'inline-flex', alignItems:'center', gap:6, justifyContent:'center' }}>
+          <Lock size={14} strokeWidth={2} /> Sem assinatura — pague só pelo que usar
+        </p>
 
         {/* Mock preview */}
         <div className="hero-preview">
@@ -677,7 +697,9 @@ useEffect(() => {
                   </div>
                 ))}
               </div>
-              <div className="mock-btn">Vamos lá 🎁</div>
+              <div className="mock-btn" style={{ display:'inline-flex', alignItems:'center', gap:6 }}>
+                Vamos lá <Gift size={16} strokeWidth={2} />
+              </div>
             </div>
           </div>
         </div>
@@ -692,13 +714,13 @@ useEffect(() => {
           </div>
           <div className="how-steps">
             {[
-              { n: '1', emoji: '✍️', title: 'Personalize', desc: 'Escreva textos, escolha cores, adicione fotos e uma música especial. Tudo no seu jeito.' },
-              { n: '2', emoji: '📅', title: 'Defina a data', desc: 'Escolha quando o presente será revelado. Uma contagem regressiva vai aumentar a expectativa!' },
-              { n: '3', emoji: '🔗', title: 'Compartilhe', desc: 'Receba um link único e um QR Code para enviar por WhatsApp, e-mail ou imprimir.' },
-              { n: '4', emoji: '💝', title: 'Emocione', desc: 'A pessoa abre o link e vive uma experiência única, com fotos e mensagens animadas.' },
+              { n: '1', Icon: PenLine, title: 'Personalize', desc: 'Escreva textos, escolha cores, adicione fotos e uma música especial. Tudo no seu jeito.' },
+              { n: '2', Icon: Calendar, title: 'Defina a data', desc: 'Escolha quando o presente será revelado. Uma contagem regressiva vai aumentar a expectativa!' },
+              { n: '3', Icon: Share, title: 'Compartilhe', desc: 'Receba um link único e um QR Code para enviar por WhatsApp, e-mail ou imprimir.' },
+              { n: '4', Icon: HeartHandshake, title: 'Emocione', desc: 'A pessoa abre o link e vive uma experiência única, com fotos e mensagens animadas.' },
             ].map((s) => (
               <div className="step" key={s.n}>
-                <div className="step-emoji">{s.emoji}</div>
+                <div className="step-emoji"><s.Icon size={36} strokeWidth={1.75} color="var(--rose)" /></div>
                 <div className="step-num">{s.n}</div>
                 <h3>{s.title}</h3>
                 <p>{s.desc}</p>
@@ -721,20 +743,23 @@ useEffect(() => {
           </p>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))', gap:20, marginBottom:48 }}>
             {[
-              { emoji:'🌌', title:'Céu estrelado', desc:'Veja o céu exato da data especial do casal' },
-              { emoji:'🏆', title:'Conquistas', desc:'Marcos do relacionamento em raridades épicas' },
-              { emoji:'📸', title:'Carrossel de fotos', desc:'Fotos animadas em slides cinematográficos' },
-              { emoji:'📲', title:'Stories', desc:'Exporte slides prontos para o Instagram' },
+              { Icon: Stars, title:'Céu estrelado', desc:'Veja o céu exato da data especial do casal' },
+              { Icon: Trophy, title:'Conquistas', desc:'Marcos do relacionamento em raridades épicas' },
+              { Icon: Images, title:'Carrossel de fotos', desc:'Fotos animadas em slides cinematográficos' },
+              { Icon: Smartphone, title:'Stories', desc:'Exporte slides prontos para o Instagram' },
             ].map(f => (
               <div key={f.title} style={{ background:'rgba(255,255,255,.05)', border:'1px solid rgba(255,255,255,.1)', borderRadius:20, padding:'28px 20px', textAlign:'center' }}>
-                <div style={{ fontSize:'2rem', marginBottom:12 }}>{f.emoji}</div>
+                <div style={{ marginBottom:12, display:'flex', justifyContent:'center' }}>
+                  <f.Icon size={36} strokeWidth={1.5} color="#f857a6" />
+                </div>
                 <div style={{ fontFamily:"'Playfair Display',serif", fontSize:'1.05rem', color:'white', marginBottom:8 }}>{f.title}</div>
                 <div style={{ fontSize:'.82rem', color:'rgba(255,255,255,.4)', lineHeight:1.5 }}>{f.desc}</div>
               </div>
             ))}
           </div>
           <Link href="/cadastro" style={{ display:'inline-flex', alignItems:'center', gap:10, background:'linear-gradient(135deg,#f857a6,#ff5858)', color:'white', padding:'16px 40px', borderRadius:50, fontWeight:700, fontSize:'1rem', textDecoration:'none', boxShadow:'0 8px 28px rgba(248,87,166,.4)' }}>
-            Criar minha Retrospectiva 💫
+            <Sparkles size={20} strokeWidth={2} />
+            Criar minha Retrospectiva
           </Link>
         </div>
       </section>
@@ -752,12 +777,13 @@ useEffect(() => {
           {/* Como funciona os créditos */}
           <div style={{ display:'flex', justifyContent:'center', gap:8, flexWrap:'wrap', marginBottom:40 }}>
             {[
-              { icon:'🎁', label:'Página Virtual', cost:'1 crédito' },
-              { icon:'💫', label:'Retrospectiva', cost:'2 créditos' },
-              { icon:'✨', label:'Links ativos', cost:'por 3 meses' },
+              { Icon: Gift, label:'Página Virtual', cost:'1 crédito' },
+              { Icon: Sparkles, label:'Retrospectiva', cost:'2 créditos' },
+              { Icon: Calendar, label:'Links ativos', cost:'por 3 meses' },
             ].map(item => (
               <div key={item.label} style={{ display:'flex', alignItems:'center', gap:8, background:'white', border:'1.5px solid var(--rose-mid)', borderRadius:50, padding:'.4rem 1rem', fontSize:'.8rem', color:'var(--text-soft)', boxShadow:'0 1px 4px rgba(232,98,122,.07)' }}>
-                {item.icon} <strong style={{ color:'var(--text)' }}>{item.label}</strong> = <span style={{ color:'var(--rose)', fontWeight:700 }}>{item.cost}</span>
+                <item.Icon size={16} strokeWidth={2} color="var(--rose)" />
+                <strong style={{ color:'var(--text)' }}>{item.label}</strong> = <span style={{ color:'var(--rose)', fontWeight:700 }}>{item.cost}</span>
               </div>
             ))}
           </div>
@@ -780,7 +806,9 @@ useEffect(() => {
 
             {/* Popular */}
             <div className="price-card featured">
-              <span className="badge-featured">⭐ Mais popular</span>
+              <span className="badge-featured" style={{ display:'inline-flex', alignItems:'center', gap:6 }}>
+                <Star size={14} strokeWidth={0} fill="white" /> Mais popular
+              </span>
               <h3>Popular</h3>
               <p style={{ color:'var(--text-soft)', fontSize:'.9rem' }}>Para criar mais de um presente</p>
               <div className="price"><sup>R$</sup>14<span style={{ fontSize:'1.6rem' }}>,90</span></div>
@@ -791,12 +819,16 @@ useEffect(() => {
                 <li>Exportar para Stories</li>
                 <li>Créditos nunca expiram</li>
               </ul>
-              <Link href="/cadastro" className="btn-buy">Quero esse 💫</Link>
+              <Link href="/cadastro" className="btn-buy" style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+                <Sparkles size={18} strokeWidth={2} /> Quero esse
+              </Link>
             </div>
 
             {/* Max */}
             <div className="price-card">
-              <span className="badge-featured" style={{ background:'linear-gradient(135deg,#ffa726,#e8627a)' }}>🔥 Melhor valor</span>
+              <span className="badge-featured" style={{ background:'linear-gradient(135deg,#ffa726,#e8627a)', display:'inline-flex', alignItems:'center', gap:6 }}>
+                <Flame size={14} strokeWidth={0} fill="white" /> Melhor valor
+              </span>
               <h3>Max</h3>
               <p style={{ color:'var(--text-soft)', fontSize:'.9rem' }}>Para quem ama presentear</p>
               <div className="price"><sup>R$</sup>24<span style={{ fontSize:'1.6rem' }}>,90</span></div>
@@ -807,7 +839,9 @@ useEffect(() => {
                 <li>Misture como quiser</li>
                 <li>Créditos nunca expiram</li>
               </ul>
-              <Link href="/cadastro" className="btn-buy outline">Quero o Max 💝</Link>
+              <Link href="/cadastro" className="btn-buy outline" style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+                <Heart size={18} strokeWidth={2} /> Quero o Max
+              </Link>
             </div>
           </div>
         </div>
@@ -827,7 +861,11 @@ useEffect(() => {
                   <div className="tcard-avatar">{t.avatar}</div>
                   <div>
                     <div className="tcard-name">{t.name}</div>
-                    <div className="tcard-stars">{'★'.repeat(t.stars)}</div>
+                    <div className="tcard-stars" style={{ display:'inline-flex', gap:2 }}>
+                      {Array.from({ length: t.stars }).map((_, i) => (
+                        <Star key={i} size={14} strokeWidth={0} fill="#ffa726" />
+                      ))}
+                    </div>
                   </div>
                 </div>
                 <p>{t.text}</p>
@@ -852,8 +890,8 @@ useEffect(() => {
       <section className="cta-final">
         <h2>Pronto para criar um<br /><em>momento inesquecível?</em></h2>
         <p>Em menos de 5 minutos você cria um presente que a pessoa vai guardar para sempre.</p>
-        <Link href="/cadastro" className="btn-primary" style={{ display: 'inline-flex', fontSize: '1.1rem', padding: '18px 48px' }}>
-          Criar meu presente agora 💝
+        <Link href="/cadastro" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontSize: '1.1rem', padding: '18px 48px' }}>
+          <Gift size={22} strokeWidth={2} /> Criar meu presente agora
         </Link>
       </section>
 
