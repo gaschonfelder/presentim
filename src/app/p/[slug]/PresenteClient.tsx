@@ -546,8 +546,20 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
 
   const cor = presente.cor_primaria ?? '#e8627a'
   const fundo = presente.cor_fundo ?? '#ffeef0'
+  // Prefere gradiente (campo novo) se existir; senão usa cor_fundo (legado)
+  const gradiente = (presente as typeof presente & { gradiente?: string | null }).gradiente ?? null
+  const bgStyle = gradiente ?? fundo
   const fotos: string[] = Array.isArray(presente.fotos) ? presente.fotos : []
   const frases: string[] = Array.isArray(presente.frases) ? presente.frases as string[] : []
+
+  // ─── Visual novo: capa polaroid + botão liquid glass ────────────────────────
+  // Ativa quando há AO MENOS 1 foto E gradiente configurado (garante que liquid glass aparece bem)
+  const fotoCapa: string | null = fotos.length > 0 ? fotos[0] : null
+  const usaVisualNovo: boolean = !!fotoCapa && !!gradiente
+  // A primeira foto SEMPRE aparece 2x quando há visual novo: como capa + no scroll
+  // Isso preserva o alinhamento foto↔frase e garante que nenhuma frase fica órfã
+  const fotosScroll: string[] = fotos
+  const frasesScroll: string[] = frases
   const rotations = ['-7deg','8deg','-3deg','5deg','-5deg','4deg']
   const hasCountdown = !!presente.data_liberacao
   const countdownPassed = hasCountdown ? new Date(presente.data_liberacao!).getTime() <= Date.now() : true
@@ -564,16 +576,86 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Lato:wght@300;400;700&family=Dancing+Script:wght@400;700&display=swap');
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
-        body{font-family:'Lato',sans-serif;background:${fundo};color:#333;overflow-x:hidden}
+        body{font-family:'Lato',sans-serif;background:${bgStyle};color:#333;overflow-x:hidden}
         @keyframes flyUpHeart{0%{opacity:1;transform:translateY(0) scale(1) rotate(0deg)}100%{opacity:0;transform:translateY(-80px) scale(1.5) rotate(30deg)}}
         @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
         @keyframes shimmer{0%,100%{opacity:1}50%{opacity:.75}}
         @keyframes popIn{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
         @keyframes musicPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.7}}
 
-        .start-section{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:40px 24px}
+        .start-section{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:40px 24px;gap:32px}
         .btnInicial{display:block;margin:30px auto;padding:24px 48px;font-size:3.5rem;background-color:${cor};color:white;border:none;border-radius:8px;cursor:pointer;transition:background-color .2s,transform .2s;box-shadow:0 12px 40px ${cor}55;animation:shimmer 2s infinite;position:relative}
         .btnInicial:hover{background-color:${cor}cc;transform:scale(1.05);animation:none}
+
+        /* Capa polaroid (visual novo) */
+        .capa-polaroid{
+          background:white;
+          padding:14px 14px 36px;
+          box-shadow:0 20px 60px rgba(0,0,0,.18),0 4px 14px rgba(0,0,0,.08);
+          border-radius:4px;
+          width:min(75vw,340px);
+          animation:capaFadeUp .8s cubic-bezier(.2,.7,.2,1) .15s both;
+        }
+        .capa-polaroid .capa-frame{
+          width:100%;
+          aspect-ratio:4/3;
+          overflow:hidden;
+          border:3px solid white;
+          box-shadow:inset 0 2px 8px rgba(0,0,0,.06);
+          border-radius:2px;
+          background:#f5f0f2;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+        }
+        .capa-polaroid .capa-frame img{
+          width:100%;
+          height:100%;
+          object-fit:cover;
+          display:block;
+        }
+        @keyframes capaFadeUp{
+          from{opacity:0;transform:translateY(28px) scale(.95)}
+          to{opacity:1;transform:translateY(0) scale(1)}
+        }
+
+        /* Botão liquid glass */
+        .btnLiquid{
+          display:inline-flex;
+          align-items:center;
+          gap:10px;
+          padding:15px 38px;
+          background:rgba(255,255,255,.35);
+          backdrop-filter:blur(20px) saturate(180%);
+          -webkit-backdrop-filter:blur(20px) saturate(200%);
+          border:1px solid rgba(255,255,255,.7);
+          border-radius:50px;
+          color:rgba(61,31,40,.88);
+          font-family:'Lato',sans-serif;
+          font-size:1.05rem;
+          font-weight:600;
+          letter-spacing:.01em;
+          cursor:pointer;
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,.9),
+            inset 0 -1px 0 rgba(255,255,255,.4),
+            0 4px 20px rgba(0,0,0,.08),
+            0 1px 4px rgba(0,0,0,.04);
+          transition:transform .2s,box-shadow .2s,background .2s;
+          animation:capaFadeUp .8s cubic-bezier(.2,.7,.2,1) .35s both;
+          position:relative;
+        }
+        .btnLiquid:hover{
+          transform:translateY(-2px) scale(1.02);
+          background:rgba(255,255,255,.7);
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,1),
+            inset 0 -1px 0 rgba(255,255,255,.5),
+            0 8px 28px rgba(0,0,0,.12),
+            0 2px 6px rgba(0,0,0,.06);
+        }
+        .btnLiquid:active{transform:translateY(0) scale(.98)}
+        .btnLiquid .btnLiquid-emoji{font-size:1.05rem;line-height:1;display:inline-flex}
 
         .scroll-section{height:70vh;position:relative}
 
@@ -687,13 +769,40 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
 
       {/* TELA INICIAL */}
       <div className="start-section">
-        {hasCountdown && !countdownPassed && <Countdown target={presente.data_liberacao!} cor={cor} />}
-        {countdownPassed && !aberto && (
-          <button ref={startBtnRef} className="btnInicial" onClick={handleAbrir}>{presente.emoji} {presente.texto_botao}</button>
+        {/* Capa polaroid — aparece quando há foto + gradiente, inclusive durante o countdown */}
+        {usaVisualNovo && fotoCapa && !aberto && (
+          <div className="capa-polaroid">
+            <div className="capa-frame">
+              <img src={fotoCapa} alt="" />
+            </div>
+          </div>
         )}
+
+        {/* Countdown */}
+        {hasCountdown && !countdownPassed && <Countdown target={presente.data_liberacao!} cor={cor} />}
+
+        {/* Botão pra abrir — só após countdown (ou imediato se não há countdown) */}
+        {countdownPassed && !aberto && (
+          usaVisualNovo ? (
+            <button
+              ref={startBtnRef}
+              className="btnLiquid"
+              onClick={handleAbrir}
+            >
+              <span className="btnLiquid-emoji">{presente.emoji}</span>
+              {presente.texto_botao}
+            </button>
+          ) : (
+            <button ref={startBtnRef} className="btnInicial" onClick={handleAbrir}>
+              {presente.emoji} {presente.texto_botao}
+            </button>
+          )
+        )}
+
         {aberto && <div id="mainContent"><h2>{presente.titulo}</h2></div>}
+
         {!countdownPassed && (
-          <p style={{ fontFamily:"'Dancing Script',cursive", fontSize:'1.5rem', color:cor, marginTop:24 }}>
+          <p style={{ fontFamily:"'Dancing Script',cursive", fontSize:'1.5rem', color:cor, marginTop:8 }}>
             Aguarde… sua surpresa está a caminho 💌
           </p>
         )}
@@ -702,7 +811,7 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
       {/* SCROLL CONTAINER */}
       {aberto && (
         <div id="scrollContainer">
-          {fotos.map((fotoUrl, i) => (
+          {fotosScroll.map((fotoUrl, i) => (
             <div key={i} className="scroll-section" ref={el => { sectionsRef.current[i] = el }}>
               <div
                 className={`polaroid ${visibleSections[i] ? 'visible' : ''}`}
@@ -741,9 +850,9 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
       )}
 
       {/* polaroidText FIXO — só aparece quando estamos na zona de fotos */}
-      {aberto && frases.length > 0 && visibleSections.some(v => v) && (
+      {aberto && frasesScroll.length > 0 && visibleSections.some(v => v) && (
         <div className="polaroidText">
-          {frases.map((_, i) => (
+          {frasesScroll.map((_, i) => (
             <p key={i} className={`text ${displayedTexts[i] ? 'visible' : ''}`}>
               {displayedTexts[i] ?? ''}
             </p>
@@ -753,7 +862,7 @@ export default function PresenteClient({ params }: { params: Promise<{ slug: str
 
       {/* Seções extras — sempre interativas */}
       {aberto && (temTermo || temRoleta) && (
-        <div style={{ position:'relative', zIndex:10, background:fundo, paddingBottom:220 }}>
+        <div style={{ position:'relative', zIndex:10, background:bgStyle, paddingBottom:220 }}>
           {temTermo && (
             <div style={{ background:'white', borderRadius:24, margin:'40px auto 0', maxWidth:500, width:'calc(100% - 48px)', boxShadow:'0 8px 32px rgba(0,0,0,.08)' }}>
               <TermoSection

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useNovoContext, EMOJIS } from '../NovoContext'
 import { FALLING_PRESETS, type FallingType, type FallingPreset } from '@/lib/falling-animation'
+import { GRADIENTE_PRESETS } from '@/lib/gradientes'
 import FallingParticles from '@/components/FallingParticles'
 import styles from './steps.module.css'
 
@@ -120,6 +121,78 @@ export default function PassoVisual() {
           height: 18px;
           border-radius: 50%;
           flex-shrink: 0;
+        }
+
+        /* Gradiente section */
+        .pv-grad-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+          gap: 10px;
+        }
+        .pv-grad-item {
+          position: relative;
+          border-radius: 14px;
+          padding: 0;
+          cursor: pointer;
+          transition: all 0.2s;
+          overflow: hidden;
+          border: 2px solid var(--rose-mid);
+          background: white;
+          font-family: 'Lato', sans-serif;
+        }
+        .pv-grad-item:hover {
+          border-color: var(--rose);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(232, 98, 122, 0.15);
+        }
+        .pv-grad-item.selected {
+          border-color: var(--rose);
+          box-shadow: 0 0 0 3px rgba(232, 98, 122, 0.15), 0 6px 16px rgba(232, 98, 122, 0.2);
+        }
+        .pv-grad-swatch {
+          width: 100%;
+          height: 64px;
+          display: block;
+        }
+        .pv-grad-label {
+          display: block;
+          font-size: 0.78rem;
+          font-weight: 700;
+          color: var(--text);
+          padding: 8px 6px;
+          text-align: center;
+          background: white;
+        }
+        .pv-grad-check {
+          position: absolute;
+          top: 6px;
+          right: 6px;
+          width: 22px;
+          height: 22px;
+          background: white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.75rem;
+          color: var(--rose);
+          font-weight: 700;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+        .pv-grad-none {
+          background: repeating-linear-gradient(
+            45deg,
+            #f5f0f2,
+            #f5f0f2 10px,
+            #fbe9ed 10px,
+            #fbe9ed 20px
+          );
+        }
+        .pv-grad-hint {
+          font-size: 0.78rem;
+          color: var(--text-soft);
+          margin-bottom: 12px;
+          line-height: 1.5;
         }
 
         /* Falling animation section */
@@ -397,6 +470,41 @@ export default function PassoVisual() {
       </div>
 
       <p className={styles.sectionTitle} style={{ marginTop: 28 }}>
+        Gradiente de fundo · opcional
+      </p>
+      <p className="pv-grad-hint">
+        Gradientes deixam o presente com um visual mais moderno. Se não escolher, usa a cor de fundo sólida acima.
+      </p>
+      <div className="pv-grad-grid">
+        {/* Opção "sem gradiente" — usa cor_fundo sólida */}
+        <button
+          className={`pv-grad-item ${!cfg.gradiente ? 'selected' : ''}`}
+          onClick={() => set('gradiente', null)}
+          aria-label="Sem gradiente"
+        >
+          {!cfg.gradiente && <span className="pv-grad-check">✓</span>}
+          <span className="pv-grad-swatch pv-grad-none" />
+          <span className="pv-grad-label">Cor sólida</span>
+        </button>
+
+        {GRADIENTE_PRESETS.map(preset => {
+          const selected = cfg.gradiente === preset.css
+          return (
+            <button
+              key={preset.key}
+              className={`pv-grad-item ${selected ? 'selected' : ''}`}
+              onClick={() => set('gradiente', preset.css)}
+              aria-label={`Gradiente ${preset.label}`}
+            >
+              {selected && <span className="pv-grad-check">✓</span>}
+              <span className="pv-grad-swatch" style={{ background: preset.css }} />
+              <span className="pv-grad-label">{preset.label}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      <p className={styles.sectionTitle} style={{ marginTop: 28 }}>
         Animação de fundo · opcional
       </p>
 
@@ -462,7 +570,11 @@ export default function PassoVisual() {
 
       {showPreview && (
         <div className="pv-preview-overlay" onClick={() => setShowPreview(false)}>
-          <div className="pv-preview-modal" onClick={e => e.stopPropagation()} style={{ background: cfg.cor_fundo }}>
+          <div
+            className="pv-preview-modal"
+            onClick={e => e.stopPropagation()}
+            style={{ background: cfg.gradiente ?? cfg.cor_fundo }}
+          >
             <button className="pv-preview-close" onClick={() => setShowPreview(false)}>✕</button>
             <FallingParticles animation={fa} count={14} zIndex={1} />
             <div className="pv-preview-content">

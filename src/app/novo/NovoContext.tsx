@@ -13,6 +13,7 @@ export type Config = {
   frases: string[]
   cor_primaria: string
   cor_fundo: string
+  gradiente: string | null
   emoji: string
   data_liberacao: string
   fotos: string[]
@@ -34,6 +35,7 @@ export const DEFAULTS: Config = {
   frases: ['', '', ''],
   cor_primaria: '#e8627a',
   cor_fundo: '#ffeef0',
+  gradiente: null,
   emoji: '🎁',
   data_liberacao: '',
   fotos: [],

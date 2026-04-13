@@ -5,16 +5,21 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import ImageCropper from '@/components/ImageCropper'
+import { GRADIENTE_PRESETS } from '@/lib/gradientes'
+import { FALLING_PRESETS, DEFAULT_FALLING_ANIMATION, type FallingAnimation, type FallingType, type FallingPreset } from '@/lib/falling-animation'
+import FallingParticles from '@/components/FallingParticles'
 
 type MusicaInfo = { videoId: string; title: string }
 
 type Config = {
   titulo: string; texto_botao: string; texto_final: string
   frases: string[]; cor_primaria: string; cor_fundo: string
+  gradiente: string | null
   emoji: string; data_liberacao: string; fotos: string[]
   musica_url: string; musica_info: MusicaInfo | null; retro_slug: string
   roleta_ativa: boolean; roleta_opcoes: string[]
   termo_ativo: boolean; termo_palavra: string; termo_dica: string
+  falling_animation: FallingAnimation
 }
 
 const EMOJIS = ['🎁', '💝', '💖', '🌸', '🎂', '🥂', '✨', '🦋', '🌹', '💌', '🎉', '🫶']
@@ -25,7 +30,7 @@ function Preview({ cfg }: { cfg: Config }) {
   const diff = cfg.data_liberacao ? new Date(cfg.data_liberacao).getTime() - now : 0
   const passou = diff <= 0
   return (
-    <div style={{ background: cfg.cor_fundo, borderRadius: 20, width: '100%', aspectRatio: '9/16', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', gap: 16, position: 'relative', overflow: 'hidden' }}>
+    <div style={{ background: cfg.gradiente ?? cfg.cor_fundo, borderRadius: 20, width: '100%', aspectRatio: '9/16', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', gap: 16, position: 'relative', overflow: 'hidden' }}>
       {cfg.data_liberacao && !passou ? (
         <div style={{ border: `2px solid ${cfg.cor_primaria}44`, borderRadius: 16, padding: '12px 20px', display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
           {[[String(Math.floor(diff/86400000)),'dias'],[String(Math.floor((diff%86400000)/3600000)).padStart(2,'0'),'h'],[String(Math.floor((diff%3600000)/60000)).padStart(2,'0'),'min'],[String(Math.floor((diff%60000)/1000)).padStart(2,'0'),'s']].map(([n,l]) => (
@@ -82,6 +87,9 @@ export default function EditarPage({ params }: { params: Promise<{ id: string }>
   const [cropQueue, setCropQueue] = useState<File[]>([])
   const [cropIndex, setCropIndex] = useState(0)
 
+  // Preview da animação caindo (modal)
+  const [showFaPreview, setShowFaPreview] = useState(false)
+
   function extrairVideoId(url: string): string | null {
     const m = url.match(/(?:v=|youtu\.be\/|shorts\/)([\w-]{11})/)
     return m ? m[1] : null
@@ -113,6 +121,7 @@ export default function EditarPage({ params }: { params: Promise<{ id: string }>
         titulo: data.titulo ?? '', texto_botao: data.texto_botao ?? '', texto_final: data.texto_final ?? '',
         frases: Array.isArray(data.frases) && data.frases.length > 0 ? data.frases : [''],
         cor_primaria: data.cor_primaria ?? '#e8627a', cor_fundo: data.cor_fundo ?? '#ffeef0',
+        gradiente: data.gradiente ?? null,
         emoji: data.emoji ?? '🎁', data_liberacao: dataLib,
         fotos: Array.isArray(data.fotos) ? data.fotos : [],
         musica_url: data.musica_url ?? '',
@@ -125,6 +134,7 @@ export default function EditarPage({ params }: { params: Promise<{ id: string }>
         termo_ativo: !!(data.termo_config?.palavra),
         termo_palavra: data.termo_config?.palavra ?? '',
         termo_dica: data.termo_config?.dica ?? '',
+        falling_animation: data.falling_animation ?? DEFAULT_FALLING_ANIMATION,
       })
       setLoading(false)
     }
@@ -238,6 +248,8 @@ export default function EditarPage({ params }: { params: Promise<{ id: string }>
       termo_config: cfg.termo_ativo && cfg.termo_palavra.trim()
         ? { palavra: cfg.termo_palavra.trim(), dica: cfg.termo_dica.trim() } : null,
       cor_primaria: cfg.cor_primaria, cor_fundo: cfg.cor_fundo, emoji: cfg.emoji,
+      gradiente: cfg.gradiente,
+      falling_animation: cfg.falling_animation?.enabled ? cfg.falling_animation : null,
       data_liberacao: cfg.data_liberacao ? new Date(cfg.data_liberacao).toISOString() : null,
     }).eq('id', id)
     if (error) { setErro('Erro ao salvar. Tente novamente.'); setSaving(false); return }
@@ -545,6 +557,131 @@ export default function EditarPage({ params }: { params: Promise<{ id: string }>
                     </button>
                   ))}
                 </div>
+
+                {/* ─── Gradiente de fundo ─────────────────────────────────────── */}
+                <p className="section-title" style={{ marginTop: 24 }}>Gradiente de fundo · opcional</p>
+                <p style={{ fontSize: '.78rem', color: 'var(--text-soft)', marginBottom: 12, lineHeight: 1.5 }}>
+                  Gradientes deixam o presente com um visual mais moderno. Se não escolher, usa a cor de fundo sólida acima.
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 10 }}>
+                  {/* Sem gradiente */}
+                  <button
+                    onClick={() => set('gradiente', null)}
+                    style={{
+                      position: 'relative',
+                      borderRadius: 14,
+                      padding: 0,
+                      cursor: 'pointer',
+                      overflow: 'hidden',
+                      border: `2px solid ${!cfg.gradiente ? 'var(--rose)' : 'var(--rose-mid)'}`,
+                      background: 'white',
+                      fontFamily: 'Lato, sans-serif',
+                      boxShadow: !cfg.gradiente ? '0 0 0 3px rgba(232,98,122,.15), 0 6px 16px rgba(232,98,122,.2)' : 'none',
+                    }}
+                  >
+                    {!cfg.gradiente && (
+                      <span style={{ position: 'absolute', top: 6, right: 6, width: 22, height: 22, background: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.75rem', color: 'var(--rose)', fontWeight: 700, boxShadow: '0 2px 6px rgba(0,0,0,.15)' }}>✓</span>
+                    )}
+                    <span style={{ width: '100%', height: 64, display: 'block', background: 'repeating-linear-gradient(45deg, #f5f0f2, #f5f0f2 10px, #fbe9ed 10px, #fbe9ed 20px)' }} />
+                    <span style={{ display: 'block', fontSize: '.78rem', fontWeight: 700, color: 'var(--text)', padding: '8px 6px', textAlign: 'center', background: 'white' }}>Cor sólida</span>
+                  </button>
+                  {GRADIENTE_PRESETS.map(preset => {
+                    const selected = cfg.gradiente === preset.css
+                    return (
+                      <button
+                        key={preset.key}
+                        onClick={() => set('gradiente', preset.css)}
+                        style={{
+                          position: 'relative',
+                          borderRadius: 14,
+                          padding: 0,
+                          cursor: 'pointer',
+                          overflow: 'hidden',
+                          border: `2px solid ${selected ? 'var(--rose)' : 'var(--rose-mid)'}`,
+                          background: 'white',
+                          fontFamily: 'Lato, sans-serif',
+                          boxShadow: selected ? '0 0 0 3px rgba(232,98,122,.15), 0 6px 16px rgba(232,98,122,.2)' : 'none',
+                        }}
+                      >
+                        {selected && (
+                          <span style={{ position: 'absolute', top: 6, right: 6, width: 22, height: 22, background: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.75rem', color: 'var(--rose)', fontWeight: 700, boxShadow: '0 2px 6px rgba(0,0,0,.15)' }}>✓</span>
+                        )}
+                        <span style={{ width: '100%', height: 64, display: 'block', background: preset.css }} />
+                        <span style={{ display: 'block', fontSize: '.78rem', fontWeight: 700, color: 'var(--text)', padding: '8px 6px', textAlign: 'center', background: 'white' }}>{preset.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+
+                {/* ─── Animação de fundo (falling particles) ──────────────────── */}
+                <p className="section-title" style={{ marginTop: 24 }}>Animação de fundo · opcional</p>
+
+                <div
+                  onClick={() => set('falling_animation', { ...cfg.falling_animation, enabled: !cfg.falling_animation.enabled })}
+                  style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'white', border: '1.5px solid var(--rose-mid)', borderRadius: 14, padding: '14px 18px', marginBottom: 14, cursor: 'pointer' }}
+                >
+                  <div style={{ width: 44, height: 24, borderRadius: 12, background: cfg.falling_animation.enabled ? 'var(--rose)' : '#ddd', position: 'relative', flexShrink: 0, transition: 'background .2s' }}>
+                    <div style={{ position: 'absolute', top: 3, left: cfg.falling_animation.enabled ? 23 : 3, width: 18, height: 18, borderRadius: '50%', background: 'white', transition: 'left .2s', boxShadow: '0 1px 4px rgba(0,0,0,.2)' }} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '.92rem', fontWeight: 700, color: 'var(--text)' }}>
+                      {cfg.falling_animation.enabled ? '✨ Animação ativada' : 'Ativar animação'}
+                    </div>
+                    <div style={{ fontSize: '.78rem', color: 'var(--text-soft)', marginTop: 2 }}>
+                      Partículas caindo no fundo do presente
+                    </div>
+                  </div>
+                </div>
+
+                {cfg.falling_animation.enabled && (
+                  <>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 10, marginBottom: 12 }}>
+                      {(Object.values(FALLING_PRESETS) as FallingPreset[]).map(preset => {
+                        const selected = cfg.falling_animation.type === preset.type
+                        return (
+                          <button
+                            key={preset.type}
+                            onClick={() => set('falling_animation', { ...cfg.falling_animation, type: preset.type as FallingType })}
+                            style={{ background: 'white', border: `2px solid ${selected ? 'var(--rose)' : 'var(--rose-mid)'}`, borderRadius: 12, padding: '14px 10px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, fontFamily: 'Lato, sans-serif', boxShadow: selected ? '0 0 0 3px rgba(232,98,122,.1)' : 'none' }}
+                          >
+                            <span style={{ fontSize: '1.6rem' }}>{preset.icon}</span>
+                            <span style={{ fontSize: '.8rem', fontWeight: 700, color: 'var(--text)' }}>{preset.label}</span>
+                          </button>
+                        )
+                      })}
+                      <button
+                        onClick={() => set('falling_animation', { ...cfg.falling_animation, type: 'personalizado' })}
+                        style={{ background: 'white', border: `2px solid ${cfg.falling_animation.type === 'personalizado' ? 'var(--rose)' : 'var(--rose-mid)'}`, borderRadius: 12, padding: '14px 10px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, fontFamily: 'Lato, sans-serif', boxShadow: cfg.falling_animation.type === 'personalizado' ? '0 0 0 3px rgba(232,98,122,.1)' : 'none' }}
+                      >
+                        <span style={{ fontSize: '1.6rem' }}>🎨</span>
+                        <span style={{ fontSize: '.8rem', fontWeight: 700, color: 'var(--text)' }}>Personalizado</span>
+                      </button>
+                    </div>
+
+                    {cfg.falling_animation.type === 'personalizado' && (
+                      <div style={{ background: 'var(--rose-pale)', border: '1.5px solid var(--rose-mid)', borderRadius: 12, padding: '14px 16px', marginBottom: 12 }}>
+                        <label style={{ display: 'block', fontSize: '.78rem', fontWeight: 700, color: 'var(--text)', marginBottom: 6 }}>Seu emoji (até 6)</label>
+                        <input
+                          value={cfg.falling_animation.customEmoji ?? ''}
+                          onChange={e => set('falling_animation', { ...cfg.falling_animation, customEmoji: e.target.value })}
+                          placeholder="🎈🎁🎂"
+                          maxLength={20}
+                          style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--rose-mid)', borderRadius: 10, fontSize: '1.4rem', fontFamily: 'Lato, sans-serif', background: 'white', outline: 'none', textAlign: 'center' }}
+                        />
+                        <p style={{ fontSize: '.74rem', color: 'var(--text-soft)', marginTop: 6, lineHeight: 1.5 }}>
+                          Cole um ou mais emojis (máximo 6). Exemplo: 🎈 ou 🎈🎂🎁
+                        </p>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={() => setShowFaPreview(true)}
+                      style={{ width: '100%', background: 'linear-gradient(135deg, var(--rose), #c94f68)', color: 'white', border: 'none', borderRadius: 12, padding: 13, fontFamily: 'Lato, sans-serif', fontSize: '.92rem', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 14px rgba(232,98,122,.3)' }}
+                    >
+                      👁 Ver preview da animação
+                    </button>
+                  </>
+                )}
               </>
             )}
 
@@ -569,6 +706,46 @@ export default function EditarPage({ params }: { params: Promise<{ id: string }>
           <div className="preview-body"><div className="preview-frame"><Preview cfg={cfg} /></div></div>
         </div>
       </div>
+
+      {/* Preview modal da animação caindo */}
+      {showFaPreview && (
+        <div
+          onClick={() => setShowFaPreview(false)}
+          style={{ position: 'fixed', inset: 0, zIndex: 2000, background: 'rgba(0,0,0,.7)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: cfg.gradiente ?? cfg.cor_fundo,
+              borderRadius: 24,
+              width: '100%',
+              maxWidth: 320,
+              aspectRatio: '9/16',
+              maxHeight: '70vh',
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: '0 32px 80px rgba(0,0,0,.3)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '32px 24px',
+              textAlign: 'center',
+            }}
+          >
+            <button
+              onClick={() => setShowFaPreview(false)}
+              style={{ position: 'absolute', top: 12, right: 12, zIndex: 20, background: 'rgba(0,0,0,.5)', border: 'none', color: 'white', width: 36, height: 36, borderRadius: '50%', fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >✕</button>
+            <FallingParticles animation={cfg.falling_animation} count={14} zIndex={1} />
+            <div style={{ position: 'relative', zIndex: 10 }}>
+              <div style={{ fontSize: '3rem', marginBottom: 12 }}>{cfg.emoji}</div>
+              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.4rem', color: 'var(--text)', marginBottom: 8 }}>Preview</div>
+              <div style={{ fontSize: '.85rem', color: 'var(--text-soft)' }}>É assim que vai ficar no presente</div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

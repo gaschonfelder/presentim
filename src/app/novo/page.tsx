@@ -83,6 +83,7 @@ function NovoWizardContent() {
         retro_slug: cfg.retro_slug.trim() || null,
         cor_primaria: cfg.cor_primaria,
         cor_fundo: cfg.cor_fundo,
+        gradiente: cfg.gradiente,
         emoji: cfg.emoji,
         data_liberacao: cfg.data_liberacao
           ? new Date(cfg.data_liberacao).toISOString()
