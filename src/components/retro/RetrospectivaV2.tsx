@@ -2,6 +2,7 @@
 
 import { RetroProvider, type Dados } from './RetroProvider'
 import SlideNavigation from './SlideNavigation'
+import MusicPlayer from './MusicPlayer'
 import SlideIntro from './slides/SlideIntro'
 import SlideSeason from './slides/SlideSeason'
 import SlideCounter from './slides/SlideCounter'
@@ -25,6 +26,7 @@ export default function RetrospectivaV2({ dados }: { dados: Dados }) {
         <SlideAchievements />
         <SlideMessage />
         <SlideEnd />
+        <MusicPlayer />
       </SlideNavigation>
     </RetroProvider>
   )
