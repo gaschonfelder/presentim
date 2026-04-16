@@ -22,9 +22,8 @@ export default function SlideAchievements() {
     }
   }, [isActive])
 
-  // Top 6 já ordenado
-  const top6 = allAchievements.slice(0, 6)
-  const hidden = allAchievements.length - top6.length
+  // Exibe todas as conquistas — scroll vertical quando ultrapassa o container
+  const all = allAchievements
 
   /** Normaliza qualquer item pro formato do modal */
   function itemToDetail(item: (typeof allAchievements)[number]): AchievementDetail {
@@ -125,7 +124,7 @@ export default function SlideAchievements() {
         Toque em qualquer conquista pra ver os detalhes
       </p>
 
-      {top6.length === 0 ? (
+      {all.length === 0 ? (
         <p
           className="retro-v2-anim"
           style={{
@@ -144,9 +143,10 @@ export default function SlideAchievements() {
             display: 'flex',
             flexDirection: 'column',
             gap: 8,
+            paddingBottom: '1rem',
           }}
         >
-          {top6.map((item, i) => {
+          {all.map((item, i) => {
             const detail = itemToDetail(item)
             return (
               <AchievementCard
@@ -159,21 +159,19 @@ export default function SlideAchievements() {
             )
           })}
 
-          {hidden > 0 && (
-            <div
-              style={{
-                textAlign: 'center',
-                fontSize: '.7rem',
-                color: theme.text.muted,
-                marginTop: 4,
-                opacity: visible ? 1 : 0,
-                transition: 'opacity .4s ease .6s',
-              }}
-            >
-              +{hidden} conquista{hidden !== 1 ? 's' : ''} desbloqueada
-              {hidden !== 1 ? 's' : ''}
-            </div>
-          )}
+          <div
+            style={{
+              textAlign: 'center',
+              fontSize: '.65rem',
+              color: theme.text.muted,
+              marginTop: '.5rem',
+              opacity: visible ? 0.7 : 0,
+              transition: 'opacity .4s ease .6s',
+            }}
+          >
+            {all.length} conquista{all.length !== 1 ? 's' : ''} desbloqueada
+            {all.length !== 1 ? 's' : ''}
+          </div>
         </div>
       )}
 

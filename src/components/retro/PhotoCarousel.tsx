@@ -3,13 +3,13 @@
 import { useRef, useState, useEffect } from 'react'
 import { useRetro } from './RetroProvider'
 import { ALL_ACHIEVEMENTS, RARITY_CONFIG } from '@/lib/retro'
-import RarityBadge from './RarityBadge'
 
 /**
  * Carrossel de fotos com loop infinito.
  * - Cards ocupam ~85% da área, com margem mostrando o fundo
  * - Mobile: swipe horizontal
  * - Desktop: botões ‹ › dentro do carrossel
+ * - Tag/contador de foto aparecem ABAIXO do card (não sobrepõem a foto)
  * - Loop infinito (última → primeira e vice-versa)
  */
 export default function PhotoCarousel() {
@@ -52,7 +52,6 @@ export default function PhotoCarousel() {
     if (touchStartX.current === null || touchStartY.current === null) return
     const dx = e.touches[0].clientX - touchStartX.current
     const dy = e.touches[0].clientY - touchStartY.current
-    // Se for swipe horizontal, impede a navegação de slides inteiros
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
       e.stopPropagation()
     }
@@ -99,6 +98,7 @@ export default function PhotoCarousel() {
   const currentSrc = fotos[idx]
   const currentConquistaKey = fotoParaConquista[currentSrc]
   const currentInfo = currentConquistaKey ? ALL_ACHIEVEMENTS[currentConquistaKey] : null
+  const currentRc = currentInfo ? RARITY_CONFIG[currentInfo.rarity] : null
 
   return (
     <div
@@ -109,7 +109,7 @@ export default function PhotoCarousel() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '72px 20px 60px',
+        padding: '60px 20px 50px',
       }}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
@@ -137,7 +137,7 @@ export default function PhotoCarousel() {
           color: theme.text.primary,
           textAlign: 'center',
           lineHeight: 1.15,
-          marginBottom: '1rem',
+          marginBottom: '.8rem',
           animationDelay: '.15s',
         }}
       >
@@ -161,9 +161,9 @@ export default function PhotoCarousel() {
         style={{
           position: 'relative',
           width: '85%',
-          maxWidth: 360,
+          maxWidth: 340,
           flex: 1,
-          maxHeight: 520,
+          maxHeight: 460,
           borderRadius: 20,
           overflow: 'hidden',
           boxShadow: '0 20px 60px rgba(0,0,0,.5)',
@@ -180,80 +180,31 @@ export default function PhotoCarousel() {
             transition: 'transform .6s cubic-bezier(.4,0,.2,1)',
           }}
         >
-          {fotos.map((src, i) => {
-            const conquistaKey = fotoParaConquista[src]
-            const info = conquistaKey ? ALL_ACHIEVEMENTS[conquistaKey] : null
-            const isCurrent = i === idx && isActive
-
-            return (
-              <div
-                key={i}
+          {fotos.map((src, i) => (
+            <div
+              key={i}
+              style={{
+                flex: '0 0 100%',
+                height: '100%',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              <img
+                src={src}
+                alt=""
                 style={{
-                  flex: '0 0 100%',
+                  width: '100%',
                   height: '100%',
-                  position: 'relative',
-                  overflow: 'hidden',
+                  objectFit: 'cover',
+                  display: 'block',
                 }}
-              >
-                <img
-                  src={src}
-                  alt=""
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    display: 'block',
-                  }}
-                />
-
-                {/* Gradiente suave topo/rodapé */}
-                <div
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background:
-                      'linear-gradient(to bottom, rgba(0,0,0,.45) 0%, transparent 30%, transparent 70%, rgba(0,0,0,.35) 100%)',
-                    pointerEvents: 'none',
-                  }}
-                />
-
-                {/* Badge de conquista */}
-                {info && isCurrent && mounted && (
-                  <RarityBadge
-                    rarity={info.rarity}
-                    icon={info.icon}
-                    label={info.label}
-                    mounted={true}
-                  />
-                )}
-
-                {/* Contador foto N/total */}
-                {!info && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: '.8rem',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      fontSize: '.62rem',
-                      color: 'rgba(255,255,255,.7)',
-                      letterSpacing: '.15em',
-                      textTransform: 'uppercase',
-                      background: 'rgba(0,0,0,.4)',
-                      backdropFilter: 'blur(6px)',
-                      padding: '.25rem .7rem',
-                      borderRadius: 50,
-                    }}
-                  >
-                    {i + 1} / {fotos.length}
-                  </div>
-                )}
-              </div>
-            )
-          })}
+              />
+            </div>
+          ))}
         </div>
 
-        {/* Botões ‹ › — aparecem no hover (desktop) e sempre no mobile */}
+        {/* Botões ‹ › */}
         {fotos.length > 1 && (
           <>
             <button
@@ -330,7 +281,105 @@ export default function PhotoCarousel() {
         )}
       </div>
 
-      {/* Dots indicadores — abaixo do card */}
+      {/* Info/tag abaixo do card */}
+      <div
+        style={{
+          marginTop: '1rem',
+          minHeight: 54,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          width: '85%',
+          maxWidth: 340,
+        }}
+      >
+        {currentInfo && currentRc ? (
+          // Tag de conquista
+          <div
+            key={`tag-${idx}`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '.6rem',
+              background: currentRc.bg,
+              border: `1px solid ${currentRc.color}`,
+              borderRadius: 50,
+              padding: '.4rem .9rem .4rem .6rem',
+              animation: 'fadeInUp .3s ease',
+              boxShadow:
+                currentInfo.rarity === 'lendario'
+                  ? `0 0 14px ${currentRc.glow}`
+                  : currentInfo.rarity === 'epico'
+                  ? `0 0 10px ${currentRc.glow}`
+                  : currentInfo.rarity === 'raro'
+                  ? `0 0 8px ${currentRc.glow}`
+                  : 'none',
+            }}
+          >
+            <span
+              style={{
+                fontSize: '1.2rem',
+                filter:
+                  currentInfo.rarity === 'lendario'
+                    ? 'drop-shadow(0 0 6px rgba(248,87,166,.8))'
+                    : currentInfo.rarity === 'epico'
+                    ? 'drop-shadow(0 0 4px rgba(255,200,50,.6))'
+                    : 'none',
+              }}
+            >
+              {currentInfo.icon}
+            </span>
+            <div style={{ textAlign: 'left' }}>
+              <div
+                style={{
+                  fontSize: '.55rem',
+                  letterSpacing: '.2em',
+                  textTransform: 'uppercase',
+                  color: currentRc.color,
+                  textShadow:
+                    currentInfo.rarity !== 'comum'
+                      ? `0 0 8px ${currentRc.color}`
+                      : 'none',
+                  marginBottom: '.1rem',
+                  animation: currentRc.shimmer
+                    ? 'achShimmer 2s ease-in-out infinite'
+                    : 'none',
+                }}
+              >
+                {currentRc.label} · Conquista
+              </div>
+              <div
+                style={{
+                  fontFamily: "'DM Serif Display',serif",
+                  fontSize: '.9rem',
+                  color: theme.text.primary,
+                  lineHeight: 1.1,
+                }}
+              >
+                {currentInfo.label}
+              </div>
+            </div>
+          </div>
+        ) : (
+          // Contador simples N/total
+          <div
+            key={`counter-${idx}`}
+            style={{
+              fontSize: '.7rem',
+              color: theme.text.muted,
+              letterSpacing: '.15em',
+              textTransform: 'uppercase',
+              animation: 'fadeInUp .3s ease',
+            }}
+          >
+            Foto {idx + 1} de {fotos.length}
+          </div>
+        )}
+      </div>
+
+      {/* Dots */}
       {fotos.length > 1 && (
         <div
           className="retro-v2-anim"
@@ -338,7 +387,7 @@ export default function PhotoCarousel() {
             display: 'flex',
             gap: 5,
             justifyContent: 'center',
-            marginTop: '1rem',
+            marginTop: '.7rem',
             animationDelay: '.5s',
           }}
         >
@@ -373,6 +422,13 @@ export default function PhotoCarousel() {
           })}
         </div>
       )}
+
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(6px) }
+          to { opacity: 1; transform: translateY(0) }
+        }
+      `}</style>
     </div>
   )
 }
