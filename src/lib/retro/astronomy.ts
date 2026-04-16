@@ -101,6 +101,7 @@ export function pseudoRand(n: number): number {
 export type StarEntry = [number, number, number, string]
 
 export const BRIGHT_STARS: StarEntry[] = [
+  // Top 14 mais brilhantes
   [101.287, -16.716, -1.46, 'Sírius'],
   [95.988, -52.696, -0.74, 'Canopo'],
   [219.917, -60.834, -0.29, 'Rigil Kent.'],
@@ -115,7 +116,7 @@ export const BRIGHT_STARS: StarEntry[] = [
   [68.980, 16.509, 0.85, 'Aldebaran'],
   [152.093, 11.967, 1.00, 'Régulo'],
   [344.413, -29.621, 1.16, 'Fomalhaut'],
-  // Novas estrelas pro catálogo expandido
+  // Catálogo expandido
   [79.172, 45.998, 1.65, 'Capella'],
   [187.791, -57.113, 1.25, 'Mimosa'],
   [186.650, -63.099, 0.77, 'Acrux'],
@@ -137,6 +138,26 @@ export const BRIGHT_STARS: StarEntry[] = [
   [113.650, 31.888, 1.58, 'Castor'],
   [283.816, -26.296, 1.85, 'Kaus Austr.'],
   [305.557, -14.782, 1.77, 'Dabih'],
+  // Estrelas extras pra constelações mais completas
+  // Cruzeiro do Sul: Delta e Epsilon
+  [183.786, -58.749, 2.78, 'Delta Cru'],
+  [185.340, -60.401, 3.59, 'Epsilon Cru'],
+  // Touro: olho e chifres
+  [67.154, 15.870, 3.53, 'Ain'],       // Epsilon Tau (olho)
+  [81.573, 28.607, 1.65, 'Elnath'],     // Beta Tau (chifre)
+  [64.948, 15.962, 3.84, 'Delta Tau'],  // Taurus cluster
+  [60.170, 12.490, 3.47, 'Gamma Tau'],  // Hyadum
+  // Leão
+  [154.993, 19.842, 2.14, 'Denebola'],  // Beta Leo
+  [148.191, 26.007, 2.56, 'Algieba'],   // Gamma Leo
+  [168.527, 20.524, 2.01, 'Zosma'],     // Delta Leo
+  // Virgem
+  [193.507, 11.040, 3.89, 'Zavijava'],  // Beta Vir
+  [196.741, -3.687, 3.37, 'Minelauva'], // Delta Vir
+  // Cão Maior extras
+  [95.675, -17.956, 1.98, 'Adhara'],    // Epsilon CMa
+  [107.098, -26.393, 1.84, 'Aludra'],   // Eta CMa
+  [100.983, -23.833, 3.02, 'Furud'],    // Zeta CMa
 ]
 
 // ─── Constelações ─────────────────────────────────────────────────────────────
@@ -175,8 +196,8 @@ export const CONSTELLATIONS: Constellation[] = [
     centerRA: 189,
     centerDec: -60,
     lines: [
-      ['Acrux', 'Gacrux'],
-      ['Mimosa', 'Gacrux'], // braço lateral (delta Cru não está, usa Gacrux como proxy)
+      ['Acrux', 'Gacrux'],       // haste vertical
+      ['Mimosa', 'Delta Cru'],   // haste horizontal
     ],
   },
   {
@@ -206,6 +227,9 @@ export const CONSTELLATIONS: Constellation[] = [
     centerDec: -20,
     lines: [
       ['Sírius', 'Wezen'],
+      ['Sírius', 'Adhara'],
+      ['Wezen', 'Aludra'],
+      ['Adhara', 'Wezen'],
     ],
   },
   {
@@ -226,6 +250,39 @@ export const CONSTELLATIONS: Constellation[] = [
       ['Rigil Kent.', 'Hadar'],
     ],
   },
+  {
+    name: 'Touro',
+    abbr: 'Tau',
+    centerRA: 68,
+    centerDec: 16,
+    lines: [
+      ['Aldebaran', 'Ain'],
+      ['Ain', 'Gamma Tau'],
+      ['Aldebaran', 'Elnath'],
+    ],
+  },
+  {
+    name: 'Leão',
+    abbr: 'Leo',
+    centerRA: 154,
+    centerDec: 15,
+    lines: [
+      ['Régulo', 'Algieba'],
+      ['Algieba', 'Zosma'],
+      ['Zosma', 'Denebola'],
+      ['Régulo', 'Denebola'],
+    ],
+  },
+  {
+    name: 'Virgem',
+    abbr: 'Vir',
+    centerRA: 200,
+    centerDec: -5,
+    lines: [
+      ['Spica', 'Zavijava'],
+      ['Spica', 'Minelauva'],
+    ],
+  },
 ]
 
 // ─── Helper: achar as 2 constelações mais visíveis ────────────────────────────
@@ -234,7 +291,7 @@ export function findVisibleConstellations(
   lat: number,
   lng: number,
   date: Date,
-  maxCount: number = 2,
+  maxCount: number = 4,
 ): Constellation[] {
   const skyDate = new Date(date)
   skyDate.setHours(22, 0, 0)

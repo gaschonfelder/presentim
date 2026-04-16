@@ -5,12 +5,12 @@ import SlideNavigation from './SlideNavigation'
 import SlideIntro from './slides/SlideIntro'
 import SlideSeason from './slides/SlideSeason'
 import SlideCounter from './slides/SlideCounter'
+import SlideSky from './slides/SlideSky'
 import SlidePhotos from './slides/SlidePhotos'
 import SlideStats from './slides/SlideStats'
 import SlideAchievements from './slides/SlideAchievements'
 import SlideMessage from './slides/SlideMessage'
 import SlideEnd from './slides/SlideEnd'
-import SlidePlaceholder from './slides/SlidePlaceholder'
 
 export default function RetrospectivaV2({ dados }: { dados: Dados }) {
   return (
@@ -19,7 +19,7 @@ export default function RetrospectivaV2({ dados }: { dados: Dados }) {
         <SlideIntro />
         <SlideSeason />
         <SlideCounter />
-        <SlidePlaceholder index={3} label="Céu estrelado" icon="🌙" bgKey="sky" />
+        <SlideSky />
         <SlidePhotos />
         <SlideStats />
         <SlideAchievements />
