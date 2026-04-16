@@ -2,61 +2,122 @@
 
 import { useEffect, useState } from 'react'
 import { useRetro } from '../RetroProvider'
+import { getDestinationForKm } from '@/lib/retro'
 
 export default function SlideStats() {
-  const { slide, stats, theme, dias } = useRetro()
+  const { slide, stats, theme, dias, fotos, conquistasManuais, conquistasTempo, conquistasAuto, moonPhase, seasonKey } = useRetro()
   const isActive = slide === 5
 
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
     if (isActive) {
-      const t = setTimeout(() => setVisible(true), 300)
+      const t = setTimeout(() => setVisible(true), 200)
       return () => clearTimeout(t)
     } else {
       setVisible(false)
     }
   }, [isActive])
 
-  // 3 métricas embasadas:
-  // 1. Percentil de duração (IBGE + dados internos)
-  // 2. Nível de vínculo (fases de Knapp)
-  // 3. XP acumulado
-  const bars = [
+  // ─── Cálculos das estatísticas ────────────────────────────────────────────
+
+  // 1. Duração vs outros casais
+  const percentil = stats.percentilDuracao
+
+  // 2. Nível de vínculo
+  const bond = stats.bond
+
+  // 3. Aniversários juntos (anos completos comemorados)
+  const aniversarios = Math.floor(dias / 365.25)
+
+  // 4. Se cada dia fosse 1 km
+  const destino = getDestinationForKm(dias)
+
+  // 5. Média de filmes (1 por semana)
+  const filmes = Math.floor(dias / 7)
+
+  // 6. Média de mensagens (45/dia)
+  const mensagens = dias * 45
+
+  // 7. Conquistas desbloqueadas
+  const totalConquistas = conquistasManuais.length + conquistasTempo.length + conquistasAuto.length
+
+  // 8. Estação do começo + fase da lua (combo)
+  const estacoes: Record<string, string> = {
+    summer: 'Verão',
+    autumn: 'Outono',
+    winter: 'Inverno',
+    spring: 'Primavera',
+  }
+  const estacaoNome = estacoes[seasonKey]
+
+  // Lista unificada — cada item tem ícone, label curto, valor destaque, descrição
+  const items = [
     {
-      label: 'Duração vs outros casais',
-      bar: stats.percentilDuracao,
-      gradient: `linear-gradient(90deg, ${theme.accent}, ${theme.accentAlt})`,
-      highlight: `Mais que ${stats.percentilDuracao}% dos casais`,
-      sub: `${dias.toLocaleString('pt-BR')} dias juntos`,
+      icon: '📊',
+      label: 'Mais que',
+      big: `${percentil}%`,
+      desc: `dos casais duram menos que vocês`,
     },
     {
-      label: `Nível ${stats.bond.level} · ${stats.bond.name}`,
-      bar: stats.bond.bar,
-      gradient: 'linear-gradient(90deg,#3a7bd5,#7b68ee)',
-      highlight: stats.bond.desc,
-      sub:
-        stats.bond.level <= 3
-          ? 'A história está começando 🌱'
-          : stats.bond.level <= 5
-          ? 'Vínculo em construção 💫'
-          : stats.bond.level <= 7
-          ? 'Amor consolidado 🔥'
-          : 'Casais assim duram 🌟',
+      icon: '💞',
+      label: `Nível ${bond.level} · ${bond.name}`,
+      big: `${bond.bar}%`,
+      desc: bond.desc,
     },
     {
-      label: `XP acumulado · Nível ${stats.xpLevel}`,
-      bar: Math.min(100, stats.xpLevel),
-      gradient: 'linear-gradient(90deg,#d4a853,#ffa726)',
-      highlight: `${stats.xp.toLocaleString('pt-BR')} pontos de amor`,
-      sub: `${stats.totalConquistas} conquista${stats.totalConquistas !== 1 ? 's' : ''} desbloqueada${stats.totalConquistas !== 1 ? 's' : ''}`,
+      icon: '🎉',
+      label: 'Aniversários juntos',
+      big: `${aniversarios}`,
+      desc: aniversarios === 0
+        ? 'Ainda não completaram 1 ano'
+        : aniversarios === 1
+        ? 'ano de namoro celebrado'
+        : 'anos de namoro celebrados',
+    },
+    {
+      icon: destino.emoji,
+      label: 'Se cada dia fosse 1 km',
+      big: `${dias.toLocaleString('pt-BR')} km`,
+      desc: `vocês já chegariam em ${destino.label}`,
+    },
+    {
+      icon: '🎬',
+      label: 'Filmes assistidos juntos',
+      big: `~${filmes.toLocaleString('pt-BR')}`,
+      desc: 'Considerando 1 filme por semana',
+    },
+    {
+      icon: '💬',
+      label: 'Mensagens trocadas',
+      big: `~${mensagens.toLocaleString('pt-BR')}`,
+      desc: 'Estimativa de 45 mensagens por dia',
+    },
+    {
+      icon: '🏆',
+      label: 'Conquistas desbloqueadas',
+      big: `${totalConquistas}`,
+      desc: `${conquistasManuais.length} manuais · ${conquistasTempo.length} de tempo · ${conquistasAuto.length} automáticas`,
+    },
+    {
+      icon: moonPhase.emoji,
+      label: 'O começo de tudo',
+      big: estacaoNome,
+      desc: `${moonPhase.name} brilhava no céu`,
     },
   ]
 
   return (
     <div
       className={`retro-v2-slide ${isActive ? 'active' : ''}`}
-      style={{ background: theme.bg.stats }}
+      style={{
+        background: theme.bg.stats,
+        justifyContent: 'flex-start',
+        paddingTop: 72,
+        paddingBottom: 44,
+        overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch',
+      }}
     >
       <p
         className="retro-v2-anim"
@@ -66,6 +127,7 @@ export default function SlideStats() {
           textTransform: 'uppercase',
           color: theme.text.eyebrow,
           marginBottom: '.55rem',
+          textAlign: 'center',
         }}
       >
         Vocês em números
@@ -75,15 +137,15 @@ export default function SlideStats() {
         className="retro-v2-anim"
         style={{
           fontFamily: "'DM Serif Display',serif",
-          fontSize: 'clamp(1.8rem,7vw,2.6rem)',
+          fontSize: 'clamp(1.8rem,7vw,2.4rem)',
           color: theme.text.primary,
           textAlign: 'center',
-          lineHeight: 1.12,
-          marginBottom: '.6rem',
+          lineHeight: 1.15,
+          marginBottom: '1.4rem',
           animationDelay: '.15s',
         }}
       >
-        Como vocês se{' '}
+        Estatísticas do{' '}
         <em
           style={{
             fontStyle: 'italic',
@@ -93,84 +155,101 @@ export default function SlideStats() {
             backgroundClip: 'text',
           }}
         >
-          comparam
+          casal
         </em>
       </h2>
 
       <div
         style={{
           width: '100%',
-          maxWidth: 350,
+          maxWidth: 360,
           display: 'flex',
           flexDirection: 'column',
-          gap: 12,
-          marginTop: '1.4rem',
+          gap: 10,
         }}
       >
-        {bars.map((s, i) => (
+        {items.map((s, i) => (
           <div
             key={i}
             style={{
               background: theme.statCard.bg,
               border: `1px solid ${theme.statCard.border}`,
-              borderRadius: 18,
-              padding: '1.1rem 1.2rem',
+              borderRadius: 16,
+              padding: '1rem 1.1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '.9rem',
               opacity: visible ? 1 : 0,
-              transform: visible ? 'translateY(0)' : 'translateY(18px)',
-              transition: `all .5s ease ${i * 0.2}s`,
+              transform: visible ? 'translateY(0)' : 'translateY(12px)',
+              transition: `all .35s ease ${Math.min(i * 0.06, 0.5)}s`,
             }}
           >
             <div
               style={{
-                fontSize: '.62rem',
-                letterSpacing: '.18em',
-                textTransform: 'uppercase',
-                color: theme.text.muted,
-                marginBottom: '.5rem',
+                fontSize: '1.8rem',
+                flexShrink: 0,
+                width: 44,
+                textAlign: 'center',
               }}
             >
-              {s.label}
+              {s.icon}
             </div>
-            <div
-              style={{
-                height: 6,
-                background: 'rgba(127,127,127,.15)',
-                borderRadius: 3,
-                overflow: 'hidden',
-                marginBottom: '.5rem',
-              }}
-            >
+            <div style={{ flex: 1, minWidth: 0 }}>
               <div
                 style={{
-                  height: '100%',
-                  borderRadius: 3,
-                  background: s.gradient,
-                  width: visible ? `${s.bar}%` : '0%',
-                  transition: 'width 1.2s cubic-bezier(.4,0,.2,1) .3s',
+                  fontSize: '.6rem',
+                  letterSpacing: '.15em',
+                  textTransform: 'uppercase',
+                  color: theme.text.muted,
+                  marginBottom: '.2rem',
                 }}
-              />
-            </div>
-            <div
-              style={{
-                fontFamily: "'DM Serif Display',serif",
-                fontSize: '1.15rem',
-                color: theme.text.primary,
-                lineHeight: 1.3,
-              }}
-            >
-              {s.highlight}
-            </div>
-            <div
-              style={{
-                fontSize: '.72rem',
-                color: theme.text.muted,
-                marginTop: '.2rem',
-              }}
-            >
-              {s.sub}
+              >
+                {s.label}
+              </div>
+              <div
+                style={{
+                  fontFamily: "'DM Serif Display',serif",
+                  fontSize: '1.35rem',
+                  color: theme.text.primary,
+                  lineHeight: 1.15,
+                  background: theme.accentGradient,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  display: 'inline-block',
+                }}
+              >
+                {s.big}
+              </div>
+              <div
+                style={{
+                  fontSize: '.72rem',
+                  color: theme.text.secondary,
+                  marginTop: '.2rem',
+                  lineHeight: 1.4,
+                }}
+              >
+                {s.desc}
+              </div>
             </div>
           </div>
         ))}
+
+        {/* Nota sutil no final */}
+        <p
+          style={{
+            fontSize: '.6rem',
+            color: theme.text.muted,
+            textAlign: 'center',
+            marginTop: '.5rem',
+            padding: '0 1rem',
+            opacity: visible ? 0.6 : 0,
+            transition: 'opacity .5s ease .6s',
+            lineHeight: 1.5,
+          }}
+        >
+          Algumas estatísticas são estimativas baseadas em médias de casais.
+        </p>
       </div>
     </div>
   )

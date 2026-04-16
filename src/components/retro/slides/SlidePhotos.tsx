@@ -12,8 +12,7 @@ export default function SlidePhotos() {
       className={`retro-v2-slide ${isActive ? 'active' : ''}`}
       style={{
         background: theme.bg.photos,
-        padding: 0, // carrossel ocupa tudo
-        overflow: 'hidden',
+        padding: 0, // carrossel controla o próprio padding
       }}
     >
       <PhotoCarousel />

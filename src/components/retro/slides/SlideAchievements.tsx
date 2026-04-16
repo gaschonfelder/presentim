@@ -3,25 +3,65 @@
 import { useEffect, useState } from 'react'
 import { useRetro } from '../RetroProvider'
 import { RARITY_CONFIG, type Rarity } from '@/lib/retro'
+import AchievementModal, { type AchievementDetail } from '../AchievementModal'
 
 export default function SlideAchievements() {
   const { slide, allAchievements, theme } = useRetro()
   const isActive = slide === 6
 
   const [visible, setVisible] = useState(false)
+  const [selected, setSelected] = useState<AchievementDetail | null>(null)
 
   useEffect(() => {
     if (isActive) {
-      const t = setTimeout(() => setVisible(true), 300)
+      const t = setTimeout(() => setVisible(true), 200)
       return () => clearTimeout(t)
     } else {
       setVisible(false)
+      setSelected(null)
     }
   }, [isActive])
 
-  // Top 6 (já vem ordenado por raridade no provider)
+  // Top 6 já ordenado
   const top6 = allAchievements.slice(0, 6)
   const hidden = allAchievements.length - top6.length
+
+  /** Normaliza qualquer item pro formato do modal */
+  function itemToDetail(item: (typeof allAchievements)[number]): AchievementDetail {
+    if (item.tipo === 'tempo') {
+      const medalRarityMap: Record<string, Rarity> = {
+        bronze: 'comum',
+        silver: 'incomum',
+        gold: 'raro',
+        trophy: 'raro',
+        diamond: 'epico',
+        crown: 'lendario',
+      }
+      return {
+        icon: item.data.icon,
+        label: item.data.name,
+        desc: item.data.desc,
+        rarity: medalRarityMap[item.data.medal] ?? 'raro',
+        kind: 'tempo',
+      }
+    }
+    if (item.tipo === 'manual') {
+      return {
+        icon: item.info.icon,
+        label: item.info.label,
+        desc: 'Momento especial do relacionamento que vocês escolheram registrar.',
+        rarity: item.info.rarity,
+        kind: 'manual',
+      }
+    }
+    return {
+      icon: item.data.icon,
+      label: item.data.label,
+      desc: item.data.desc,
+      rarity: item.data.rarity,
+      kind: 'auto',
+    }
+  }
 
   return (
     <div
@@ -30,7 +70,7 @@ export default function SlideAchievements() {
         background: theme.bg.achievements,
         overflowY: 'auto',
         justifyContent: 'flex-start',
-        paddingTop: 80,
+        paddingTop: 72,
       }}
     >
       <p
@@ -54,7 +94,7 @@ export default function SlideAchievements() {
           color: theme.text.primary,
           textAlign: 'center',
           lineHeight: 1.12,
-          marginBottom: '1.2rem',
+          marginBottom: '.5rem',
           animationDelay: '.15s',
         }}
       >
@@ -71,6 +111,19 @@ export default function SlideAchievements() {
           jornada
         </em>
       </h2>
+
+      <p
+        className="retro-v2-anim"
+        style={{
+          fontSize: '.7rem',
+          color: theme.text.muted,
+          textAlign: 'center',
+          marginBottom: '1.2rem',
+          animationDelay: '.25s',
+        }}
+      >
+        Toque em qualquer conquista pra ver os detalhes
+      </p>
 
       {top6.length === 0 ? (
         <p
@@ -90,17 +143,21 @@ export default function SlideAchievements() {
             maxWidth: 340,
             display: 'flex',
             flexDirection: 'column',
-            gap: 9,
+            gap: 8,
           }}
         >
-          {top6.map((item, i) => (
-            <AchievementRow
-              key={`${item.tipo}-${i}`}
-              item={item}
-              index={i}
-              visible={visible}
-            />
-          ))}
+          {top6.map((item, i) => {
+            const detail = itemToDetail(item)
+            return (
+              <AchievementCard
+                key={`${item.tipo}-${i}`}
+                detail={detail}
+                index={i}
+                visible={visible}
+                onClick={() => setSelected(detail)}
+              />
+            )
+          })}
 
           {hidden > 0 && (
             <div
@@ -119,220 +176,112 @@ export default function SlideAchievements() {
           )}
         </div>
       )}
+
+      {/* Modal */}
+      <AchievementModal
+        detail={selected}
+        onClose={() => setSelected(null)}
+      />
     </div>
   )
 }
 
-// ─── Item individual ──────────────────────────────────────────────────────────
+// ─── Card compacto ────────────────────────────────────────────────────────────
 
-type RowProps = {
-  item: ReturnType<typeof useRetro>['allAchievements'][number]
-  index: number
-  visible: boolean
-}
-
-function AchievementRow({ item, index, visible }: RowProps) {
-  const { theme } = useRetro()
-
-  // Conquista de tempo
-  if (item.tipo === 'tempo') {
-    const a = item.data
-    return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '.8rem',
-          background: theme.achievementCard.bg,
-          border: `1px solid ${theme.achievementCard.border}`,
-          borderRadius: 14,
-          padding: '.7rem 1rem',
-          width: '100%',
-          opacity: visible ? 1 : 0,
-          transform: visible ? 'translateX(0)' : 'translateX(-20px)',
-          transition: `all .4s ease ${index * 0.08}s`,
-        }}
-      >
-        <span style={{ fontSize: '1.6rem', flexShrink: 0 }}>{a.icon}</span>
-        <div>
-          <div
-            style={{
-              fontSize: '.85rem',
-              fontWeight: 600,
-              color: theme.text.primary,
-              ...(a.medal === 'crown' && {
-                background: 'linear-gradient(135deg,#ffd700,#ffa726)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }),
-              ...(a.medal === 'diamond' && {
-                background: 'linear-gradient(135deg,#a8edea,#fed6e3)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }),
-              ...(a.medal === 'trophy' && {
-                background: 'linear-gradient(135deg,#f857a6,#ffa726)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }),
-            }}
-          >
-            {a.name}
-          </div>
-          <div
-            style={{
-              fontSize: '.68rem',
-              color: theme.text.muted,
-              marginTop: '.1rem',
-              lineHeight: 1.4,
-            }}
-          >
-            {a.desc}
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Conquista manual (selecionada pelo usuário no wizard)
-  if (item.tipo === 'manual') {
-    return (
-      <RarityCard
-        icon={item.info.icon}
-        label={item.info.label}
-        rarity={item.info.rarity}
-        index={index}
-        visible={visible}
-      />
-    )
-  }
-
-  // Conquista automática (gerada)
-  return (
-    <RarityCard
-      icon={item.data.icon}
-      label={item.data.label}
-      desc={item.data.desc}
-      rarity={item.data.rarity}
-      index={index}
-      visible={visible}
-      isAuto
-    />
-  )
-}
-
-// ─── Card com estilo por raridade ─────────────────────────────────────────────
-
-function RarityCard({
-  icon,
-  label,
-  desc,
-  rarity,
+function AchievementCard({
+  detail,
   index,
   visible,
-  isAuto,
+  onClick,
 }: {
-  icon: string
-  label: string
-  desc?: string
-  rarity: Rarity
+  detail: AchievementDetail
   index: number
   visible: boolean
-  isAuto?: boolean
+  onClick: () => void
 }) {
   const { theme } = useRetro()
-  const rc = RARITY_CONFIG[rarity]
-  const isHighlight = rarity === 'lendario' || rarity === 'epico'
+  const rc = RARITY_CONFIG[detail.rarity]
 
-  const bgByRarity: Record<Rarity, string> = {
-    comum: theme.achievementCard.bg,
-    incomum: 'rgba(20,60,160,.25)',
-    raro: 'rgba(100,30,180,.25)',
-    epico: 'rgba(140,90,0,.3)',
-    lendario: 'rgba(120,0,60,.35)',
-  }
-  const borderByRarity: Record<Rarity, string> = {
+  // Cores de borda/fundo por raridade
+  const borderMap: Record<Rarity, string> = {
     comum: theme.achievementCard.border,
-    incomum: 'rgba(80,160,255,.25)',
-    raro: 'rgba(180,80,255,.3)',
-    epico: 'rgba(255,190,30,.4)',
-    lendario: 'rgba(248,87,166,.5)',
+    incomum: 'rgba(80,160,255,.35)',
+    raro: 'rgba(180,80,255,.4)',
+    epico: 'rgba(255,190,30,.45)',
+    lendario: 'rgba(248,87,166,.55)',
   }
+  const bgMap: Record<Rarity, string> = {
+    comum: theme.achievementCard.bg,
+    incomum: 'rgba(20,60,160,.18)',
+    raro: 'rgba(100,30,180,.22)',
+    epico: 'rgba(140,90,0,.25)',
+    lendario: 'rgba(120,0,60,.3)',
+  }
+
+  const isHighlight = detail.rarity === 'lendario' || detail.rarity === 'epico'
 
   return (
-    <div
+    <button
+      onClick={onClick}
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '.6rem',
-        background: bgByRarity[rarity],
-        border: `1px solid ${borderByRarity[rarity]}`,
+        gap: '.7rem',
+        background: bgMap[detail.rarity],
+        border: `1px solid ${borderMap[detail.rarity]}`,
         borderRadius: 12,
-        padding: '.55rem .8rem',
-        position: 'relative',
-        overflow: 'hidden',
-        boxShadow: rarity === 'lendario' ? '0 0 12px rgba(248,87,166,.2)' : 'none',
+        padding: '.7rem .9rem',
+        width: '100%',
+        textAlign: 'left',
+        cursor: 'pointer',
         opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(14px)',
-        transition: `all .35s ease ${index * 0.08}s`,
+        transform: visible ? 'translateY(0)' : 'translateY(12px)',
+        transition: `all .35s ease ${Math.min(index * 0.08, 0.5)}s`,
+        boxShadow:
+          detail.rarity === 'lendario'
+            ? '0 0 12px rgba(248,87,166,.2)'
+            : detail.rarity === 'epico'
+            ? '0 0 8px rgba(255,190,30,.15)'
+            : 'none',
       }}
     >
       <span
         style={{
-          fontSize: isHighlight ? '1.4rem' : '1.2rem',
+          fontSize: isHighlight ? '1.5rem' : '1.3rem',
+          flexShrink: 0,
           filter:
-            rarity === 'lendario'
+            detail.rarity === 'lendario'
               ? 'drop-shadow(0 0 6px rgba(248,87,166,.8))'
-              : rarity === 'epico'
+              : detail.rarity === 'epico'
               ? 'drop-shadow(0 0 4px rgba(255,200,50,.6))'
-              : rarity === 'raro'
+              : detail.rarity === 'raro'
               ? 'drop-shadow(0 0 3px rgba(180,80,255,.4))'
               : 'none',
         }}
       >
-        {icon}
+        {detail.icon}
       </span>
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
         <div
           style={{
-            fontSize: '.85rem',
-            fontWeight: isHighlight ? 600 : 400,
+            fontSize: '.88rem',
+            fontWeight: isHighlight ? 600 : 500,
             color: isHighlight ? rc.color : theme.text.primary,
-            textShadow: rarity === 'lendario' ? `0 0 10px ${rc.color}` : 'none',
+            textShadow: detail.rarity === 'lendario' ? `0 0 10px ${rc.color}` : 'none',
           }}
         >
-          {label}
+          {detail.label}
         </div>
-        {isHighlight && (
-          <div
-            style={{
-              fontSize: '.6rem',
-              color: rc.color,
-              opacity: 0.7,
-              marginTop: 2,
-              letterSpacing: '.1em',
-            }}
-          >
-            {rc.label}
-            {isAuto && ' · AUTO'}
-          </div>
-        )}
-        {!isHighlight && isAuto && desc && (
-          <div
-            style={{
-              fontSize: '.65rem',
-              color: theme.text.muted,
-              marginTop: 2,
-              lineHeight: 1.3,
-            }}
-          >
-            {desc}
-          </div>
-        )}
       </div>
-    </div>
+      <span
+        style={{
+          fontSize: '.9rem',
+          color: theme.text.muted,
+          flexShrink: 0,
+        }}
+      >
+        ›
+      </span>
+    </button>
   )
 }
