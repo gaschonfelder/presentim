@@ -122,7 +122,7 @@ export default function SlideStats() {
       <p
         className="retro-v2-anim"
         style={{
-          fontSize: '.58rem',
+          fontSize: '.85rem',
           letterSpacing: '.3em',
           textTransform: 'uppercase',
           color: theme.text.eyebrow,
@@ -137,7 +137,7 @@ export default function SlideStats() {
         className="retro-v2-anim"
         style={{
           fontFamily: "'DM Serif Display',serif",
-          fontSize: 'clamp(1.8rem,7vw,2.4rem)',
+          fontSize: 'clamp(2.0rem,7vw,2.4rem)',
           color: theme.text.primary,
           textAlign: 'center',
           lineHeight: 1.15,
@@ -186,7 +186,7 @@ export default function SlideStats() {
           >
             <div
               style={{
-                fontSize: '1.8rem',
+                fontSize: '2rem',
                 flexShrink: 0,
                 width: 44,
                 textAlign: 'center',
@@ -197,7 +197,7 @@ export default function SlideStats() {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div
                 style={{
-                  fontSize: '.6rem',
+                  fontSize: '.7rem',
                   letterSpacing: '.15em',
                   textTransform: 'uppercase',
                   color: theme.text.muted,
@@ -209,7 +209,7 @@ export default function SlideStats() {
               <div
                 style={{
                   fontFamily: "'DM Serif Display',serif",
-                  fontSize: '1.35rem',
+                  fontSize: '1.5rem',
                   color: theme.text.primary,
                   lineHeight: 1.15,
                   background: theme.accentGradient,
@@ -223,7 +223,7 @@ export default function SlideStats() {
               </div>
               <div
                 style={{
-                  fontSize: '.72rem',
+                  fontSize: '.8rem',
                   color: theme.text.secondary,
                   marginTop: '.2rem',
                   lineHeight: 1.4,

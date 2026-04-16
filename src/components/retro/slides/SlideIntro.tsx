@@ -17,7 +17,7 @@ export default function SlideIntro() {
       <p
         className="retro-v2-anim"
         style={{
-          fontSize: '.58rem',
+          fontSize: '.78rem',
           letterSpacing: '.3em',
           textTransform: 'uppercase',
           color: theme.text.eyebrow,
@@ -32,7 +32,7 @@ export default function SlideIntro() {
         className="retro-v2-anim"
         style={{
           fontFamily: "'DM Serif Display',serif",
-          fontSize: 'clamp(2.4rem,10vw,3.6rem)',
+          fontSize: 'clamp(3.4rem,10vw,3.6rem)',
           color: theme.text.primary,
           textAlign: 'center',
           lineHeight: 1.05,
@@ -60,7 +60,7 @@ export default function SlideIntro() {
         style={{
           fontFamily: "'DM Serif Display',serif",
           fontStyle: 'italic',
-          fontSize: '1rem',
+          fontSize: '1.25rem',
           color: theme.text.secondary,
           animationDelay: '.4s',
         }}
@@ -91,7 +91,7 @@ export default function SlideIntro() {
         style={{
           position: 'absolute',
           bottom: '2rem',
-          fontSize: '.65rem',
+          fontSize: '.85rem',
           color: theme.text.muted,
           letterSpacing: '.18em',
           textTransform: 'uppercase',
@@ -118,7 +118,7 @@ function Chip({ children }: { children: React.ReactNode }) {
         border: `1px solid ${theme.chip.border}`,
         borderRadius: 50,
         padding: '.28rem .75rem',
-        fontSize: '.68rem',
+        fontSize: '.85rem',
         color: theme.chip.text,
         margin: 3,
       }}

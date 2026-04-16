@@ -10,17 +10,17 @@ type Props = {
   mode?: 'bottom' | 'spread'
 }
 
-export default function FloatingEmojis({ emojis, count = 16, mode = 'bottom' }: Props) {
+export default function FloatingEmojis({ emojis, count = 20, mode = 'bottom' }: Props) {
   const data = useMemo(
     () =>
       Array.from({ length: count }, (_, i) => ({
-        left: `${(pseudoRand(i * 13 + 1) * 100).toFixed(4)}%`,
+        left: `${(pseudoRand(i * 13 + 1) * 90).toFixed(4)}%`,
         top:
           mode === 'bottom'
             ? `${(60 + pseudoRand(i * 7 + 3) * 40).toFixed(4)}%`
             : `${(pseudoRand(i * 13 + 5) * 100).toFixed(4)}%`,
         fontSize: `${(0.8 + pseudoRand(i * 5 + 2) * 1.1).toFixed(4)}rem`,
-        duration: `${(7 + pseudoRand(i * 11 + 4) * 10).toFixed(4)}s`,
+        duration: `${(7 + pseudoRand(i * 11 + 4) * 5).toFixed(4)}s`,
         delay: `${(pseudoRand(i * 9 + 6) * 12).toFixed(4)}s`,
         emoji: emojis[i % emojis.length],
       })),

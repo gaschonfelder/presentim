@@ -119,7 +119,7 @@ export default function PhotoCarousel() {
       <p
         className="retro-v2-anim"
         style={{
-          fontSize: '.58rem',
+          fontSize: '.85rem',
           letterSpacing: '.3em',
           textTransform: 'uppercase',
           color: theme.text.eyebrow,
@@ -133,7 +133,7 @@ export default function PhotoCarousel() {
         className="retro-v2-anim"
         style={{
           fontFamily: "'DM Serif Display',serif",
-          fontSize: 'clamp(1.6rem,6vw,2rem)',
+          fontSize: 'clamp(2rem,6vw,2.8rem)',
           color: theme.text.primary,
           textAlign: 'center',
           lineHeight: 1.15,
@@ -160,10 +160,10 @@ export default function PhotoCarousel() {
         className="retro-v2-anim"
         style={{
           position: 'relative',
-          width: '85%',
-          maxWidth: 340,
+          width: '100%',
+          maxWidth: 500,
           flex: 1,
-          maxHeight: 460,
+          maxHeight: 600,
           borderRadius: 20,
           overflow: 'hidden',
           boxShadow: '0 20px 60px rgba(0,0,0,.5)',
@@ -215,8 +215,8 @@ export default function PhotoCarousel() {
               aria-label="Foto anterior"
               style={{
                 position: 'absolute',
-                top: '50%',
-                left: 10,
+                top: '93%',
+                left: 120,
                 transform: 'translateY(-50%)',
                 width: 38,
                 height: 38,
@@ -250,8 +250,8 @@ export default function PhotoCarousel() {
               aria-label="Próxima foto"
               style={{
                 position: 'absolute',
-                top: '50%',
-                right: 10,
+                top: '93%',
+                right: 120,
                 transform: 'translateY(-50%)',
                 width: 38,
                 height: 38,
@@ -284,7 +284,7 @@ export default function PhotoCarousel() {
       {/* Info/tag abaixo do card */}
       <div
         style={{
-          marginTop: '1rem',
+          marginTop: '1.25rem',
           minHeight: 54,
           display: 'flex',
           flexDirection: 'column',

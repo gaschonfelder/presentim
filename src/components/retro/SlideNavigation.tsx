@@ -95,7 +95,7 @@ export default function SlideNavigation({ children }: Props) {
 
         .retro-v2-nav{
           position:absolute;
-          top:50%;
+          top:85%;
           transform:translateY(-50%);
           z-index:20;
           background:${theme.nav.bg};

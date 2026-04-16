@@ -82,7 +82,7 @@ export default function SlideCounter() {
       <p
         className="retro-v2-anim"
         style={{
-          fontSize: '.58rem',
+          fontSize: '.85rem',
           letterSpacing: '.3em',
           textTransform: 'uppercase',
           color: theme.text.eyebrow,
@@ -96,7 +96,7 @@ export default function SlideCounter() {
         className="retro-v2-anim"
         style={{
           fontFamily: "'DM Serif Display',serif",
-          fontSize: 'clamp(2rem,8vw,2.8rem)',
+          fontSize: 'clamp(2.3rem,8vw,2.8rem)',
           color: theme.text.primary,
           textAlign: 'center',
           lineHeight: 1.12,

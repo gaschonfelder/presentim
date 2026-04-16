@@ -101,19 +101,19 @@ export const ALL_ACHIEVEMENTS: Record<string, AchievementInfo> = {
 
 export const TIME_ACHIEVEMENTS: TimeAchievement[] = [
   { dias: 7,    icon: '🥉', medal: 'bronze',  name: 'Primeiro Checkpoint',     desc: 'Vocês sobreviveram à primeira semana sem se cansar um do outro.' },
-  { dias: 30,   icon: '🥉', medal: 'bronze',  name: 'Modo Tutorial Concluído', desc: 'Já sabem o gosto musical, comidas favoritas e algumas manias.' },
+  { dias: 30,   icon: '🥉', medal: 'bronze',  name: 'Modo Tutorial Concluído', desc: 'Já sabem o gosto musical, comidas favoritas e algumas manias - 1 mês juntos' },
   { dias: 90,   icon: '🥈', medal: 'silver',  name: 'Crise dos 3',             desc: 'Primeiros pequenos conflitos superados. O jogo ficou sério.' },
-  { dias: 180,  icon: '🥈', medal: 'silver',  name: 'Party Formada',           desc: 'Vocês já funcionam como um time.' },
+  { dias: 180,  icon: '🥈', medal: 'silver',  name: 'Party Formada',           desc: 'Vocês já funcionam como um time - 6 meses juntos' },
   { dias: 270,  icon: '🥇', medal: 'gold',    name: 'Bug Descoberto',          desc: 'Agora vocês conhecem os defeitos um do outro.' },
-  { dias: 365,  icon: '🏆', medal: 'trophy',  name: 'Primeiro Boss Derrotado', desc: 'Um ciclo completo. A relação passou pelo teste do tempo.' },
-  { dias: 500,  icon: '🏆', medal: 'trophy',  name: 'Meio Milhar',             desc: '500 dias de uma história que vale a pena contar.' },
-  { dias: 548,  icon: '🏆', medal: 'trophy',  name: 'DLC Emocional',           desc: 'Já passaram por momentos bons e difíceis juntos.' },
-  { dias: 730,  icon: '🏆', medal: 'trophy',  name: 'Co-op Avançado',          desc: 'Já existe rotina, planos e histórias suficientes para um livro.' },
-  { dias: 1000, icon: '💎', medal: 'diamond', name: 'Milésimo Dia',            desc: 'Mil dias de provas de que isso é real.' },
-  { dias: 1095, icon: '💎', medal: 'diamond', name: 'Veteranos do Jogo',       desc: 'Vocês conhecem as estratégias um do outro.' },
-  { dias: 1825, icon: '💎', medal: 'diamond', name: 'Guilda Permanente',       desc: 'Já enfrentaram vários bosses da vida juntos.' },
-  { dias: 2000, icon: '💎', medal: 'diamond', name: 'Dois Mil Razões',         desc: 'Duas mil razões pra continuar escolhendo vocês.' },
-  { dias: 3650, icon: '👑', medal: 'crown',   name: 'Lenda Viva',              desc: 'Casal desbloqueado no ranking lendário.' },
+  { dias: 365,  icon: '🏆', medal: 'trophy',  name: 'Primeiro Boss Derrotado', desc: 'Um ciclo completo. A relação passou pelo teste do tempo - 1 ano juntos' },
+  { dias: 500,  icon: '🏆', medal: 'trophy',  name: 'Meio Milhar',             desc: '500 dias de uma história que vale a pena contar - 500 dias juntos' },
+  { dias: 550,  icon: '🏆', medal: 'trophy',  name: 'DLC Emocional',           desc: 'Já passaram por momentos bons e difíceis juntos - 550 dias juntos' },
+  { dias: 730,  icon: '🏆', medal: 'trophy',  name: 'Co-op Avançado',          desc: 'Já existe rotina, planos e histórias suficientes para um livro - 2 anos juntos' },
+  { dias: 1000, icon: '💎', medal: 'diamond', name: 'Milésimo Dia',            desc: 'Mil dias de provas de que isso é real - 1000 dias juntos' },
+  { dias: 1095, icon: '💎', medal: 'diamond', name: 'Veteranos do Jogo',       desc: 'Vocês conhecem as estratégias um do outro - 3 anos dias juntos' },
+  { dias: 1825, icon: '💎', medal: 'diamond', name: 'Guilda Permanente',       desc: 'Já enfrentaram vários bosses da vida juntos - 5 anos juntos' },
+  { dias: 2000, icon: '💎', medal: 'diamond', name: 'Dois Mil Razões',         desc: 'Duas mil razões pra continuar escolhendo vocês - 2000 dias juntos' },
+  { dias: 3650, icon: '👑', medal: 'crown',   name: 'Lenda Viva',              desc: 'Casal desbloqueado no ranking lendário - 10 anos juntos' },
 ]
 
 /** Ordem de prioridade de medalhas (menor = mais raro) */

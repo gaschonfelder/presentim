@@ -14,7 +14,7 @@ export default function SlideSeason() {
       <div
         className="retro-v2-anim"
         style={{
-          fontSize: '5rem',
+          fontSize: '7rem',
           marginBottom: '1rem',
           filter: 'drop-shadow(0 0 20px rgba(255,200,0,.4))',
         }}
@@ -25,7 +25,7 @@ export default function SlideSeason() {
       <p
         className="retro-v2-anim"
         style={{
-          fontSize: '.58rem',
+          fontSize: '.85rem',
           letterSpacing: '.3em',
           textTransform: 'uppercase',
           color: theme.text.eyebrow,
@@ -40,10 +40,10 @@ export default function SlideSeason() {
         className="retro-v2-anim"
         style={{
           fontFamily: "'DM Serif Display',serif",
-          fontSize: 'clamp(2rem,8vw,2.8rem)',
+          fontSize: 'clamp(2.5rem,8vw,2.8rem)',
           color: theme.text.primary,
           textAlign: 'center',
-          lineHeight: 1.12,
+          lineHeight: 1.2,
           marginBottom: '.6rem',
           animationDelay: '.3s',
         }}
@@ -65,7 +65,7 @@ export default function SlideSeason() {
       <p
         className="retro-v2-anim"
         style={{
-          fontSize: '.9rem',
+          fontSize: '1rem',
           color: theme.text.secondary,
           textAlign: 'center',
           lineHeight: 1.7,
@@ -99,7 +99,7 @@ export default function SlideSeason() {
               border: `1px solid ${theme.chip.border}`,
               borderRadius: 50,
               padding: '.28rem .75rem',
-              fontSize: '.68rem',
+              fontSize: '.85rem',
               color: theme.chip.text,
               margin: 3,
             }}
