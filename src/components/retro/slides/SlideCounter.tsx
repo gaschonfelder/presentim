@@ -1,7 +1,55 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRetro } from '../RetroProvider'
+
+// Easing: começa rápido, desacelera no final (ease-out cubic)
+function easeOutCubic(t: number): number {
+  return 1 - Math.pow(1 - t, 3)
+}
+
+const COUNT_UP_DURATION_MS = 2000
+
+/**
+ * Hook que anima um valor de 0 até `target` em `duration` ms.
+ * Só inicia quando `active` vira true, e reseta se o slide sair e voltar.
+ */
+function useCountUp(target: number, active: boolean, duration = COUNT_UP_DURATION_MS) {
+  const [value, setValue] = useState(0)
+  const rafRef = useRef<number | null>(null)
+  const startTimeRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    if (!active) {
+      setValue(0)
+      startTimeRef.current = null
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      return
+    }
+
+    function step(ts: number) {
+      if (startTimeRef.current === null) startTimeRef.current = ts
+      const elapsed = ts - startTimeRef.current
+      const progress = Math.min(1, elapsed / duration)
+      const eased = easeOutCubic(progress)
+      setValue(Math.floor(eased * target))
+
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(step)
+      } else {
+        setValue(target) // garante valor final exato
+      }
+    }
+
+    rafRef.current = requestAnimationFrame(step)
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    }
+  }, [target, active, duration])
+
+  return value
+}
 
 export default function SlideCounter() {
   const { slide, startDate, theme } = useRetro()
@@ -25,10 +73,20 @@ export default function SlideCounter() {
   const monthsCount = Math.floor(daysCount / 30.44)
   const yearsCount = Math.floor(daysCount / 365.25)
 
+  // Valores alvo pros campos animados (anos / meses / dias)
+  const yearsTarget = yearsCount
+  const monthsTarget = monthsCount % 12
+  const daysTarget = daysCount % 30
+
+  // Valores animados — sobem de 0 até o target quando o slide abre
+  const yearsAnim = useCountUp(yearsTarget, isActive)
+  const monthsAnim = useCountUp(monthsTarget, isActive)
+  const daysAnim = useCountUp(daysTarget, isActive)
+
   const items = [
-    { v: yearsCount, l: 'anos' },
-    { v: monthsCount % 12, l: 'meses' },
-    { v: daysCount % 30, l: 'dias' },
+    { v: yearsAnim, l: 'anos' },
+    { v: monthsAnim, l: 'meses' },
+    { v: daysAnim, l: 'dias' },
     { v: hours, l: 'horas' },
     { v: mins, l: 'min' },
     { v: secs, l: 'seg' },
