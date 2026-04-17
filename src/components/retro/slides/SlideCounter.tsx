@@ -82,7 +82,7 @@ export default function SlideCounter() {
       <p
         className="retro-v2-anim"
         style={{
-          fontSize: '.85rem',
+          fontSize: '.58rem',
           letterSpacing: '.3em',
           textTransform: 'uppercase',
           color: theme.text.eyebrow,
@@ -96,7 +96,7 @@ export default function SlideCounter() {
         className="retro-v2-anim"
         style={{
           fontFamily: "'DM Serif Display',serif",
-          fontSize: 'clamp(2.3rem,8vw,2.8rem)',
+          fontSize: 'clamp(2rem,8vw,2.8rem)',
           color: theme.text.primary,
           textAlign: 'center',
           lineHeight: 1.12,
@@ -193,9 +193,12 @@ function AnimatedCell({
 // ─── Ticker vivo — isolado (horas/min/seg atualizando ao vivo) ───────────────
 
 function LiveTicker({ startDate, isActive }: { startDate: Date; isActive: boolean }) {
-  const [totalSecs, setTotalSecs] = useState<number>(() =>
-    Math.floor((Date.now() - startDate.getTime()) / 1000),
-  )
+  const [totalSecs, setTotalSecs] = useState(0)
+
+  // Calcula valor real só no client (evita mismatch de hidratação)
+  useEffect(() => {
+    setTotalSecs(Math.floor((Date.now() - startDate.getTime()) / 1000))
+  }, [startDate])
 
   useEffect(() => {
     if (!isActive) return

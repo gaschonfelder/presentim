@@ -162,6 +162,9 @@ export default function RetrospectivaNovoPage() {
   const [musicaInfo, setMusicaInfo] = useState<{ videoId: string; title: string; thumb: string } | null>(null)
   const [musicaErro, setMusicaErro] = useState('')
 
+  // Tema
+  const [tema, setTema] = useState('neon')
+
   useEffect(() => {
     async function verificar() {
       const { data: { user } } = await supabase.auth.getUser()
@@ -331,6 +334,7 @@ export default function RetrospectivaNovoPage() {
         conquistas: conquistasComFoto,
         fotos: fotos.filter(Boolean),
         musica: musicaInfo ? { videoId: musicaInfo.videoId, title: musicaInfo.title } : null,
+        tema,
       }
       const { error } = await supabase.from('presentes').insert({
         user_id: user!.id, slug, tipo: 'retrospectiva',
@@ -559,6 +563,75 @@ export default function RetrospectivaNovoPage() {
               <button className="musica-clear" onClick={() => { setMusicaInfo(null); setMusicaLink('') }}>✕</button>
             </div>
           )}
+        </div>
+
+        {/* Tema visual */}
+        <div className="section">
+          <div className="section-label">🎨 Tema da retrospectiva</div>
+          <p style={{ fontSize:'.78rem', color:'rgba(255,255,255,.3)', marginBottom:16, lineHeight:1.6 }}>
+            Escolha o estilo visual da retrospectiva. O tema define todas as cores dos slides.
+          </p>
+          <div style={{ display:'flex', gap:12 }}>
+            {/* Neon (escuro) */}
+            <div
+              onClick={() => setTema('neon')}
+              style={{
+                flex:1,
+                padding:'16px 14px',
+                borderRadius:16,
+                border: tema === 'neon' ? '2px solid #f857a6' : '2px solid rgba(255,255,255,.1)',
+                background: tema === 'neon' ? 'rgba(248,87,166,.1)' : 'rgba(255,255,255,.03)',
+                cursor:'pointer',
+                transition:'all .2s',
+                textAlign:'center',
+              }}
+            >
+              <div style={{
+                width:'100%',
+                height:64,
+                borderRadius:10,
+                background:'radial-gradient(ellipse at 50% 30%, #2d0033 0%, #06050f 100%)',
+                marginBottom:10,
+                display:'flex',
+                alignItems:'center',
+                justifyContent:'center',
+                fontSize:'1.5rem',
+              }}>🌙</div>
+              <div style={{ fontWeight:600, fontSize:'.85rem', color: tema === 'neon' ? 'white' : 'rgba(255,255,255,.6)' }}>Neon</div>
+              <div style={{ fontSize:'.65rem', color:'rgba(255,255,255,.3)', marginTop:2 }}>Escuro com destaques vibrantes</div>
+              {tema === 'neon' && <div style={{ marginTop:8, fontSize:'.6rem', color:'#f857a6', fontWeight:600, letterSpacing:'.1em', textTransform:'uppercase' }}>✓ Selecionado</div>}
+            </div>
+
+            {/* Aurora (claro) */}
+            <div
+              onClick={() => setTema('aurora')}
+              style={{
+                flex:1,
+                padding:'16px 14px',
+                borderRadius:16,
+                border: tema === 'aurora' ? '2px solid #d4637b' : '2px solid rgba(255,255,255,.1)',
+                background: tema === 'aurora' ? 'rgba(212,99,123,.1)' : 'rgba(255,255,255,.03)',
+                cursor:'pointer',
+                transition:'all .2s',
+                textAlign:'center',
+              }}
+            >
+              <div style={{
+                width:'100%',
+                height:64,
+                borderRadius:10,
+                background:'radial-gradient(ellipse at 50% 30%, #fff5f7 0%, #fce4ec 100%)',
+                marginBottom:10,
+                display:'flex',
+                alignItems:'center',
+                justifyContent:'center',
+                fontSize:'1.5rem',
+              }}>🌅</div>
+              <div style={{ fontWeight:600, fontSize:'.85rem', color: tema === 'aurora' ? 'white' : 'rgba(255,255,255,.6)' }}>Aurora</div>
+              <div style={{ fontSize:'.65rem', color:'rgba(255,255,255,.3)', marginTop:2 }}>Claro com tons suaves e delicados</div>
+              {tema === 'aurora' && <div style={{ marginTop:8, fontSize:'.6rem', color:'#d4637b', fontWeight:600, letterSpacing:'.1em', textTransform:'uppercase' }}>✓ Selecionado</div>}
+            </div>
+          </div>
         </div>
 
         {/* Conquistas */}
