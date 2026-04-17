@@ -90,6 +90,10 @@ export default function EditarPage({ params }: { params: Promise<{ id: string }>
   // Preview da animação caindo (modal)
   const [showFaPreview, setShowFaPreview] = useState(false)
 
+  // Trava de edição (7 dias)
+  const [expirado, setExpirado] = useState(false)
+  const [diasRestantes, setDiasRestantes] = useState(7)
+
   function extrairVideoId(url: string): string | null {
     const m = url.match(/(?:v=|youtu\.be\/|shorts\/)([\w-]{11})/)
     return m ? m[1] : null
@@ -136,6 +140,22 @@ export default function EditarPage({ params }: { params: Promise<{ id: string }>
         termo_dica: data.termo_config?.dica ?? '',
         falling_animation: data.falling_animation ?? DEFAULT_FALLING_ANIMATION,
       })
+
+      // Trava de edição: 7 dias após criação
+      if (data.created_at) {
+        const criadoEm = new Date(data.created_at)
+        const agora = new Date()
+        const diffMs = agora.getTime() - criadoEm.getTime()
+        const diffDias = Math.floor(diffMs / 86400000)
+        const restantes = 7 - diffDias
+        if (restantes <= 0) {
+          setExpirado(true)
+          setDiasRestantes(0)
+        } else {
+          setDiasRestantes(restantes)
+        }
+      }
+
       setLoading(false)
     }
     carregar()
@@ -273,6 +293,17 @@ export default function EditarPage({ params }: { params: Promise<{ id: string }>
     </div>
   )
 
+  if (expirado) return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#fff8f9', textAlign: 'center', padding: 24 }}>
+      <div style={{ fontSize: '3rem', marginBottom: 16 }}>⏰</div>
+      <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.6rem', color: '#3d1f28', marginBottom: 8 }}>Prazo de edição expirado</h2>
+      <p style={{ color: '#7a4f5a', marginBottom: 24, lineHeight: 1.6, maxWidth: 400 }}>
+        O prazo de 7 dias para editar este presente já passou. Os presentes ficam bloqueados para edição após esse período para garantir a integridade do presente.
+      </p>
+      <Link href="/dashboard" style={{ color: '#e8627a', fontWeight: 700 }}>← Voltar ao dashboard</Link>
+    </div>
+  )
+
   const tabs = ['✍️ Conteúdo', '🎨 Visual', '📅 Data']
 
   return (
@@ -362,6 +393,7 @@ export default function EditarPage({ params }: { params: Promise<{ id: string }>
         <div className="navbar-left">
           <Link href="/" className="nav-logo">Presentim</Link>
           <span className="nav-title">/ <span>Editar presente</span></span>
+          <span style={{ fontSize:'.72rem', color:'var(--text-soft)', marginLeft:8 }}>⏳ {diasRestantes} dia{diasRestantes !== 1 ? 's' : ''} restante{diasRestantes !== 1 ? 's' : ''}</span>
         </div>
         <div className="navbar-right">
           <Link href="/dashboard" className="btn-cancelar">Cancelar</Link>

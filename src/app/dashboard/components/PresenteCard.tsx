@@ -3,7 +3,7 @@ import type { Presente } from '@/types'
 import styles from './PresenteCard.module.css'
 
 import {
-  Eye,Share, Video, Edit, Trash2,
+  Eye, Share, Video, Edit, Trash2, Lock,
 } from 'lucide-react'
 
 
@@ -33,6 +33,12 @@ export default function PresenteCard({
   const verHref = isRetro ? `/retrospectiva/${p.slug}` : `/p/${p.slug}`
   const editarHref = isRetro ? `/retrospectiva/editar/${p.id}` : `/editar/${p.id}`
   const linkPath = isRetro ? `/retrospectiva/${p.slug}` : `/p/${p.slug}`
+
+  // Trava de edição: 7 dias após criação
+  const criadoEm = new Date(p.created_at)
+  const diffDias = Math.floor((Date.now() - criadoEm.getTime()) / 86400000)
+  const podeEditar = diffDias < 7
+  const diasRestantes = Math.max(0, 7 - diffDias)
 
   return (
     <div className={styles.card}>
@@ -81,9 +87,15 @@ export default function PresenteCard({
         >
           <Share size={15} strokeWidth={2} /> Compartilhar
         </button>
-        <Link href={editarHref} className={`${styles.btn} ${styles.btnEditar}`}>
-          <Edit size={15} strokeWidth={2} /> Editar
-        </Link>
+        {podeEditar ? (
+          <Link href={editarHref} className={`${styles.btn} ${styles.btnEditar}`}>
+            <Edit size={15} strokeWidth={2} /> Editar ({diasRestantes}d)
+          </Link>
+        ) : (
+          <span className={`${styles.btn} ${styles.btnEditar}`} style={{ opacity: 0.4, cursor: 'default', pointerEvents: 'none' }}>
+            <Lock size={15} strokeWidth={2} /> Editar
+          </span>
+        )}
         <button
           className={`${styles.btn} ${styles.btnDeletar}`}
           onClick={() => onDeletar(p.id)}
