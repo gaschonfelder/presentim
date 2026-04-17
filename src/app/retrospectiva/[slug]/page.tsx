@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
-import RetrospectivaPlayer from './RetrospectivaPlayer'
+import RetrospectivaV2 from '@/components/retro/RetrospectivaV2'
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://presentim.app'
 
@@ -38,7 +38,7 @@ export async function generateMetadata(
     robots: { index: false, follow: false },
     openGraph: {
       type: 'website',
-      url: `${BASE_URL}/retrospectiva/${slug}`,
+      url: `${BASE_URL}/retrospectiva/v2/${slug}`,
       title: titulo,
       description: descricao,
       siteName: 'Presentim',
@@ -60,7 +60,11 @@ export async function generateMetadata(
   }
 }
 
-export default async function RetrospectivaPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function RetrospectivaV2Page({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}) {
   const supabase = await createClient()
   const { slug } = await params
 
@@ -74,11 +78,8 @@ export default async function RetrospectivaPage({ params }: { params: Promise<{ 
 
   if (error || !presente) notFound()
 
-  // Incrementar visualizações
-  await supabase
-    .from('presentes')
-    .update({ visualizacoes: (presente.visualizacoes ?? 0) + 1 })
-    .eq('id', presente.id)
+  // NOTA: V2 em desenvolvimento — não incrementa visualizações
+  // (pra não poluir métricas da versão em produção)
 
   const dados = presente.dados_retro as {
     nome1: string
@@ -88,7 +89,9 @@ export default async function RetrospectivaPage({ params }: { params: Promise<{ 
     mensagem: string
     conquistas: string[]
     fotos: string[]
+    musica?: { videoId: string; title: string } | null
+    tema?: string | null
   }
 
-  return <RetrospectivaPlayer dados={dados} />
+  return <RetrospectivaV2 dados={dados} />
 }
