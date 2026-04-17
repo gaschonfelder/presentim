@@ -47,6 +47,13 @@ export default function RetrospectivaEditarPage({ params }: { params: Promise<{ 
   const [musicaInfo, setMusicaInfo] = useState<MusicaInfo | null>(null)
   const [musicaErro, setMusicaErro] = useState('')
 
+  // Tema
+  const [tema, setTema] = useState('neon')
+
+  // Trava de edição (7 dias)
+  const [expirado, setExpirado] = useState(false)
+  const [diasRestantes, setDiasRestantes] = useState(7)
+
   const fotosPreenchidas = fotos.filter(Boolean) as string[]
 
   // ─── Carrega dados existentes ────────────────────────────────────────────────
@@ -93,6 +100,24 @@ export default function RetrospectivaEditarPage({ params }: { params: Promise<{ 
         const { videoId, title } = d.musica
         setMusicaInfo({ videoId, title, thumb: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` })
         setMusicaLink(`https://www.youtube.com/watch?v=${videoId}`)
+      }
+
+      // Tema
+      setTema(d.tema ?? 'neon')
+
+      // Trava de edição: 7 dias após criação
+      if (data.created_at) {
+        const criadoEm = new Date(data.created_at)
+        const agora = new Date()
+        const diffMs = agora.getTime() - criadoEm.getTime()
+        const diffDias = Math.floor(diffMs / 86400000)
+        const restantes = 7 - diffDias
+        if (restantes <= 0) {
+          setExpirado(true)
+          setDiasRestantes(0)
+        } else {
+          setDiasRestantes(restantes)
+        }
       }
 
       setLoading(false)
@@ -249,6 +274,7 @@ export default function RetrospectivaEditarPage({ params }: { params: Promise<{ 
         conquistas: conquistasComFoto,
         fotos: fotos.filter(Boolean),
         musica: musicaInfo ? { videoId: musicaInfo.videoId, title: musicaInfo.title } : null,
+        tema,
       }
       const { error } = await supabase
         .from('presentes')
@@ -276,6 +302,17 @@ export default function RetrospectivaEditarPage({ params }: { params: Promise<{ 
       <div style={{ fontSize:'3rem' }}>🔍</div>
       <p style={{ color:'rgba(255,255,255,.5)' }}>Retrospectiva não encontrada.</p>
       <Link href="/dashboard" style={{ color:'#f857a6', fontSize:'.9rem' }}>← Voltar ao dashboard</Link>
+    </div>
+  )
+
+  if (expirado) return (
+    <div style={{ minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', background:'#06050f', color:'white', gap:16, padding:'0 24px', textAlign:'center' }}>
+      <div style={{ fontSize:'3rem' }}>⏰</div>
+      <h2 style={{ fontFamily:"'DM Serif Display',serif", fontSize:'1.6rem' }}>Prazo de edição expirado</h2>
+      <p style={{ color:'rgba(255,255,255,.45)', fontSize:'.9rem', lineHeight:1.6, maxWidth:400 }}>
+        O prazo de 7 dias para editar esta retrospectiva já passou. As retrospectivas ficam bloqueadas para edição após esse período para garantir a integridade do presente.
+      </p>
+      <Link href="/dashboard" style={{ color:'#f857a6', fontSize:'.9rem', marginTop:8 }}>← Voltar ao dashboard</Link>
     </div>
   )
 
@@ -388,8 +425,8 @@ export default function RetrospectivaEditarPage({ params }: { params: Promise<{ 
         </div>
 
         <div className="aviso-edicao">
-          <span style={{ fontSize:'1.2rem' }}>✅</span>
-          <span>Você pode editar quantas vezes quiser. As alterações aparecem imediatamente para quem abrir o link.</span>
+          <span style={{ fontSize:'1.2rem' }}>⏳</span>
+          <span>Você tem <strong>{diasRestantes} dia{diasRestantes !== 1 ? 's' : ''}</strong> restante{diasRestantes !== 1 ? 's' : ''} para editar esta retrospectiva.</span>
         </div>
 
         {/* Nomes e data */}
@@ -487,6 +524,44 @@ export default function RetrospectivaEditarPage({ params }: { params: Promise<{ 
               <button className="musica-clear" onClick={() => { setMusicaInfo(null); setMusicaLink('') }}>✕</button>
             </div>
           )}
+        </div>
+
+        {/* Tema visual */}
+        <div className="section">
+          <div className="section-label">🎨 Tema da retrospectiva</div>
+          <p style={{ fontSize:'.78rem', color:'rgba(255,255,255,.3)', marginBottom:16, lineHeight:1.6 }}>
+            Escolha o estilo visual da retrospectiva. O tema define todas as cores dos slides.
+          </p>
+          <div style={{ display:'flex', gap:12 }}>
+            <div
+              onClick={() => setTema('neon')}
+              style={{
+                flex:1, padding:'16px 14px', borderRadius:16,
+                border: tema === 'neon' ? '2px solid #f857a6' : '2px solid rgba(255,255,255,.1)',
+                background: tema === 'neon' ? 'rgba(248,87,166,.1)' : 'rgba(255,255,255,.03)',
+                cursor:'pointer', transition:'all .2s', textAlign:'center',
+              }}
+            >
+              <div style={{ width:'100%', height:64, borderRadius:10, background:'radial-gradient(ellipse at 50% 30%, #2d0033 0%, #06050f 100%)', marginBottom:10, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.5rem' }}>🌙</div>
+              <div style={{ fontWeight:600, fontSize:'.85rem', color: tema === 'neon' ? 'white' : 'rgba(255,255,255,.6)' }}>Neon</div>
+              <div style={{ fontSize:'.65rem', color:'rgba(255,255,255,.3)', marginTop:2 }}>Escuro com destaques vibrantes</div>
+              {tema === 'neon' && <div style={{ marginTop:8, fontSize:'.6rem', color:'#f857a6', fontWeight:600, letterSpacing:'.1em', textTransform:'uppercase' }}>✓ Selecionado</div>}
+            </div>
+            <div
+              onClick={() => setTema('aurora')}
+              style={{
+                flex:1, padding:'16px 14px', borderRadius:16,
+                border: tema === 'aurora' ? '2px solid #d4637b' : '2px solid rgba(255,255,255,.1)',
+                background: tema === 'aurora' ? 'rgba(212,99,123,.1)' : 'rgba(255,255,255,.03)',
+                cursor:'pointer', transition:'all .2s', textAlign:'center',
+              }}
+            >
+              <div style={{ width:'100%', height:64, borderRadius:10, background:'radial-gradient(ellipse at 50% 30%, #fff5f7 0%, #fce4ec 100%)', marginBottom:10, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.5rem' }}>🌅</div>
+              <div style={{ fontWeight:600, fontSize:'.85rem', color: tema === 'aurora' ? 'white' : 'rgba(255,255,255,.6)' }}>Aurora</div>
+              <div style={{ fontSize:'.65rem', color:'rgba(255,255,255,.3)', marginTop:2 }}>Claro com tons suaves e delicados</div>
+              {tema === 'aurora' && <div style={{ marginTop:8, fontSize:'.6rem', color:'#d4637b', fontWeight:600, letterSpacing:'.1em', textTransform:'uppercase' }}>✓ Selecionado</div>}
+            </div>
+          </div>
         </div>
 
         {/* Conquistas */}
