@@ -1,10 +1,14 @@
 'use client'
 
+import { useState } from 'react'
 import { useRetro } from '../RetroProvider'
+import ShareModal from '../ShareModal'
 
 export default function SlideEnd() {
   const { slide, nome1, nome2, theme } = useRetro()
   const isActive = slide === 8
+
+  const [shareOpen, setShareOpen] = useState(false)
 
   function onShareLink(e: React.MouseEvent) {
     e.stopPropagation()
@@ -100,9 +104,12 @@ export default function SlideEnd() {
           animationDelay: '.5s',
         }}
       >
-        {/* Placeholder: botão Stories virá na Fase 5 */}
+        {/* Botão Stories */}
         <button
-          disabled
+          onClick={(e) => {
+            e.stopPropagation()
+            setShareOpen(true)
+          }}
           style={{
             width: '100%',
             display: 'inline-flex',
@@ -117,14 +124,14 @@ export default function SlideEnd() {
             fontSize: '.9rem',
             fontWeight: 600,
             padding: '.9rem 2rem',
-            cursor: 'not-allowed',
-            opacity: 0.6,
+            cursor: 'pointer',
             boxShadow: `0 8px 28px ${theme.accent}55`,
           }}
         >
-          📲 Salvar para Stories (em breve)
+          📲 Salvar para Stories
         </button>
 
+        {/* Botão compartilhar link */}
         <button
           onClick={onShareLink}
           style={{
@@ -147,6 +154,9 @@ export default function SlideEnd() {
           🔗 Compartilhar link
         </button>
       </div>
+
+      {/* Modal de seleção de slides */}
+      <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} />
 
       <style>{`
         @keyframes endpulse {

@@ -116,6 +116,7 @@ export default function MusicPlayer() {
       {/* Chip flutuante — aparece quando player tá pronto */}
       {ready && (
         <div
+          className="retro-music-chip"
           onClick={togglePlay}
           style={{
             position: 'absolute',
