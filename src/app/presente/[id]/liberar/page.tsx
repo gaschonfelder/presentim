@@ -6,13 +6,21 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 
-type Plano = 'starter' | 'popular' | 'max'
+type Plano = 'starter' | 'duo' | 'popular' | 'max'
 
 const PLANOS = [
   {
     id: 'starter' as Plano,
     creditos: 1,
     precoFmt: 'R$ 5,90',
+    porCredito: 'R$ 5,90 por crédito',
+    destaque: false,
+    badge: null,
+  },
+  {
+    id: 'duo' as Plano,
+    creditos: 2,
+    precoFmt: 'R$ 11,80',
     porCredito: 'R$ 5,90 por crédito',
     destaque: false,
     badge: null,

@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
 
     const planos: Record<string, { nome: string; preco: number; creditos: number }> = {
       starter: { nome: '1 Crédito — Presentim', preco: 5.90, creditos: 1 },
+      duo:     { nome: '2 Créditos — Presentim', preco: 11.80, creditos: 2 },
       popular: { nome: '3 Créditos — Presentim', preco: 14.90, creditos: 3 },
       max:     { nome: '6 Créditos — Presentim', preco: 24.90, creditos: 6 },
     }
