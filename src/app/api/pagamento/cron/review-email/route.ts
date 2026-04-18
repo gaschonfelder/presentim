@@ -153,7 +153,7 @@ function buildEmailHtml(nome: string): string {
 
       <div style="text-align:center;margin-bottom:28px">
         <a href="${baseUrl}/feedback"
-           style="display:inline-block;background:linear-gradient(135deg,#e8627a,#c94f68);color:white;padding:14px 36px;border-radius:50px;font-weight:700;font-size:.95rem;text-decoration:none;box-shadow:0 6px 20px rgba(232,98,122,.3)">
+           style="display:inline-block;background-color:#e8627a;background:linear-gradient(135deg,#e8627a,#c94f68);color:white;padding:14px 36px;border-radius:50px;font-weight:700;font-size:.95rem;text-decoration:none;box-shadow:0 6px 20px rgba(232,98,122,.3)">
           ⭐ Avaliar minha experiência
         </a>
       </div>
