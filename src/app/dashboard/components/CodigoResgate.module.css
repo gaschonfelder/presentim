@@ -1,0 +1,128 @@
+.toggleBtn {
+  background: none;
+  border: 1px dashed #f9a8b8;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 0.82rem;
+  color: #7a4f5a;
+  cursor: pointer;
+  font-family: 'Lato', sans-serif;
+  transition: all 0.2s;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.toggleBtn:hover {
+  border-color: #e8627a;
+  color: #e8627a;
+  background: #fff5f7;
+}
+
+.container {
+  border: 1px solid #fce4ea;
+  border-radius: 16px;
+  padding: 16px;
+  background: white;
+  margin-top: 8px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.headerTitle {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #3d1f28;
+}
+
+.fechar {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: #b08090;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.fechar:hover {
+  background: #fdf0f3;
+  color: #e8627a;
+}
+
+.inputRow {
+  display: flex;
+  gap: 8px;
+}
+
+.input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1.5px solid #fce4ea;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-family: 'Lato', sans-serif;
+  color: #3d1f28;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  border-color: #e8627a;
+}
+
+.input::placeholder {
+  text-transform: none;
+  letter-spacing: normal;
+  color: #c4a0aa;
+}
+
+.btnResgatar {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #e8627a, #c94f68);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: 'Lato', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btnResgatar:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(232, 98, 122, 0.3);
+}
+
+.btnResgatar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.erro {
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: #c0415a;
+  background: #fff0f0;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.sucesso {
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: #2a8a5a;
+  background: #e8f7f0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+}

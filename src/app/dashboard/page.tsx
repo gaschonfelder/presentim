@@ -11,6 +11,7 @@ import CardsResumo from './components/CardsResumo'
 import ListaPresentes from './components/ListaPresentes'
 import ModalEscolherTipo from './components/ModalEscolherTipo'
 import ModalCompartilhar from './components/ModalCompartilhar'
+import CodigoResgate from './components/CodigoResgate'
 import Toast from './components/Toast'
 
 
@@ -136,6 +137,14 @@ function DashboardContent() {
           creditos={profile?.creditos ?? 0}
           totalPresentes={presentes.length}
           totalVisualizacoes={totalVisualizacoes}
+        />
+
+        <CodigoResgate
+          onSucesso={(creditos) => {
+            setProfile(prev => prev ? { ...prev, creditos: (prev.creditos ?? 0) + creditos } : prev)
+            setToast(`🎉 +${creditos} crédito${creditos > 1 ? 's' : ''} adicionado${creditos > 1 ? 's' : ''}!`)
+            setTimeout(() => setToast(null), 4000)
+          }}
         />
 
         <div className={styles.sectionHeader}>
