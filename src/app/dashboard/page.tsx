@@ -78,11 +78,7 @@ function DashboardContent() {
   }
 
   function handleNovo() {
-    const creditos = profile?.creditos ?? 0
-    if (creditos === 0) {
-      router.push('/comprar')
-      return
-    }
+    // Agora permite criar mesmo sem créditos — pagamento é no final
     setEscolhendoTipo(true)
   }
 

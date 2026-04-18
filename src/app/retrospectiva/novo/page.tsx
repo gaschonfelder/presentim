@@ -170,7 +170,6 @@ export default function RetrospectivaNovoPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
       const { data: prof } = await supabase.from('profiles').select('creditos').eq('id', user.id).single()
-      if ((prof?.creditos ?? 0) < CUSTO_CREDITOS) { router.push('/comprar'); return }
       setCreditos(prof?.creditos ?? 0)
       setLoading(false)
     }
@@ -320,6 +319,12 @@ export default function RetrospectivaNovoPage() {
     setSalvando(true)
     try {
       const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { router.push('/login'); return }
+
+      // Verifica créditos disponíveis
+      const { data: prof } = await supabase.from('profiles').select('creditos').eq('id', user.id).single()
+      const temCreditos = prof && prof.creditos >= CUSTO_CREDITOS
+
       const slug = gerarSlug()
       // Resolve fotoUrl real a partir do índice
       const conquistasComFoto = conquistas.map(c => ({
@@ -336,16 +341,25 @@ export default function RetrospectivaNovoPage() {
         musica: musicaInfo ? { videoId: musicaInfo.videoId, title: musicaInfo.title } : null,
         tema,
       }
-      const { error } = await supabase.from('presentes').insert({
-        user_id: user!.id, slug, tipo: 'retrospectiva',
+      const { data: inserted, error } = await supabase.from('presentes').insert({
+        user_id: user.id, slug, tipo: 'retrospectiva',
         titulo: `${nome1} & ${nome2}`, emoji: '💫',
-        ativo: true, visualizacoes: 0, cor_primaria: '#f857a6',
+        ativo: temCreditos ? true : false,
+        status: temCreditos ? 'ativo' : 'rascunho',
+        visualizacoes: 0, cor_primaria: '#f857a6',
         dados_retro: dadosRetro,
-      })
-      if (error) throw error
-      const { data: prof } = await supabase.from('profiles').select('creditos').eq('id', user!.id).single()
-      await supabase.from('profiles').update({ creditos: (prof?.creditos ?? CUSTO_CREDITOS) - CUSTO_CREDITOS }).eq('id', user!.id)
-      router.push('/dashboard?retro=criada')
+      }).select('id').single()
+
+      if (error || !inserted) throw error || new Error('Erro ao inserir')
+
+      if (temCreditos) {
+        // Debita créditos e vai pro dashboard
+        await supabase.from('profiles').update({ creditos: prof.creditos - CUSTO_CREDITOS }).eq('id', user.id)
+        router.push('/dashboard?retro=criada')
+      } else {
+        // Sem créditos: redireciona pra tela de liberação
+        router.push(`/presente/${inserted.id}/liberar`)
+      }
     } catch (err) { console.error(err); alert('Erro ao salvar. Tente novamente.') }
     finally { setSalvando(false) }
   }

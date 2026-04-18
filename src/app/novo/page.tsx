@@ -55,22 +55,18 @@ function NovoWizardContent() {
         return
       }
 
-      // Verifica créditos
+      // Verifica créditos disponíveis
       const { data: profile } = await supabase
         .from('profiles')
         .select('creditos')
         .eq('id', user.id)
         .single()
 
-      if (!profile || profile.creditos < 1) {
-        setErro('Você não tem créditos disponíveis. Compre créditos para continuar.')
-        setSaving(false)
-        return
-      }
+      const temCreditos = profile && profile.creditos >= 1
 
       const slug = gerarSlug()
 
-      const { error } = await supabase.from('presentes').insert({
+      const { data: inserted, error } = await supabase.from('presentes').insert({
         user_id: user.id,
         slug,
         titulo: cfg.titulo,
@@ -96,26 +92,32 @@ function NovoWizardContent() {
           cfg.termo_ativo && cfg.termo_palavra.trim()
             ? { palavra: cfg.termo_palavra.trim(), dica: cfg.termo_dica.trim() }
             : null,
-            falling_animation: cfg.falling_animation?.enabled ? cfg.falling_animation : null,
-      })
+        falling_animation: cfg.falling_animation?.enabled ? cfg.falling_animation : null,
+        // Novo: status baseado em créditos
+        ativo: temCreditos ? true : false,
+        status: temCreditos ? 'ativo' : 'rascunho',
+      }).select('id').single()
 
-      if (error) {
+      if (error || !inserted) {
         setErro('Erro ao salvar. Tente novamente.')
         setSaving(false)
-        throw error
+        return
       }
 
-      // Desconta 1 crédito
-      await supabase
-        .from('profiles')
-        .update({ creditos: profile.creditos - 1 })
-        .eq('id', user.id)
-
-      router.push(`/dashboard?criado=${slug}`)
+      if (temCreditos) {
+        // Desconta 1 crédito e vai pro dashboard
+        await supabase
+          .from('profiles')
+          .update({ creditos: profile.creditos - 1 })
+          .eq('id', user.id)
+        router.push(`/dashboard?criado=${slug}`)
+      } else {
+        // Sem créditos: redireciona pra tela de liberação
+        router.push(`/presente/${inserted.id}/liberar`)
+      }
     } catch (err) {
       console.error(err)
       setSaving(false)
-      throw err
     }
   }
 
