@@ -155,17 +155,17 @@ function buildNudgeHtml(nome: string): string {
       </p>
       <table style="width:100%;margin:0 0 24px" cellpadding="0" cellspacing="0">
         <tr>
-          <td style="padding:8px 0;font-size:.92rem;color:#7a4f5a">💌 <strong style="color:#3d1f28">Páginas Virtuais</strong> — com fotos, frases e música</td>
+          <td style="padding:8px 0;font-size:.92rem;color:#7a4f5a"> <strong style="color:#3d1f28">Páginas Virtuais</strong> — com fotos, frases e música</td>
         </tr>
         <tr>
-          <td style="padding:8px 0;font-size:.92rem;color:#7a4f5a">💫 <strong style="color:#3d1f28">Retrospectivas</strong> — a história do casal em slides animados</td>
+          <td style="padding:8px 0;font-size:.92rem;color:#7a4f5a"> <strong style="color:#3d1f28">Retrospectivas</strong> — a história do casal em slides animados</td>
         </tr>
       </table>
 
       <div style="text-align:center;margin-bottom:16px">
         <a href="${baseUrl}/demo"
            style="display:inline-block;background-color:#e8627a;background:linear-gradient(135deg,#e8627a,#c94f68);color:white;padding:14px 36px;border-radius:50px;font-weight:700;font-size:.95rem;text-decoration:none;box-shadow:0 6px 20px rgba(232,98,122,.3)">
-          👀 Ver exemplos
+          Ver exemplos
         </a>
       </div>
 
