@@ -70,8 +70,8 @@ function LiberarContent() {
   // Custo baseado no tipo do presente
   const custoCreditos = presente?.tipo === 'retrospectiva' ? 2 : 1
 
-  // Planos filtrados: só mostra os que cobrem o custo
-  const planosFiltrados = PLANOS.filter(p => p.creditos >= custoCreditos)
+  // Mostra todos os planos disponíveis
+  const planosFiltrados = PLANOS
 
   useEffect(() => {
     async function carregar() {
@@ -268,27 +268,36 @@ function LiberarContent() {
                 Escolha um pacote:
               </p>
               <div style={S.planosGrid}>
-                {planosFiltrados.map(plano => (
-                  <button
-                    key={plano.id}
-                    onClick={() => handleComprar(plano.id)}
-                    disabled={comprando !== null}
-                    style={{
-                      ...S.planoCard,
-                      border: plano.destaque ? '2px solid var(--rose)' : '2px solid var(--rose-mid)',
-                      background: plano.destaque ? 'var(--rose-pale)' : 'white',
-                      opacity: comprando !== null ? 0.7 : 1,
-                    }}
-                  >
-                    {plano.badge && <div style={S.planoBadge}>{plano.badge}</div>}
-                    <div style={S.planoCreditos}>
-                      {plano.creditos} crédito{plano.creditos > 1 ? 's' : ''}
-                    </div>
-                    <div style={S.planoPreco}>{plano.precoFmt}</div>
-                    <div style={S.planoPorCredito}>{plano.porCredito}</div>
-                    {comprando === plano.id && <div style={S.planoLoading}>Gerando PIX…</div>}
-                  </button>
-                ))}
+                {planosFiltrados.map(plano => {
+                  const naoCobre = plano.creditos + creditos < custoCreditos
+                  return (
+                    <button
+                      key={plano.id}
+                      onClick={() => handleComprar(plano.id)}
+                      disabled={comprando !== null || naoCobre}
+                      style={{
+                        ...S.planoCard,
+                        border: plano.destaque ? '2px solid var(--rose)' : '2px solid var(--rose-mid)',
+                        background: plano.destaque ? 'var(--rose-pale)' : 'white',
+                        opacity: naoCobre ? 0.45 : comprando !== null ? 0.7 : 1,
+                        cursor: naoCobre ? 'not-allowed' : 'pointer',
+                      }}
+                    >
+                      {plano.badge && <div style={S.planoBadge}>{plano.badge}</div>}
+                      <div style={S.planoCreditos}>
+                        {plano.creditos} crédito{plano.creditos > 1 ? 's' : ''}
+                      </div>
+                      <div style={S.planoPreco}>{plano.precoFmt}</div>
+                      <div style={S.planoPorCredito}>{plano.porCredito}</div>
+                      {naoCobre && (
+                        <div style={{ fontSize: '.75rem', color: '#c0415a', marginTop: 6 }}>
+                          Insuficiente para este presente
+                        </div>
+                      )}
+                      {comprando === plano.id && <div style={S.planoLoading}>Gerando PIX…</div>}
+                    </button>
+                  )
+                })}
               </div>
             </div>
           )}
