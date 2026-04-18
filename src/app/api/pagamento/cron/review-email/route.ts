@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 
 // Chamada pelo cron da Vercel (vercel.json) ou manualmente
 // Envia email de review para usuários que compraram há 3 dias e ainda não receberam
@@ -19,7 +19,10 @@ export async function GET(req: NextRequest) {
   // Modo teste: ?test=true envia para o usuário do pagamento mais recente (ignora filtro de data)
   const testMode = req.nextUrl.searchParams.get('test') === 'true'
 
-  const supabase = await createClient()
+  const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
   let pagamentos
 
