@@ -98,7 +98,7 @@ export async function GET(req: NextRequest) {
           from: 'Presentim <noreply@presentim.com.br>',
           reply_to: 'presentim.sac@gmail.com',
           to: email,
-          subject: `${nome}, seu presente virtual está esperando! 🎁`,
+          subject: `${nome}, seu presente virtual está esperando!`,
           html: buildNudgeHtml(nome),
         }),
       })

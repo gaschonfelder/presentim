@@ -94,7 +94,7 @@ export async function GET(req: NextRequest) {
           from: 'Presentim <noreply@presentim.com.br>',
           reply_to: 'presentim.sac@gmail.com',
           to: email,
-          subject: `${nome}, como foi a experiência com o Presentim? 💝`,
+          subject: `${nome}, como foi a experiência com o Presentim?`,
           html: buildEmailHtml(nome),
         }),
       })
