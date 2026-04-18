@@ -294,7 +294,7 @@ function LiberarContent() {
               {pixData.pix_qrcode_base64 && (
                 <div style={S.qrWrap}>
                   <img
-                    src={`data:image/png;base64,${pixData.pix_qrcode_base64}`}
+                    src={pixData.pix_qrcode_base64.startsWith('data:') ? pixData.pix_qrcode_base64 : `data:image/png;base64,${pixData.pix_qrcode_base64}`}
                     alt="QR Code PIX"
                     style={S.qrImg}
                   />
