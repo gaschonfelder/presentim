@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import styles from './ModalEscolherTipo.module.css'
 
 import {
-  Gift,Sparkles,
+  Gift, Sparkles, Clapperboard,
 } from 'lucide-react'
 
 type ModalEscolherTipoProps = {
@@ -68,16 +68,45 @@ export default function ModalEscolherTipo({ creditos, onClose }: ModalEscolherTi
               <div className={styles.opcaoEmoji}>💫</div>
               <div className={styles.opcaoInfo}>
                 <div className={styles.opcaoTituloRow}>
-                  <span className={`${styles.opcaoTitulo} ${styles.opcaoTituloLight}`}>
+                  <span className={`${styles.opcaoTitulo} ${styles.opcaoTituloDark}`}>
                     Retrospectiva
                   </span>
                   <span className={`${styles.opcaoCreditos} ${styles.opcaoCreditosRetro}`}>
                     2 créditos
                   </span>
                 </div>
-                <p className={`${styles.opcaoDesc} ${styles.opcaoDescLight}`}>
-                  Stories imersivos estilo Spotify Wrapped com céu estrelado,
+                <p className={`${styles.opcaoDesc} ${styles.opcaoDescDark}`}>
+                  Stories imersivos com céu estrelado,
                   contador ao vivo, fotos e conquistas do casal.
+                </p>
+              </div>
+            </div>
+          </button>
+
+          {/* Opção 3: Streaming */}
+          <button
+            onClick={() => {
+              onClose()
+              router.push('/streaming/novo')
+            }}
+            className={`${styles.opcao} ${styles.opcaoStreaming || styles.opcaoRetro}`}
+          >
+            <div className={styles.badgeNovo || styles.badgePremium} style={{ background: '#E50914' }}>NOVO</div>
+            <div className={styles.opcaoConteudo}>
+              <div className={styles.opcaoEmoji}><Clapperboard size={30} strokeWidth={2} /></div>
+              <div className={styles.opcaoInfo}>
+                <div className={styles.opcaoTituloRow}>
+                  <span className={`${styles.opcaoTitulo} ${styles.opcaoTituloDark}`}>
+                    Streaming
+                  </span>
+                  <span className={`${styles.opcaoCreditos} ${styles.opcaoCreditosStreaming || styles.opcaoCreditosRetro}`}
+                    style={{ background: 'rgba(229,9,20,.2)', color: '#E50914' }}
+                  >
+                    2 créditos
+                  </span>
+                </div>
+                <p className={`${styles.opcaoDesc} ${styles.opcaoDescDark}`}>
+                  Experiência estilo Netflix com TUDUM, episódios, conquistas, quiz interativo e muito mais.
                 </p>
               </div>
             </div>

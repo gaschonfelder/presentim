@@ -37,7 +37,8 @@ export async function middleware(request: NextRequest) {
   }
 
   // Rotas protegidas
-  const protectedRoutes = ['/dashboard', '/novo', '/editar', '/comprar', '/retrospectiva/novo', '/retrospectiva/editar', '/presente']
+  const protectedRoutes = ['/dashboard', '/novo', '/editar', '/comprar', '/retrospectiva/novo', '/retrospectiva/editar', '/presente', '/streaming/novo', '/streaming/editar']
+  
   const isProtected = protectedRoutes.some(r => pathname.startsWith(r))
   if (isProtected && !user) {
     return NextResponse.redirect(new URL('/login', request.url))

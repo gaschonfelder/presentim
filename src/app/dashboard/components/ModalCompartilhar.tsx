@@ -22,7 +22,11 @@ export default function ModalCompartilhar({
   onClose,
 }: ModalCompartilharProps) {
   const base = typeof window !== 'undefined' ? window.location.origin : ''
-  const url = tipo === 'retrospectiva' ? `${base}/retrospectiva/${slug}` : `${base}/p/${slug}`
+  const url = tipo === 'retrospectiva'
+    ? `${base}/retrospectiva/${slug}`
+    : tipo === 'streaming'
+      ? `${base}/streaming/${slug}`
+      : `${base}/p/${slug}`
   const [copiado, setCopiado] = useState(false)
 
   function copiar() {
@@ -46,26 +50,26 @@ export default function ModalCompartilhar({
 
         <div className={styles.urlBox}>{url}</div>
 
-<button
-  onClick={copiar}
-  className={`${styles.btnCopiar} ${copiado ? styles.btnCopiarSuccess : ''}`}
-  style={
-    copiado
-      ? undefined
-      : { background: `linear-gradient(135deg, ${cor}, ${cor}bb)` }
-  }
->
-  {copiado ? (
-        <span className={styles.btnContent}>
-      <Check size={18} strokeWidth={3}/>Copiado
-    </span>
-  ) : (
-    <span className={styles.btnContent}>
-      <Link2 size={18} strokeWidth={3} />
-      Copiar link
-    </span>
-  )}
-</button>
+        <button
+          onClick={copiar}
+          className={`${styles.btnCopiar} ${copiado ? styles.btnCopiarSuccess : ''}`}
+          style={
+            copiado
+              ? undefined
+              : { background: `linear-gradient(135deg, ${cor}, ${cor}bb)` }
+          }
+        >
+          {copiado ? (
+            <span className={styles.btnContent}>
+              <Check size={18} strokeWidth={3}/>Copiado
+            </span>
+          ) : (
+            <span className={styles.btnContent}>
+              <Link2 size={18} strokeWidth={3} />
+              Copiar link
+            </span>
+          )}
+        </button>
 
         <button onClick={onClose} className={styles.btnFechar}>
           Fechar

@@ -79,7 +79,15 @@
   background: #f5f5f5;
   border: 2px solid #e0e0e0;
 }
-
+/* Variante Streaming */
+.opcaoStreaming {
+  background: linear-gradient(135deg, #141414, #1f1f1f);
+  border: 2px solid #c0392b;
+  color: #ffffff; /* branco puro */
+  position: relative;
+  overflow: hidden;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.7); /* ajuda MUITO na leitura */
+}
 /* Variante Retrospectiva */
 .opcaoRetro {
   background: linear-gradient(135deg, #0e0b1f, #1a1035);
@@ -95,8 +103,8 @@
 
 .badgePremium {
   position: absolute;
-  top: 12px;
-  right: 14px;
+  top: 85px;
+  left: 10px;
   background: linear-gradient(135deg, #f857a6, #ffa726);
   color: white;
   font-size: 0.68rem;
@@ -112,7 +120,7 @@
 }
 
 .opcaoEmoji {
-  font-size: 2.4rem;
+  font-size: 1.4rem;
   flex-shrink: 0;
 }
 
@@ -134,7 +142,7 @@
 }
 
 .opcaoTituloDark {
-  color: white;
+  color: rgb(255, 255, 255);
 }
 
 .opcaoTituloLight {

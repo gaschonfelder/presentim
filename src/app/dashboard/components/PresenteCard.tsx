@@ -26,14 +26,32 @@ export default function PresenteCard({
   onCompartilhar,
   onDeletar,
 }: PresenteCardProps) {
-  // TODO: adicionar `tipo` ao tipo Presente em @/types e remover este cast
   const tipo = (p as Presente & { tipo?: string }).tipo ?? 'pagina'
   const isRetro = tipo === 'retrospectiva'
+  const isStreaming = tipo === 'streaming'
   const isRascunho = (p as Presente & { status?: string }).status === 'rascunho'
 
-  const verHref = isRetro ? `/retrospectiva/${p.slug}` : `/p/${p.slug}`
-  const editarHref = isRetro ? `/retrospectiva/editar/${p.id}` : `/editar/${p.id}`
-  const linkPath = isRetro ? `/retrospectiva/${p.slug}` : `/p/${p.slug}`
+  const verHref = isRetro
+    ? `/retrospectiva/${p.slug}`
+    : isStreaming
+      ? `/streaming/${p.slug}`
+      : `/p/${p.slug}`
+
+  const editarHref = isRetro
+    ? `/retrospectiva/editar/${p.id}`
+    : isStreaming
+      ? `/streaming/editar/${p.id}`
+      : `/editar/${p.id}`
+
+  const linkPath = isRetro
+    ? `/retrospectiva/${p.slug}`
+    : isStreaming
+      ? `/streaming/${p.slug}`
+      : `/p/${p.slug}`
+
+  const liberarHref = isStreaming
+    ? `/comprar?pendente=${p.id}&tipo=streaming`
+    : `/presente/${p.id}/liberar`
 
   // Trava de edição: 7 dias após criação
   const criadoEm = new Date(p.created_at)
@@ -41,42 +59,53 @@ export default function PresenteCard({
   const podeEditar = diffDias < 7
   const diasRestantes = Math.max(0, 7 - diffDias)
 
+  // Badge config por tipo
+  const tipoBadgeClass = isRetro
+    ? styles.tipoBadgeRetro
+    : isStreaming
+      ? (styles.tipoBadgeStreaming ?? styles.tipoBadgeRetro)
+      : styles.tipoBadgePagina
+
+  const tipoBadgeLabel = isRetro
+    ? '💫 Retrospectiva'
+    : isStreaming
+      ? '🎬 Streaming'
+      : '🎁 Página'
+
   return (
     <div className={styles.card} style={isRascunho ? { opacity: 0.85, borderStyle: 'dashed' } : undefined}>
       <div className={styles.top}>
- 
+
         <div className={styles.titulo}>
-  <span className={styles.textoTitulo}>
-    {p.titulo ?? 'Presente sem título'}
-  </span>
+          <span className={styles.textoTitulo}>
+            {p.titulo ?? 'Presente sem título'}
+          </span>
 
-  <div className={styles.badges}>
-    <span
-      className={`${styles.tipoBadge} ${
-        isRetro ? styles.tipoBadgeRetro : styles.tipoBadgePagina
-      }`}
-    >
-      {isRetro ? '💫 Retrospectiva' : '🎁 Página'}
-    </span>
+          <div className={styles.badges}>
+            <span
+              className={`${styles.tipoBadge} ${tipoBadgeClass}`}
+              style={isStreaming ? { background: 'linear-gradient(135deg, #E50914, #b20710)', color: 'white' } : undefined}
+            >
+              {tipoBadgeLabel}
+            </span>
 
-    {isRascunho ? (
-      <span
-        className={styles.badge}
-        style={{ background: '#fff3e0', color: '#e67e22', fontWeight: 700 }}
-      >
-        📝 rascunho
-      </span>
-    ) : (
-      <span
-        className={`${styles.badge} ${
-          p.ativo ? styles.badgeAtivo : styles.badgeInativo
-        }`}
-      >
-        {p.ativo ? 'ativo' : 'inativo'}
-      </span>
-    )}
-  </div>
-</div>
+            {isRascunho ? (
+              <span
+                className={styles.badge}
+                style={{ background: '#fff3e0', color: '#e67e22', fontWeight: 700 }}
+              >
+                📝 rascunho
+              </span>
+            ) : (
+              <span
+                className={`${styles.badge} ${p.ativo ? styles.badgeAtivo : styles.badgeInativo
+                  }`}
+              >
+                {p.ativo ? 'ativo' : 'inativo'}
+              </span>
+            )}
+          </div>
+        </div>
         <div className={styles.data}>Criado em {formatarData(p.created_at)}</div>
       </div>
 
@@ -91,10 +120,12 @@ export default function PresenteCard({
         {isRascunho ? (
           <>
             <Link
-              href={`/presente/${p.id}/liberar`}
+              href={liberarHref}
               className={`${styles.btn} ${styles.btnVer}`}
               style={{
-                background: 'linear-gradient(135deg, #e8627a, #f9a8b8)',
+                background: isStreaming
+                  ? 'linear-gradient(135deg, #E50914, #b20710)'
+                  : 'linear-gradient(135deg, #e8627a, #f9a8b8)',
                 color: 'white',
                 fontWeight: 700,
                 flex: 2,
