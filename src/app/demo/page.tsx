@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 const DEMO_RETRO = 'https://www.presentim.com.br/retrospectiva/ai4469tu'
 const DEMO_PAGINA = 'https://www.presentim.com.br/p/jbka676s'
-const DEMO_FILME = 'https://www.presentim.com.br/filme/DEMO' // substitua pela URL real
+const DEMO_FILME = 'https://www.presentim.com.br/streaming/sdiduqww' // substitua pela URL real
 
 export default function DemoPage() {
   return (
