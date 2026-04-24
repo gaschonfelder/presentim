@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 const DEMO_RETRO = 'https://www.presentim.com.br/retrospectiva/ai4469tu'
 const DEMO_PAGINA = 'https://www.presentim.com.br/p/jbka676s'
+const DEMO_FILME = 'https://www.presentim.com.br/filme/DEMO' // substitua pela URL real
 
 export default function DemoPage() {
   return (
@@ -44,7 +45,8 @@ export default function DemoPage() {
         .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.5rem); color: var(--text); line-height: 1.2; margin-bottom: 16px; }
         .hero h1 em { font-style: italic; color: var(--rose); }
         .hero p { color: var(--text-soft); font-size: 1.1rem; max-width: 500px; margin: 0 auto; line-height: 1.7; }
-        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; max-width: 960px; margin: 0 auto; padding: 0 24px 80px; }
+        .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; max-width: 1200px; margin: 0 auto; padding: 0 24px 80px; }
+        @media (max-width: 900px) { .cards { grid-template-columns: 1fr; max-width: 480px; } }
         .card {
           background: white; border-radius: 28px; overflow: hidden;
           border: 2px solid var(--rose-mid); transition: transform .25s, box-shadow .25s;
@@ -52,12 +54,74 @@ export default function DemoPage() {
         }
         .card:hover { transform: translateY(-6px); box-shadow: 0 24px 56px rgba(232,98,122,.14); }
         .card-dark { border-color: rgba(248,87,166,.3); background: linear-gradient(160deg, #1a0a2e, #2d1155); }
+
+        /* ── CARD FILME ── */
+        .card-film {
+          border-color: rgba(180,140,60,.4);
+          background: linear-gradient(160deg, #0d0b07, #1c1507);
+        }
         .card-preview {
           height: 220px; display: flex; align-items: center; justify-content: center;
           font-size: 5rem; background: linear-gradient(135deg, #fce4ea, #fdf0f3);
           position: relative; overflow: hidden;
         }
         .card-preview-dark { background: linear-gradient(135deg, #1a0a2e, #3d1070); }
+        .card-preview-film {
+          background: #0d0b07;
+          flex-direction: column;
+          gap: 0;
+        }
+        /* Película / sprockets */
+        .film-strip {
+          position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none;
+        }
+        .film-holes {
+          display: flex; gap: 10px; padding: 6px 10px;
+        }
+        .film-holes span {
+          display: block; width: 10px; height: 8px; border-radius: 2px;
+          background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.08);
+        }
+        /* Brilho central tipo lens flare */
+        .film-glow {
+          position: absolute; inset: 0;
+          background: radial-gradient(ellipse 60% 50% at 50% 45%, rgba(255,210,80,.12), transparent 70%);
+        }
+        /* Claquete animada */
+        .clapboard {
+          position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center;
+          gap: 4px;
+        }
+        .clapboard-top {
+          width: 72px; height: 18px; border-radius: 4px 4px 0 0;
+          background: repeating-linear-gradient(
+            90deg,
+            #f5c842 0px, #f5c842 8px,
+            #1a1a1a 8px, #1a1a1a 16px
+          );
+          border: 2px solid #f5c842;
+          transform-origin: bottom center;
+          animation: clap 3.6s ease-in-out infinite;
+        }
+        .clapboard-body {
+          width: 72px; height: 44px; border-radius: 0 0 6px 6px;
+          background: #1c1c1c; border: 2px solid #555; border-top: none;
+          display: flex; align-items: center; justify-content: center;
+        }
+        .clapboard-body span {
+          font-size: .45rem; color: rgba(255,255,255,.6); font-family: monospace; letter-spacing: .5px; text-align: center; line-height: 1.6;
+        }
+        @keyframes clap {
+          0%, 80%, 100% { transform: rotate(0deg); }
+          85% { transform: rotate(-28deg); }
+          90% { transform: rotate(0deg); }
+        }
+        .film-label {
+          position: relative; z-index: 2;
+          font-size: .65rem; letter-spacing: 3px; text-transform: uppercase;
+          color: rgba(245,200,66,.6); font-family: monospace; margin-top: 8px;
+        }
+
         .card-preview-stars {
           position: absolute; inset: 0;
           background: radial-gradient(ellipse at 50% 40%, rgba(248,87,166,.2), transparent 70%);
@@ -65,6 +129,7 @@ export default function DemoPage() {
         .card-body { padding: 32px; flex: 1; display: flex; flex-direction: column; }
         .card-label { font-size: .7rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--rose); margin-bottom: 8px; }
         .card-label-dark { color: rgba(248,87,166,.8); }
+        .card-label-film { color: rgba(245,200,66,.75); }
         .card-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--text); margin-bottom: 10px; }
         .card-title-dark { color: white; }
         .card-desc { font-size: .9rem; color: var(--text-soft); line-height: 1.7; margin-bottom: 24px; }
@@ -76,6 +141,7 @@ export default function DemoPage() {
         }
         .card-features li:last-child { border: none; }
         .card-features-dark li { color: rgba(255,255,255,.5); border-bottom-color: rgba(255,255,255,.07); }
+        .card-features-film li { color: rgba(255,255,255,.5); border-bottom-color: rgba(245,200,66,.1); }
         .btn-demo {
           display: flex; align-items: center; justify-content: center; gap: 8px;
           background: linear-gradient(135deg, var(--rose), #c94f68); color: white;
@@ -87,6 +153,11 @@ export default function DemoPage() {
         .btn-demo-dark {
           background: linear-gradient(135deg, #f857a6, #ff5858);
           box-shadow: 0 6px 20px rgba(248,87,166,.4);
+        }
+        .btn-demo-film {
+          background: linear-gradient(135deg, #c9972a, #f5c842);
+          color: #1a1200;
+          box-shadow: 0 6px 20px rgba(245,200,66,.35);
         }
         .cta {
           text-align: center; padding: 80px 24px;
@@ -113,7 +184,7 @@ export default function DemoPage() {
 
       {/* HEADER */}
       <header className="demo-header">
-                <Link href="/" className="nav-logo">
+        <Link href="/" className="nav-logo">
           <Image src="/logo.png" alt="Presentim" width={1024} height={272} priority style={{ height: 44, width: 'auto' }} />
         </Link>
         <Link href="/cadastro" className="btn-criar">Criar o meu 💝</Link>
@@ -166,6 +237,45 @@ export default function DemoPage() {
               <li>📲 Exportar slides para Stories</li>
             </ul>
             <a href={DEMO_RETRO} target="_blank" rel="noopener noreferrer" className="btn-demo btn-demo-dark">
+              Abrir exemplo ao vivo →
+            </a>
+          </div>
+        </div>
+
+        {/* Retrospectiva Estilo Filme */}
+        <div className="card card-film">
+          <div className="card-preview card-preview-film">
+            {/* Película */}
+            <div className="film-strip">
+              <div className="film-holes">
+                {[...Array(8)].map((_, i) => <span key={i} />)}
+              </div>
+              <div className="film-holes">
+                {[...Array(8)].map((_, i) => <span key={i} />)}
+              </div>
+            </div>
+            {/* Brilho dourado */}
+            <div className="film-glow" />
+            {/* Claquete */}
+            <div className="clapboard">
+              <div className="clapboard-top" />
+              <div className="clapboard-body">
+                <span>NOSSA<br />HISTÓRIA<br />★ 2024 ★</span>
+              </div>
+            </div>
+            <span className="film-label">Now Showing</span>
+          </div>
+          <div className="card-body">
+            <p className="card-label card-label-film">Produto 3</p>
+            <h2 className="card-title card-title-dark">Retrospectiva Cinema</h2>
+            <p className="card-desc card-desc-dark">Uma experiência cinematográfica da história do casal — com trailer, trilha sonora épica, créditos finais e pôster personalizado. Como se a vida de vocês virasse um filme.</p>
+            <ul className="card-features card-features-film">
+              <li>🎬 Abertura estilo trailer de cinema</li>
+              <li>🎞️ Linha do tempo em cenas animadas</li>
+              <li>🎼 Trilha sonora personalizada</li>
+              <li>🏆 Créditos finais com vocês como protagonistas</li>
+            </ul>
+            <a href={DEMO_FILME} target="_blank" rel="noopener noreferrer" className="btn-demo btn-demo-film">
               Abrir exemplo ao vivo →
             </a>
           </div>

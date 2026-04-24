@@ -763,6 +763,44 @@ useEffect(() => {
           </Link>
         </div>
       </section>
+    {/* ESTILO CINEMA */}
+      <section style={{ padding:'96px 24px', background:'linear-gradient(180deg,#12081f 0%,#1c1030 100%)', position:'relative', zIndex:1 }}>
+        <div style={{ maxWidth:1100, margin:'0 auto', display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:28, alignItems:'stretch' }}>
+          <div style={{ background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.12)', borderRadius:24, padding:'32px 28px' }}>
+            <p style={{ fontSize:'.72rem', fontWeight:700, letterSpacing:'2px', color:'rgba(255,167,38,.95)', textTransform:'uppercase', marginBottom:12 }}>
+              Novo estilo exclusivo
+            </p>
+            <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:'clamp(1.8rem,3.8vw,2.5rem)', color:'#fff', lineHeight:1.2, marginBottom:14 }}>
+              Retrospectiva <em style={{ color:'#ffa726', fontStyle:'italic' }}>Cinema</em>
+            </h3>
+            <p style={{ color:'rgba(255,255,255,.65)', lineHeight:1.75, fontSize:'.98rem', marginBottom:22 }}>
+              Criado para quem quer transformar memórias em uma experiência de filme: clima romântico, narrativa envolvente e visual de telão do começo ao fim.
+            </p>
+            <Link href="/cadastro" style={{ display:'inline-flex', alignItems:'center', gap:10, background:'linear-gradient(135deg,#ffa726,#ff7043)', color:'white', padding:'14px 28px', borderRadius:999, textDecoration:'none', fontWeight:700, boxShadow:'0 10px 28px rgba(255,167,38,.28)' }}>
+              <Sparkles size={18} strokeWidth={2} />
+              Quero criar no estilo Cinema
+            </Link>
+          </div>
+
+          <div style={{ display:'grid', gap:14 }}>
+            {[
+              { Icon: Images, title:'Abertura cinematográfica', desc:'Slides com identidade visual inspirada em cenas de romance.' },
+              { Icon: Heart, title:'História com emoção', desc:'A jornada do casal ganha ritmo e destaque em cada momento.' },
+              { Icon: Trophy, title:'Destaques do relacionamento', desc:'Conquistas e marcos aparecem com mais impacto visual.' },
+            ].map((item) => (
+              <div key={item.title} style={{ background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.1)', borderRadius:18, padding:'20px 18px', display:'flex', gap:14, alignItems:'flex-start' }}>
+                <div style={{ minWidth:42, height:42, borderRadius:12, background:'rgba(255,167,38,.18)', display:'grid', placeItems:'center' }}>
+                  <item.Icon size={20} strokeWidth={1.9} color="#ffb74d" />
+                </div>
+                <div>
+                  <p style={{ color:'#fff', fontWeight:700, marginBottom:4 }}>{item.title}</p>
+                  <p style={{ color:'rgba(255,255,255,.6)', fontSize:'.9rem', lineHeight:1.55 }}>{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* PRICING */}
       <section className="pricing" id="precos">
