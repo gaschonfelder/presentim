@@ -17,9 +17,63 @@ type SlideId = 'hero' | 'tudum' | 'timeline' | 'stats' | 'conquistas' | 'quiz' |
 // Slides onde a música deve tocar (após TUDUM, até antes do pós-créditos)
 const MUSIC_SLIDES: SlideId[] = ['timeline', 'stats', 'conquistas', 'quiz', 'creditos']
 
+// Slides que podem ser capturados para Stories
+const CAPTURABLE_SLIDES: SlideId[] = ['hero', 'timeline', 'stats', 'conquistas', 'creditos']
+
 export default function StreamingPlayer({ dados }: { dados: StreamingDados }) {
   const [currentSlide, setCurrentSlide] = useState<SlideId>('hero')
   const [transitioning, setTransitioning] = useState(false)
+
+  // ─── Screenshots capturados durante navegação ─────────────────────────────
+  const screenshotsRef = useRef<Map<SlideId, string>>(new Map())
+  const [screenshotCount, setScreenshotCount] = useState(0)
+
+  const captureCurrentSlide = useCallback(async (slideId: SlideId) => {
+    if (!CAPTURABLE_SLIDES.includes(slideId)) return
+    if (screenshotsRef.current.has(slideId)) return
+
+    try {
+      const container = document.querySelector('[data-streaming-player]') as HTMLElement
+      if (!container) return
+
+      const { toPng } = await import('html-to-image')
+
+      // Remove stylesheets externas que causam CORS (Google Fonts etc)
+      const removedNodes: Node[] = []
+      try {
+        for (const sheet of Array.from(document.styleSheets)) {
+          try { void sheet.cssRules } catch {
+            if (sheet.ownerNode?.parentNode) {
+              removedNodes.push(sheet.ownerNode)
+              sheet.ownerNode.parentNode.removeChild(sheet.ownerNode)
+            }
+          }
+        }
+      } catch { }
+
+      const dataUrl = await toPng(container, {
+        quality: 1,
+        pixelRatio: 2,
+        cacheBust: true,
+        includeQueryParams: true,
+        filter: (node: HTMLElement) => {
+          if (node.tagName === 'BUTTON') return false
+          if (node.classList?.contains('music-chip')) return false
+          return true
+        },
+      })
+
+      // Restaura stylesheets removidas
+      for (const node of removedNodes) {
+        try { document.head.appendChild(node) } catch { }
+      }
+
+      screenshotsRef.current.set(slideId, dataUrl)
+      setScreenshotCount(c => c + 1)
+    } catch (err) {
+      console.warn('Screenshot falhou para', slideId, err)
+    }
+  }, [])
 
   // ─── YouTube Music ────────────────────────────────────────────────────────
   const [musicReady, setMusicReady] = useState(false)
@@ -27,8 +81,9 @@ export default function StreamingPlayer({ dados }: { dados: StreamingDados }) {
   const ytRef = useRef<any>(null)
   const ytContainerRef = useRef<HTMLDivElement>(null)
   const musica = dados.musica ?? null
+  const userInteractedRef = useRef(false)
+  const musicWarmedUpRef = useRef(false)
 
-  // Init YouTube IFrame API
   useEffect(() => {
     if (!musica?.videoId) return
 
@@ -39,6 +94,7 @@ export default function StreamingPlayer({ dados }: { dados: StreamingDados }) {
         playerVars: {
           autoplay: 0, loop: 1, playlist: musica!.videoId,
           controls: 0, disablekb: 1, modestbranding: 1, rel: 0,
+          playsinline: 1,
         },
         events: {
           onReady: () => setMusicReady(true),
@@ -62,11 +118,10 @@ export default function StreamingPlayer({ dados }: { dados: StreamingDados }) {
     return () => { try { ytRef.current?.destroy(); ytRef.current = null } catch { } }
   }, [musica?.videoId])
 
-  // Play/pause music based on current slide
   useEffect(() => {
     if (!musicReady || !ytRef.current) return
 
-    if (MUSIC_SLIDES.includes(currentSlide)) {
+    if (MUSIC_SLIDES.includes(currentSlide) && userInteractedRef.current) {
       try { ytRef.current.setVolume(35); ytRef.current.playVideo() } catch { }
     } else {
       try { ytRef.current.pauseVideo() } catch { }
@@ -74,15 +129,34 @@ export default function StreamingPlayer({ dados }: { dados: StreamingDados }) {
   }, [currentSlide, musicReady])
 
   // ─── Navigation ───────────────────────────────────────────────────────────
-  const goTo = useCallback((slide: SlideId) => {
+  const goTo = useCallback((nextSlide: SlideId) => {
+    // Captura o slide atual ANTES de sair (animações já terminaram)
+    captureCurrentSlide(currentSlide)
+
     setTransitioning(true)
     setTimeout(() => {
-      setCurrentSlide(slide)
+      setCurrentSlide(nextSlide)
       setTransitioning(false)
     }, 400)
-  }, [])
+  }, [currentSlide, captureCurrentSlide])
 
-  const handlePlay = useCallback(() => goTo('tudum'), [goTo])
+  const handlePlay = useCallback(() => {
+    userInteractedRef.current = true
+
+    if (musicReady && ytRef.current && !musicWarmedUpRef.current) {
+      try {
+        ytRef.current.setVolume(0)
+        ytRef.current.playVideo()
+        setTimeout(() => {
+          try { ytRef.current?.pauseVideo() } catch { }
+        }, 100)
+        musicWarmedUpRef.current = true
+      } catch { }
+    }
+
+    goTo('tudum')
+  }, [goTo, musicReady])
+
   const handleTudumComplete = useCallback(() => goTo('timeline'), [goTo])
 
   return (
@@ -97,7 +171,6 @@ export default function StreamingPlayer({ dados }: { dados: StreamingDados }) {
         body { -webkit-font-smoothing: antialiased; }
       `}</style>
 
-      {/* YouTube player — invisible */}
       {musica && (
         <div
           ref={ytContainerRef}
@@ -105,9 +178,9 @@ export default function StreamingPlayer({ dados }: { dados: StreamingDados }) {
         />
       )}
 
-      {/* Music chip — floats at bottom on slides where music plays */}
       {musica && musicReady && MUSIC_SLIDES.includes(currentSlide) && (
         <div
+          className="music-chip"
           onClick={(e) => {
             e.stopPropagation()
             if (musicPlaying) { ytRef.current?.pauseVideo() } else { ytRef.current?.playVideo() }
@@ -182,8 +255,12 @@ export default function StreamingPlayer({ dados }: { dados: StreamingDados }) {
         {currentSlide === 'continue' && (
           <SlideContinue
             dados={dados}
-            onReplay={() => goTo('hero')}
-            onGoTo={(slide) => goTo(slide)}
+            screenshots={screenshotsRef.current}
+            onReplay={() => {
+              screenshotsRef.current.clear()
+              setScreenshotCount(0)
+              goTo('hero')
+            }}
           />
         )}
       </div>

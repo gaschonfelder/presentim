@@ -16,6 +16,7 @@ export type StreamingDados = {
   conquistas: Array<{ key: string; fotoIdx?: number; fotoUrl?: string }>
   fotos: string[]
   fotos_titulos: string[]
+  fotos_descricoes?: string[]
   musica: { videoId: string; title: string } | null
   quiz: Array<{ pergunta: string; opcoes: string[]; correta: number }> | null
   msg_final?: string  

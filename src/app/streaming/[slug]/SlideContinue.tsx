@@ -3,32 +3,26 @@
 import { useState, useCallback } from 'react'
 import type { StreamingDados } from './page'
 
-// ─── Slide IDs no streaming player (pra captura) ─────────────────────────────
+type SlideId = 'hero' | 'tudum' | 'timeline' | 'stats' | 'conquistas' | 'quiz' | 'creditos' | 'pos-creditos' | 'continue'
 
-type SlideId = 'hero' | 'tudum' | 'timeline' | 'stats' | 'conquistas' | 'quiz' | 'creditos' | 'continue'
-
-const SLIDE_META: { id: SlideId; icon: string; label: string; capturable: boolean }[] = [
-  { id: 'hero',       icon: '🎬', label: 'Capa',            capturable: true  },
-  { id: 'tudum',      icon: '🔊', label: 'TUDUM',           capturable: false }, // animação, não faz sentido capturar
-  { id: 'timeline',   icon: '📸', label: 'Episódios',       capturable: true  },
-  { id: 'stats',      icon: '📊', label: 'Estatísticas',    capturable: true  },
-  { id: 'conquistas', icon: '🏆', label: 'Conquistas',      capturable: true  },
-  { id: 'quiz',       icon: '🎮', label: 'Quiz',            capturable: false }, // interativo
-  { id: 'creditos',   icon: '💌', label: 'Declaração Final', capturable: true  },
+const SLIDE_META: { id: SlideId; icon: string; label: string }[] = [
+  { id: 'hero',       icon: '🎬', label: 'Capa'             },
+  { id: 'timeline',   icon: '📸', label: 'Episódios'        },
+  { id: 'stats',      icon: '📊', label: 'Estatísticas'     },
+  { id: 'conquistas', icon: '🏆', label: 'Conquistas'       },
+  { id: 'creditos',   icon: '💌', label: 'Declaração Final' },
 ]
-
-const CAPTURABLE_SLIDES = SLIDE_META.filter(s => s.capturable)
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function SlideContinue({
   dados,
+  screenshots,
   onReplay,
-  onGoTo,
 }: {
   dados: StreamingDados
+  screenshots: Map<SlideId, string>
   onReplay: () => void
-  onGoTo: (slide: SlideId) => void
 }) {
   const [visible, setVisible] = useState(false)
   const [shareModal, setShareModal] = useState(false)
@@ -42,13 +36,15 @@ export default function SlideContinue({
   const nome1 = dados.nome1 ?? ''
   const nome2 = dados.nome2 ?? ''
 
-  // ── Compartilhar link ──
+  // Slides que foram capturados com sucesso
+  const availableSlides = SLIDE_META.filter(s => screenshots.has(s.id))
+
   const handleShare = useCallback(async () => {
     const url = window.location.href
     if (navigator.share) {
       try {
         await navigator.share({ title: `🎬 ${nome1} & ${nome2}`, url })
-      } catch { /* user cancelled */ }
+      } catch { }
     } else {
       await navigator.clipboard?.writeText(url)
       setCopied(true)
@@ -65,16 +61,12 @@ export default function SlideContinue({
           <div className="ct-glow" />
 
           <div className={`ct-content ${visible ? 'v' : ''}`}>
-            {/* Ícone */}
             <div className="ct-icon">🎬</div>
 
-            {/* Título */}
             <h2 className="ct-title">Continue assistindo?</h2>
             <p className="ct-sub">A história de {nome1} & {nome2}</p>
 
-            {/* Botões */}
             <div className="ct-actions">
-              {/* Assistir de novo */}
               <button className="ct-btn primary" onClick={onReplay}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <polygon points="5,3 19,12 5,21" fill="currentColor" stroke="none" />
@@ -82,18 +74,17 @@ export default function SlideContinue({
                 Assistir de novo
               </button>
 
-              {/* Compartilhar link */}
               <button className="ct-btn secondary" onClick={handleShare}>
                 {copied ? '✓ Link copiado!' : '🔗 Compartilhar link'}
               </button>
 
-              {/* Salvar para Stories */}
-              <button className="ct-btn secondary" onClick={() => setShareModal(true)}>
-                📲 Salvar para Stories
-              </button>
+              {availableSlides.length > 0 && (
+                <button className="ct-btn secondary" onClick={() => setShareModal(true)}>
+                  📲 Salvar para Stories
+                </button>
+              )}
             </div>
 
-            {/* Branding */}
             <div className="ct-brand">
               presentim.com.br
             </div>
@@ -103,33 +94,34 @@ export default function SlideContinue({
     )
   }
 
-  // ── Modal de seleção de slides ──
+  // ── Modal de seleção ──
   return (
     <>
       <style>{styles}</style>
-      <ShareModalInner
+      <ShareModal
         dados={dados}
+        screenshots={screenshots}
+        availableSlides={availableSlides}
         onClose={() => setShareModal(false)}
-        onGoTo={onGoTo}
       />
     </>
   )
 }
 
-// ─── Share Modal (inline) ─────────────────────────────────────────────────────
+// ─── Share Modal ──────────────────────────────────────────────────────────────
 
-function ShareModalInner({
+function ShareModal({
   dados,
+  screenshots,
+  availableSlides,
   onClose,
-  onGoTo,
 }: {
   dados: StreamingDados
+  screenshots: Map<SlideId, string>
+  availableSlides: { id: SlideId; icon: string; label: string }[]
   onClose: () => void
-  onGoTo: (slide: SlideId) => void
 }) {
   const [selected, setSelected] = useState<SlideId[]>([])
-  const [generating, setGenerating] = useState(false)
-  const [progress, setProgress] = useState(0)
 
   function toggle(id: SlideId) {
     setSelected(prev =>
@@ -138,115 +130,80 @@ function ShareModalInner({
   }
 
   function toggleAll() {
-    if (selected.length === CAPTURABLE_SLIDES.length) {
+    if (selected.length === availableSlides.length) {
       setSelected([])
     } else {
-      setSelected(CAPTURABLE_SLIDES.map(s => s.id))
+      setSelected(availableSlides.map(s => s.id))
     }
   }
 
-  async function generate() {
-    setGenerating(true)
-    setProgress(0)
+  async function download() {
+    const toDownload = availableSlides.filter(s => selected.includes(s.id))
 
-    const sorted = CAPTURABLE_SLIDES.filter(s => selected.includes(s.id))
-    const total = sorted.length
+    for (const slide of toDownload) {
+      const dataUrl = screenshots.get(slide.id)
+      if (!dataUrl) continue
 
-    for (let i = 0; i < total; i++) {
-      const slide = sorted[i]
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
-      // Navega pro slide
-      onGoTo(slide.id)
-
-      // Espera renderizar
-      await new Promise(r => setTimeout(r, 1200))
-
-      // Captura via html-to-image (importação dinâmica pra não quebrar SSR)
-      try {
-        const { toPng } = await import('html-to-image')
-
-        // Encontra o container — o pai direto do player
-        // O StreamingPlayer renderiza dentro de um div com transition
-        const container = document.querySelector('[data-streaming-player]') as HTMLElement
-          ?? document.querySelector('.ct-wrap')?.closest('div[style]') as HTMLElement
-
-        if (container) {
-          const dataUrl = await toPng(container, {
-            quality: 1,
-            pixelRatio: 2,
-            filter: (node: HTMLElement) => {
-              // Remove elementos de UI que não devem aparecer na imagem
-              if (node.classList?.contains('ct-wrap')) return false
-              if (node.classList?.contains('sts-btn')) return false
-              if (node.classList?.contains('cq-btn')) return false
-              if (node.classList?.contains('cr-btn-wrap')) return false
-              if (node.tagName === 'BUTTON') return false
-              return true
-            },
-          })
-
-          const a = document.createElement('a')
-          a.download = `${dados.nome1}-${dados.nome2}-${slide.id}.png`
-          a.href = dataUrl
-          a.click()
-        }
-      } catch (err) {
-        console.error('Erro ao capturar slide:', err)
+      if (isMobile && navigator.share && navigator.canShare) {
+        try {
+          const res = await fetch(dataUrl)
+          const blob = await res.blob()
+          const file = new File(
+            [blob],
+            `${dados.nome1}-${dados.nome2}-${slide.id}.png`,
+            { type: 'image/png' }
+          )
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: `${dados.nome1} & ${dados.nome2}` })
+            continue
+          }
+        } catch { }
       }
 
-      setProgress((i + 1) / total)
+      // Fallback: download normal
+      const a = document.createElement('a')
+      a.download = `${dados.nome1}-${dados.nome2}-${slide.id}.png`
+      a.href = dataUrl
+      a.click()
 
       // Pausa entre downloads
-      if (i < total - 1) {
-        await new Promise(r => setTimeout(r, 500))
+      if (toDownload.indexOf(slide) < toDownload.length - 1) {
+        await new Promise(r => setTimeout(r, 300))
       }
     }
 
-    // Volta pra tela continue
-    onGoTo('continue')
-    setGenerating(false)
-    setProgress(0)
     onClose()
   }
 
   return (
     <div className="ct-wrap" style={{ justifyContent: 'flex-start' }}>
       <div className="sm-modal">
-        {/* Header */}
         <div className="sm-header">
           <div>
             <div className="sm-title">Salvar para Stories</div>
-            <div className="sm-sub">Escolha quais telas baixar como imagem</div>
+            <div className="sm-sub">Escolha quais telas baixar</div>
           </div>
-          <button
-            className="sm-close"
-            onClick={onClose}
-            disabled={generating}
-          >
-            ✕
-          </button>
+          <button className="sm-close" onClick={onClose}>✕</button>
         </div>
 
-        {/* Selecionar todos */}
         <div className="sm-select-bar">
           <span className="sm-count">
             {selected.length === 0
               ? 'Nenhum selecionado'
               : `${selected.length} slide${selected.length !== 1 ? 's' : ''}`}
           </span>
-          <button
-            className="sm-toggle-all"
-            onClick={toggleAll}
-            disabled={generating}
-          >
-            {selected.length === CAPTURABLE_SLIDES.length ? 'Desmarcar tudo' : 'Selecionar tudo'}
+          <button className="sm-toggle-all" onClick={toggleAll}>
+            {selected.length === availableSlides.length ? 'Desmarcar tudo' : 'Selecionar tudo'}
           </button>
         </div>
 
-        {/* Grid */}
-        <div className="sm-grid" style={{ opacity: generating ? 0.4 : 1, pointerEvents: generating ? 'none' : 'auto' }}>
-          {CAPTURABLE_SLIDES.map(s => {
+        {/* Grid com thumbnails reais */}
+        <div className="sm-grid">
+          {availableSlides.map(s => {
             const sel = selected.includes(s.id)
+            const thumb = screenshots.get(s.id)
             return (
               <div
                 key={s.id}
@@ -254,33 +211,25 @@ function ShareModalInner({
                 onClick={() => toggle(s.id)}
               >
                 {sel && <div className="sm-check">✓</div>}
-                <div className="sm-card-icon">{s.icon}</div>
+                {thumb ? (
+                  <img src={thumb} alt={s.label} className="sm-card-thumb" />
+                ) : (
+                  <div className="sm-card-icon">{s.icon}</div>
+                )}
                 <div className="sm-card-label">{s.label}</div>
               </div>
             )
           })}
         </div>
 
-        {/* Progress bar */}
-        {generating && (
-          <div className="sm-progress-wrap">
-            <div className="sm-progress-bar">
-              <div className="sm-progress-fill" style={{ width: `${progress * 100}%` }} />
-            </div>
-          </div>
-        )}
-
-        {/* Botão gerar */}
         <button
           className={`sm-generate ${selected.length === 0 ? 'disabled' : ''}`}
-          onClick={generate}
-          disabled={selected.length === 0 || generating}
+          onClick={download}
+          disabled={selected.length === 0}
         >
-          {generating
-            ? `⏳ Capturando ${Math.round(progress * 100)}%...`
-            : selected.length === 0
-              ? 'Selecione ao menos 1 slide'
-              : `📲 Baixar ${selected.length} imagem${selected.length !== 1 ? 's' : ''}`}
+          {selected.length === 0
+            ? 'Selecione ao menos 1 slide'
+            : `📲 Baixar ${selected.length} imagem${selected.length !== 1 ? 's' : ''}`}
         </button>
 
         <p className="sm-hint">
@@ -388,7 +337,6 @@ const styles = `
     flex-shrink:0;
   }
   .sm-close:hover { background:rgba(255,255,255,.15); }
-  .sm-close:disabled { opacity:.3; cursor:not-allowed; }
 
   .sm-select-bar {
     display:flex; align-items:center; justify-content:space-between;
@@ -401,19 +349,19 @@ const styles = `
     color:rgba(229,9,20,.9); font-size:11px; font-weight:600;
     cursor:pointer;
   }
-  .sm-toggle-all:disabled { opacity:.4; cursor:not-allowed; }
 
   .sm-grid {
     display:grid; grid-template-columns:1fr 1fr; gap:10px;
-    margin-bottom:20px; transition:opacity .3s;
+    margin-bottom:20px;
   }
 
   .sm-card {
     background:rgba(255,255,255,.04);
     border:1.5px solid rgba(255,255,255,.08);
-    border-radius:14px; padding:16px 12px;
+    border-radius:14px; padding:0;
     cursor:pointer; transition:all .2s;
     position:relative; text-align:center;
+    overflow:hidden;
   }
   .sm-card:hover { border-color:rgba(255,255,255,.15); }
   .sm-card.sel {
@@ -426,23 +374,21 @@ const styles = `
     background:#E50914;
     display:flex; align-items:center; justify-content:center;
     font-size:10px; color:#fff; font-weight:700;
+    z-index:2;
   }
-  .sm-card-icon { font-size:1.8rem; margin-bottom:6px; }
+  .sm-card-thumb {
+    width:100%; aspect-ratio:9/16; object-fit:cover;
+    display:block; border-radius:12px 12px 0 0;
+  }
+  .sm-card-icon {
+    font-size:1.8rem; padding:20px 12px 6px;
+  }
   .sm-card-label {
     font-size:12px; font-weight:600;
     color:rgba(255,255,255,.7);
+    padding:8px 8px 12px;
   }
   .sm-card.sel .sm-card-label { color:#fff; }
-
-  .sm-progress-wrap { margin-bottom:12px; }
-  .sm-progress-bar {
-    height:4px; background:rgba(255,255,255,.1);
-    border-radius:2px; overflow:hidden;
-  }
-  .sm-progress-fill {
-    height:100%; background:linear-gradient(90deg, #E50914, #ff4444);
-    border-radius:2px; transition:width .3s ease;
-  }
 
   .sm-generate {
     width:100%; padding:14px;
@@ -476,6 +422,5 @@ const styles = `
     .sm-modal { padding-top:12px; }
     .sm-title { font-size:24px; }
     .sm-grid { gap:8px; }
-    .sm-card { padding:14px 10px; }
   }
 `

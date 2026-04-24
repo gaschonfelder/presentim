@@ -27,11 +27,16 @@ export default function SlideEpisodios({
 
   const fotos = dados.fotos || []
   const titulos = dados.fotos_titulos || []
+  // Descrições por foto — usa fotos_descricoes se existir, senão vazio
+  const descricoes = (dados as any).fotos_descricoes || []
   const fotoHero = fotos[0] || ''
 
+  // ── Carrossel circular: ao passar do último, volta ao primeiro e vice-versa ──
   const goToSlide = useCallback((idx: number) => {
-    const clamped = Math.max(0, Math.min(idx, fotos.length - 1))
-    setModalIdx(clamped)
+    if (fotos.length === 0) return
+    // Wrap around: circular
+    const wrapped = ((idx % fotos.length) + fotos.length) % fotos.length
+    setModalIdx(wrapped)
   }, [fotos.length])
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -50,9 +55,11 @@ export default function SlideEpisodios({
     const diff = touchStartX.current - touchEndX.current
     const threshold = 50
     if (Math.abs(diff) > threshold) {
-      if (diff > 0 && modalIdx < fotos.length - 1) {
+      if (diff > 0) {
+        // Swipe left → próxima (circular)
         goToSlide(modalIdx + 1)
-      } else if (diff < 0 && modalIdx > 0) {
+      } else {
+        // Swipe right → anterior (circular)
         goToSlide(modalIdx - 1)
       }
     }
@@ -302,7 +309,7 @@ export default function SlideEpisodios({
         }
         .ep-modal-close:hover { background: rgba(0,0,0,0.9); }
 
-        /* Nav arrows no modal (desktop) */
+        /* Nav arrows no modal (desktop) — sempre visíveis (circular) */
         .ep-modal-nav {
           position: absolute;
           top: 50%;
@@ -323,7 +330,6 @@ export default function SlideEpisodios({
           transition: all 0.2s ease;
         }
         .ep-modal-nav:hover { background: rgba(0,0,0,0.8); }
-        .ep-modal-nav:disabled { opacity: 0; pointer-events: none; }
         .ep-modal-nav.prev { left: 10px; }
         .ep-modal-nav.next { right: 10px; }
 
@@ -404,10 +410,11 @@ export default function SlideEpisodios({
           Temporada 1
         </div>
 
-        {/* Episodes list (inalterada) */}
+        {/* Episodes list */}
         <div className="ep-list">
           {fotos.map((foto, idx) => {
             const titulo = titulos[idx] || `Episódio ${idx + 1}`
+            const descricao = descricoes[idx] || ''
             return (
               <div
                 key={idx}
@@ -425,7 +432,7 @@ export default function SlideEpisodios({
                 <div className="ep-info">
                   <div className="ep-title-text">{titulo}</div>
                   <div className="ep-desc">
-                    S1:E{idx + 1}
+                    {descricao || `S1:E${idx + 1}`}
                   </div>
                 </div>
               </div>
@@ -442,7 +449,7 @@ export default function SlideEpisodios({
         </button>
       </div>
 
-      {/* Modal com carousel + swipe */}
+      {/* Modal com carousel circular + swipe */}
       {modalIdx !== null && (
         <div
           className={`ep-modal-overlay ${modalIdx !== null ? 'visible' : ''}`}
@@ -459,11 +466,10 @@ export default function SlideEpisodios({
               ✕
             </button>
 
-            {/* Setas (visíveis só no desktop) */}
+            {/* Setas (visíveis só no desktop) — sempre ativas (circular) */}
             <button
               className="ep-modal-nav prev"
               onClick={() => goToSlide(modalIdx - 1)}
-              disabled={modalIdx === 0}
               aria-label="Anterior"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -473,7 +479,6 @@ export default function SlideEpisodios({
             <button
               className="ep-modal-nav next"
               onClick={() => goToSlide(modalIdx + 1)}
-              disabled={modalIdx === fotos.length - 1}
               aria-label="Próximo"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -495,7 +500,7 @@ export default function SlideEpisodios({
                 {titulos[modalIdx] || `Episódio ${modalIdx + 1}`}
               </div>
               <div className="ep-modal-msg">
-                {dados.mensagem || `Um momento especial de ${dados.nome1} & ${dados.nome2}.`}
+                {descricoes[modalIdx] || `Um momento especial de ${dados.nome1} & ${dados.nome2}.`}
               </div>
 
               {/* Dots */}
