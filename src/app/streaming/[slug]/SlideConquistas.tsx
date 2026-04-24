@@ -514,8 +514,8 @@ export default function SlideConquistas({
           <>
             {/* Separar por tipo pra renderizar com section labels */}
             {(() => {
-              const reacaoKeys = new Set(REACOES_PUBLICO.map(r => r.key))
-              const premiacaoKeys = new Set(PREMIACOES.map(r => r.key))
+const reacaoKeys = new Set<string>(REACOES_PUBLICO.map(r => r.key))
+const premiacaoKeys = new Set<string>(PREMIACOES.map(r => r.key))
               // const marcosKeys = new Set(MARCOS_HISTORIA.map(r => r.key))
 
               const reacoes = userKeys.filter(k => reacaoKeys.has(k)).map(k => ALL_MANUAL[k]).filter(Boolean)
