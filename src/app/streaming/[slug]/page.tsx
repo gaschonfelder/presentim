@@ -18,7 +18,6 @@ export type StreamingDados = {
   fotos_titulos: string[]
   musica: { videoId: string; title: string } | null
   quiz: Array<{ pergunta: string; opcoes: string[]; correta: number }> | null
-  conquistas?: { key: string }[]
   msg_final?: string  
   pos_creditos?: string
 }

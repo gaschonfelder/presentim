@@ -500,7 +500,7 @@ export default function StreamingNovoPage() {
                         <button className={`sw-conquista-chip ${conquistas.includes(r.key) ? 'sel' : ''}`} onClick={() => toggleConquista(r.key, REACOES_PUBLICO.map(x => x.key))}>
                           <span>{r.icon}</span> {r.label}
                         </button>
-                        {(r.desc || r.descricao) && <div className="sw-conquista-tooltip">{r.desc || r.descricao}</div>}
+                        {'desc' in r && r.desc && <div className="sw-conquista-tooltip">{r.desc}</div>}
                       </div>
                     ))}
                   </div>
@@ -513,7 +513,7 @@ export default function StreamingNovoPage() {
                         <button className={`sw-conquista-chip ${conquistas.includes(r.key) ? 'sel' : ''}`} onClick={() => toggleConquista(r.key)}>
                           <span>{r.icon}</span> {r.label}
                         </button>
-                        {(r.desc || r.descricao) && <div className="sw-conquista-tooltip">{r.desc || r.descricao}</div>}
+                        {'desc' in r && r.desc && <div className="sw-conquista-tooltip">{r.desc}</div>}
                       </div>
                     ))}
                   </div>
@@ -526,7 +526,7 @@ export default function StreamingNovoPage() {
                         <button className={`sw-conquista-chip ${conquistas.includes(r.key) ? 'sel' : ''}`} onClick={() => toggleConquista(r.key)}>
                           <span>{r.icon}</span> {r.label}
                         </button>
-                        {(r.desc || r.descricao) && <div className="sw-conquista-tooltip">{r.desc || r.descricao}</div>}
+                        {'desc' in r && r.desc && <div className="sw-conquista-tooltip">{r.desc}</div>}
                       </div>
                     ))}
                   </div>
