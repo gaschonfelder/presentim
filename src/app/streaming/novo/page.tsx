@@ -336,6 +336,10 @@ export default function StreamingNovoPage() {
           const origIdx = fotos.findIndex((f, fi) => f && fotos.slice(0, fi).filter(Boolean).length === i)
           return fotosTitulos[origIdx] || `Episódio ${i + 1}`
         }),
+        fotos_descricoes: fotosPreenchidas.map((_, i) => {
+          const origIdx = fotos.findIndex((f, fi) => f && fotos.slice(0, fi).filter(Boolean).length === i)
+          return fotosDescricoes[origIdx] || ''
+        }),
         musica: musicaInfo ? { videoId: musicaInfo.videoId, title: musicaInfo.title } : null,
         quiz: quiz.length > 0 ? quiz : null,
       }

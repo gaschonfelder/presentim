@@ -20,6 +20,7 @@ import PassoMusica from './steps/PassoMusica'
 import PassoVisual from './steps/PassoVisual'
 import PassoData from './steps/PassoData'
 import PassoExtras from './steps/PassoExtras'
+import NovoPreview from './NovoPreview'
 
 const STORAGE_KEY = 'wizard:novo'
 const STORAGE_TTL = 30 * 60 * 1000 // 30 minutos
@@ -253,6 +254,7 @@ function NovoWizardContent() {
         onSubmit={handleSalvar}
         submitting={saving}
         submitLabel="Criar presente"
+        preview={<NovoPreview />}
       />
     </>
   )

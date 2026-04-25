@@ -5,6 +5,8 @@ import { createClient } from '@/lib/supabase/client'
 import { useNovoContext } from '../NovoContext'
 import styles from './steps.module.css'
 
+type SearchResult = { videoId: string; title: string; channel: string; thumb: string }
+
 export default function PassoMusica() {
   const supabase = createClient()
   const {
@@ -16,14 +18,39 @@ export default function PassoMusica() {
     setErro,
   } = useNovoContext()
 
-  const [musicaTab, setMusicaTab] = useState(0) // 0=youtube 1=upload
+  const [musicaTab, setMusicaTab] = useState(0) // 0=busca 1=link 2=upload
   const [musicaLink, setMusicaLink] = useState('')
   const [musicaErro, setMusicaErro] = useState('')
   const [musicaLoading, setMusicaLoading] = useState(false)
+  const [musicaBusca, setMusicaBusca] = useState('')
+  const [musicaResultados, setMusicaResultados] = useState<SearchResult[]>([])
+  const [buscandoMusica, setBuscandoMusica] = useState(false)
 
   function extrairVideoId(url: string): string | null {
     const m = url.match(/(?:v=|youtu\.be\/|shorts\/)([\w-]{11})/)
     return m ? m[1] : null
+  }
+
+  async function handleBuscaMusica() {
+    if (!musicaBusca.trim() || buscandoMusica) return
+    setBuscandoMusica(true)
+    setMusicaErro('')
+    setMusicaResultados([])
+    try {
+      const res = await fetch(`/api/youtube/search?q=${encodeURIComponent(musicaBusca.trim())}`)
+      const data = await res.json()
+      if (data.error) { setMusicaErro(data.error); return }
+      setMusicaResultados(data.results ?? [])
+      if ((data.results ?? []).length === 0) setMusicaErro('Nenhum resultado encontrado.')
+    } catch { setMusicaErro('Erro ao buscar. Tente novamente.') }
+    finally { setBuscandoMusica(false) }
+  }
+
+  function selecionarMusicaBusca(r: SearchResult) {
+    set('musica_info', { videoId: r.videoId, title: r.title })
+    set('musica_url', '')
+    setMusicaResultados([])
+    setMusicaBusca('')
   }
 
   async function handleMusicaYouTube() {
@@ -180,6 +207,61 @@ export default function PassoMusica() {
           color: #c0415a;
           margin-top: 6px;
         }
+        .pm-results {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          max-height: 280px;
+          overflow-y: auto;
+          margin-bottom: 10px;
+        }
+        .pm-result-btn {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 10px 12px;
+          border: 2px solid var(--rose-mid);
+          border-radius: 12px;
+          background: white;
+          cursor: pointer;
+          text-align: left;
+          transition: border-color 0.2s, background 0.15s;
+          font-family: 'Lato', sans-serif;
+        }
+        .pm-result-btn:hover {
+          border-color: var(--rose);
+          background: var(--rose-pale);
+        }
+        .pm-result-thumb {
+          width: 64px;
+          height: 48px;
+          border-radius: 6px;
+          object-fit: cover;
+          flex-shrink: 0;
+        }
+        .pm-result-info {
+          flex: 1;
+          overflow: hidden;
+        }
+        .pm-result-title {
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: var(--text);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .pm-result-channel {
+          font-size: 0.72rem;
+          color: var(--text-soft);
+          margin-top: 2px;
+        }
+        .pm-hint {
+          font-size: 0.78rem;
+          color: var(--text-soft);
+          line-height: 1.5;
+          margin-top: 6px;
+        }
       `}</style>
 
       <div className={styles.stepHeader}>
@@ -189,7 +271,7 @@ export default function PassoMusica() {
         </h1>
         <p className={styles.stepDescription}>
           Adicione uma música pra tocar enquanto a pessoa rola o presente.
-          Pode ser um link do YouTube ou um arquivo MP3.
+          Pesquise pelo nome, cole um link do YouTube ou envie um arquivo MP3.
         </p>
       </div>
 
@@ -229,19 +311,65 @@ export default function PassoMusica() {
           <div className="pm-tabs">
             <button
               className={`pm-tab ${musicaTab === 0 ? 'active' : ''}`}
-              onClick={() => setMusicaTab(0)}
+              onClick={() => { setMusicaTab(0); setMusicaErro('') }}
             >
-              ▶️ YouTube
+              🔍 Buscar
             </button>
             <button
               className={`pm-tab ${musicaTab === 1 ? 'active' : ''}`}
-              onClick={() => setMusicaTab(1)}
+              onClick={() => { setMusicaTab(1); setMusicaErro('') }}
             >
-              📁 Upload MP3
+              🔗 Link
+            </button>
+            <button
+              className={`pm-tab ${musicaTab === 2 ? 'active' : ''}`}
+              onClick={() => { setMusicaTab(2); setMusicaErro('') }}
+            >
+              📁 Upload
             </button>
           </div>
 
           {musicaTab === 0 ? (
+            <>
+              <div className="pm-yt-row">
+                <input
+                  type="text"
+                  placeholder="Buscar música no YouTube…"
+                  value={musicaBusca}
+                  onChange={e => setMusicaBusca(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleBuscaMusica()}
+                />
+                <button
+                  className="pm-yt-btn"
+                  onClick={handleBuscaMusica}
+                  disabled={buscandoMusica || !musicaBusca.trim()}
+                >
+                  {buscandoMusica ? '⏳' : '🔍'}
+                </button>
+              </div>
+              {musicaErro && <div className="pm-error">{musicaErro}</div>}
+              {musicaResultados.length > 0 && (
+                <div className="pm-results">
+                  {musicaResultados.map(r => (
+                    <button
+                      key={r.videoId}
+                      className="pm-result-btn"
+                      onClick={() => selecionarMusicaBusca(r)}
+                    >
+                      <img className="pm-result-thumb" src={r.thumb} alt="" />
+                      <div className="pm-result-info">
+                        <div className="pm-result-title">{r.title}</div>
+                        <div className="pm-result-channel">{r.channel}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {!musicaErro && musicaResultados.length === 0 && (
+                <p className="pm-hint">✅ Pesquise por nome da música ou artista</p>
+              )}
+            </>
+          ) : musicaTab === 1 ? (
             <>
               <div className="pm-yt-row">
                 <input
@@ -260,6 +388,9 @@ export default function PassoMusica() {
                 </button>
               </div>
               {musicaErro && <div className="pm-error">{musicaErro}</div>}
+              {!musicaErro && (
+                <p className="pm-hint">✅ Funciona com qualquer vídeo público do YouTube</p>
+              )}
             </>
           ) : (
             <>

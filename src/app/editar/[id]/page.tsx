@@ -76,10 +76,13 @@ export default function EditarPage({ params }: { params: Promise<{ id: string }>
   const [sucesso, setSucesso] = useState(false)
   const [uploadingFoto, setUploadingFoto] = useState(false)
   const [uploadingMusica, setUploadingMusica] = useState(false)
-  const [musicaTab, setMusicaTab] = useState(0)
+  const [musicaTab, setMusicaTab] = useState(0) // 0=busca 1=link 2=upload
   const [musicaLink, setMusicaLink] = useState('')
   const [musicaErro, setMusicaErro] = useState('')
   const [musicaLoading, setMusicaLoading] = useState(false)
+  const [musicaBusca, setMusicaBusca] = useState('')
+  const [musicaResultados, setMusicaResultados] = useState<{videoId:string;title:string;channel:string;thumb:string}[]>([])
+  const [buscandoMusica, setBuscandoMusica] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const musicInputRef = useRef<HTMLInputElement>(null)
 
@@ -111,6 +114,28 @@ export default function EditarPage({ params }: { params: Promise<{ id: string }>
       set('musica_url', '')
     } catch { setMusicaErro('Não foi possível carregar esse vídeo.') }
     setMusicaLoading(false)
+  }
+
+  async function handleBuscaMusica() {
+    if (!musicaBusca.trim() || buscandoMusica) return
+    setBuscandoMusica(true)
+    setMusicaErro('')
+    setMusicaResultados([])
+    try {
+      const res = await fetch(`/api/youtube/search?q=${encodeURIComponent(musicaBusca.trim())}`)
+      const data = await res.json()
+      if (data.error) { setMusicaErro(data.error); return }
+      setMusicaResultados(data.results ?? [])
+      if ((data.results ?? []).length === 0) setMusicaErro('Nenhum resultado encontrado.')
+    } catch { setMusicaErro('Erro ao buscar. Tente novamente.') }
+    finally { setBuscandoMusica(false) }
+  }
+
+  function selecionarMusicaBusca(r: {videoId:string;title:string;channel:string;thumb:string}) {
+    set('musica_info', { videoId: r.videoId, title: r.title })
+    set('musica_url', '')
+    setMusicaResultados([])
+    setMusicaBusca('')
   }
 
   useEffect(() => {
@@ -472,11 +497,42 @@ export default function EditarPage({ params }: { params: Promise<{ id: string }>
                 ) : (
                   <>
                     <div style={{ display:'flex', marginBottom:12, borderRadius:10, overflow:'hidden', border:'2px solid var(--rose-mid)' }}>
-                      {['▶️ YouTube', '📁 Upload MP3'].map((t, i) => (
-                        <button key={t} onClick={() => setMusicaTab(i)} style={{ flex:1, padding:'9px 0', border:'none', cursor:'pointer', fontFamily:'Lato,sans-serif', fontSize:'.83rem', fontWeight:700, background: musicaTab===i ? 'var(--rose)' : 'white', color: musicaTab===i ? 'white' : 'var(--text-soft)', transition:'all .2s' }}>{t}</button>
+                      {['🔍 Buscar', '🔗 Link', '📁 Upload'].map((t, i) => (
+                        <button key={t} onClick={() => { setMusicaTab(i); setMusicaErro('') }} style={{ flex:1, padding:'9px 0', border:'none', cursor:'pointer', fontFamily:'Lato,sans-serif', fontSize:'.83rem', fontWeight:700, background: musicaTab===i ? 'var(--rose)' : 'white', color: musicaTab===i ? 'white' : 'var(--text-soft)', transition:'all .2s' }}>{t}</button>
                       ))}
                     </div>
                     {musicaTab === 0 ? (
+                      <>
+                        <div style={{ display:'flex', gap:8, marginBottom:8 }}>
+                          <input style={{ flex:1, padding:'10px 14px', border:'2px solid var(--rose-mid)', borderRadius:10, fontFamily:'Lato,sans-serif', fontSize:'.88rem', outline:'none' }}
+                            type="text" placeholder="Buscar música no YouTube…" value={musicaBusca}
+                            onChange={e => setMusicaBusca(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && handleBuscaMusica()} />
+                          <button onClick={handleBuscaMusica} disabled={buscandoMusica || !musicaBusca.trim()}
+                            style={{ padding:'10px 16px', background:'var(--rose)', color:'white', border:'none', borderRadius:10, fontWeight:700, cursor:'pointer', opacity:(!musicaBusca.trim()||buscandoMusica)?.5:1 }}>
+                            {buscandoMusica ? '⏳' : '🔍'}
+                          </button>
+                        </div>
+                        {musicaErro && <p style={{ fontSize:'.75rem', color:'#c0415a', marginBottom:6 }}>{musicaErro}</p>}
+                        {musicaResultados.length > 0 && (
+                          <div style={{ display:'flex', flexDirection:'column', gap:6, maxHeight:260, overflowY:'auto', marginBottom:8 }}>
+                            {musicaResultados.map(r => (
+                              <button key={r.videoId} onClick={() => selecionarMusicaBusca(r)}
+                                style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 10px', border:'2px solid var(--rose-mid)', borderRadius:10, background:'white', cursor:'pointer', textAlign:'left', transition:'border-color .2s' }}
+                                onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--rose)')}
+                                onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--rose-mid)')}>
+                                <img src={r.thumb} alt="" style={{ width:64, height:48, borderRadius:6, objectFit:'cover', flexShrink:0 }} />
+                                <div style={{ flex:1, overflow:'hidden' }}>
+                                  <div style={{ fontSize:'.82rem', fontWeight:600, color:'var(--text)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{r.title}</div>
+                                  <div style={{ fontSize:'.7rem', color:'var(--text-soft)' }}>{r.channel}</div>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        <p style={{ fontSize:'.75rem', color:'var(--text-soft)', lineHeight:1.5 }}>✅ Pesquise por nome da música ou artista</p>
+                      </>
+                    ) : musicaTab === 1 ? (
                       <>
                         <div style={{ display:'flex', gap:8, marginBottom:8 }}>
                           <input style={{ flex:1, padding:'10px 14px', border:'2px solid var(--rose-mid)', borderRadius:10, fontFamily:'Lato,sans-serif', fontSize:'.88rem', outline:'none' }}
