@@ -43,232 +43,73 @@ function LoginContent() {
     }
   }
 
+  const R = '#e8627a'
+  const R2 = '#ff8da7'
+  const R3 = '#ffa726'
+  const G = 'rgba(232,98,122,.35)'
+  const T = '#f5e8ec'
+  const TS = 'rgba(245,232,236,.65)'
+  const B = 'rgba(255,255,255,.08)'
+  const S = 'rgba(255,255,255,.04)'
+
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Lato:wght@300;400;700&display=swap');
-
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-          --rose:      #e8627a;
-          --rose-light:#f9a8b8;
-          --rose-pale: #fdf0f3;
-          --rose-mid:  #fce4ea;
-          --cream:     #fff8f9;
-          --text:      #3d1f28;
-          --text-soft: #7a4f5a;
-        }
-
-        body {
-          font-family: 'Lato', sans-serif;
-          background: var(--cream);
-          color: var(--text);
-          min-height: 100vh;
-        }
-
-        .auth-layout {
-          min-height: 100vh;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-        }
-
-        /* Lado esquerdo — decorativo */
-        .auth-left {
-          background: linear-gradient(160deg, #fce4ea 0%, #f9c5d0 50%, #f0a8bc 100%);
-          display: flex; flex-direction: column;
-          align-items: center; justify-content: center;
-          padding: 48px;
-          position: relative; overflow: hidden;
-        }
-        .auth-left-logo {
-          font-family: 'Playfair Display', serif;
-          font-size: 2.2rem; font-weight: 700;
-          color: var(--rose); margin-bottom: 32px;
-          text-decoration: none;
-        }
-        .auth-left h2 {
-          font-family: 'Playfair Display', serif;
-          font-size: 2.4rem; color: var(--text);
-          line-height: 1.2; text-align: center;
-          margin-bottom: 20px;
-        }
-        .auth-left h2 em { font-style: italic; color: var(--rose); }
-        .auth-left p {
-          color: var(--text-soft); text-align: center;
-          font-size: 1rem; line-height: 1.7; max-width: 360px;
-        }
-        .auth-testimonial {
-          margin-top: 48px;
-          background: white;
-          border-radius: 20px;
-          padding: 24px 28px;
-          max-width: 380px;
-          box-shadow: 0 8px 32px rgba(232,98,122,.12);
-        }
-        .auth-testimonial p {
-          font-style: italic; font-size: .9rem;
-          color: var(--text-soft); margin-bottom: 14px;
-        }
-        .auth-testimonial-author {
-          display: flex; align-items: center; gap: 10px;
-        }
-        .auth-testimonial-avatar {
-          width: 36px; height: 36px;
-          background: var(--rose-mid); border-radius: 50%;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 1.2rem;
-        }
-        .auth-testimonial-name {
-          font-weight: 700; font-size: .85rem; color: var(--text);
-        }
-        .auth-testimonial-stars { color: #c9956a; font-size: .75rem; }
-
-        /* Lado direito — formulário */
-        .auth-right {
-          display: flex; flex-direction: column;
-          align-items: center; justify-content: center;
-          padding: 48px 40px;
-        }
-        .auth-form-wrap { width: 100%; max-width: 400px; }
-
-        .auth-form-wrap h1 {
-          font-family: 'Playfair Display', serif;
-          font-size: 2rem; color: var(--text);
-          margin-bottom: 8px;
-        }
-        .auth-form-wrap .subtitle {
-          color: var(--text-soft); font-size: .95rem;
-          margin-bottom: 36px;
-        }
-
-        /* Google btn */
-        .btn-google {
-          width: 100%;
-          display: flex; align-items: center; justify-content: center; gap: 12px;
-          background: white;
-          border: 2px solid #e0d0d4;
-          border-radius: 14px;
-          padding: 13px;
-          font-size: .95rem; font-weight: 700; color: var(--text);
-          cursor: pointer;
-          transition: border-color .2s, box-shadow .2s;
-          margin-bottom: 24px;
-        }
-        .btn-google:hover {
-          border-color: var(--rose-light);
-          box-shadow: 0 4px 16px rgba(232,98,122,.1);
-        }
-        .btn-google svg { width: 20px; height: 20px; }
-
-        .divider {
-          display: flex; align-items: center; gap: 12px;
-          margin-bottom: 24px;
-        }
-        .divider::before, .divider::after {
-          content: ''; flex: 1;
-          height: 1px; background: var(--rose-mid);
-        }
-        .divider span { font-size: .8rem; color: var(--text-soft); white-space: nowrap; }
-
-        /* Campos */
-        .field { margin-bottom: 18px; }
-        .field label {
-          display: block; font-size: .85rem; font-weight: 700;
-          color: var(--text); margin-bottom: 7px;
-        }
-        .field input {
-          width: 100%;
-          border: 2px solid var(--rose-mid);
-          border-radius: 12px;
-          padding: 13px 16px;
-          font-size: .95rem; font-family: 'Lato', sans-serif;
-          color: var(--text); background: white;
-          transition: border-color .2s, box-shadow .2s;
-          outline: none;
-        }
-        .field input:focus {
-          border-color: var(--rose);
-          box-shadow: 0 0 0 3px rgba(232,98,122,.12);
-        }
-
-        .forgot {
-          text-align: right; margin-top: -10px; margin-bottom: 24px;
-        }
-        .forgot a {
-          font-size: .82rem; color: var(--rose); text-decoration: none;
-        }
-        .forgot a:hover { text-decoration: underline; }
-
-        /* Erro */
-        .erro-box {
-          background: #fff0f2;
-          border: 1px solid var(--rose-light);
-          border-radius: 10px;
-          padding: 12px 16px;
-          font-size: .875rem; color: #c0415a;
-          margin-bottom: 18px;
-        }
-
-        /* Submit */
-        .btn-submit {
-          width: 100%;
-          background: linear-gradient(135deg, var(--rose), #c94f68);
-          color: white; border: none;
-          border-radius: 14px; padding: 14px;
-          font-size: 1rem; font-weight: 700;
-          font-family: 'Lato', sans-serif;
-          cursor: pointer;
-          box-shadow: 0 6px 20px rgba(232,98,122,.35);
-          transition: opacity .2s, transform .2s;
-        }
-        .btn-submit:hover:not(:disabled) { opacity: .9; transform: translateY(-1px); }
-        .btn-submit:disabled { opacity: .6; cursor: not-allowed; }
-
-        .auth-switch {
-          text-align: center; margin-top: 24px;
-          font-size: .9rem; color: var(--text-soft);
-        }
-        .auth-switch a { color: var(--rose); font-weight: 700; text-decoration: none; }
-        .auth-switch a:hover { text-decoration: underline; }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-          .auth-layout { grid-template-columns: 1fr; }
-          .auth-left { display: none; }
-          .auth-right { padding: 40px 24px; }
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap');
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{background:#150810!important;color:#f5e8ec!important;font-family:'Inter',system-ui,sans-serif!important}
+        a{color:inherit;text-decoration:none}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        .auth-fade{animation:fadeIn .6s ease both}
+        @media(max-width:768px){
+          .auth-layout{grid-template-columns:1fr!important}
+          .auth-left{display:none!important}
+          .auth-right{padding:40px 24px!important}
         }
       `}</style>
 
-      <div className="auth-layout">
-        {/* Lado esquerdo */}
-        <div className="auth-left">
-                  <Link href="/" className="nav-logo">
-          <Image src="/logo.png" alt="Presentim" width={1024} height={272} priority style={{ height: 44, width: 'auto' }} />
-        </Link>
-          <h2>Crie presentes que<br /><em>emocionam de verdade</em></h2>
-          <p>Fotos, músicas e mensagens num link único. A experiência mais carinhosa para quem você ama.</p>
-          <div className="auth-testimonial">
-            <p>"Fiz um presente para minha mãe no aniversário dela. Ela chorou de emoção! Nunca vi algo tão carinhoso."</p>
-            <div className="auth-testimonial-author">
-              <div className="auth-testimonial-avatar">👩‍🦰</div>
+      <div className="auth-layout" style={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: '1fr 1fr', background: '#150810', fontFamily: 'Inter,system-ui,sans-serif', color: T }}>
+        {/* Lado esquerdo — decorativo */}
+        <div className="auth-left" style={{ background: 'linear-gradient(160deg, #1f0f1a 0%, #2a1422 50%, #1a0c15 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 48, position: 'relative', overflow: 'hidden' }}>
+          {/* Glows */}
+          <div aria-hidden="true" style={{ position: 'absolute', top: -100, right: -100, width: 500, height: 500, borderRadius: '50%', background: `radial-gradient(circle,${G},transparent 65%)`, filter: 'blur(40px)', pointerEvents: 'none' }} />
+          <div aria-hidden="true" style={{ position: 'absolute', bottom: -100, left: -100, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle,rgba(120,80,200,.2),transparent 65%)', filter: 'blur(40px)', pointerEvents: 'none' }} />
+
+          <Link href="/" style={{ marginBottom: 32, position: 'relative', zIndex: 1 }}>
+            <Image src="/logo.png" alt="Presentim" width={1024} height={272} priority style={{ height: 44, width: 'auto', filter: 'brightness(0) invert(1)' }} />
+          </Link>
+          <h2 style={{ fontFamily: 'Fraunces, serif', fontSize: '2.2rem', color: T, lineHeight: 1.2, textAlign: 'center', marginBottom: 20, position: 'relative', zIndex: 1 }}>
+            Crie presentes que<br />
+            <span style={{ fontStyle: 'italic', background: `linear-gradient(135deg,${R2},${R3})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>emocionam de verdade</span>
+          </h2>
+          <p style={{ color: TS, textAlign: 'center', fontSize: '1rem', lineHeight: 1.7, maxWidth: 360, position: 'relative', zIndex: 1 }}>
+            Fotos, músicas e mensagens num link único. A experiência mais carinhosa para quem você ama.
+          </p>
+
+          {/* Testimonial */}
+          <div style={{ marginTop: 48, background: S, border: `1px solid ${B}`, borderRadius: 20, padding: '24px 28px', maxWidth: 380, boxShadow: '0 8px 32px rgba(0,0,0,.3)', position: 'relative', zIndex: 1 }}>
+            <p style={{ fontStyle: 'italic', fontSize: '.9rem', color: TS, marginBottom: 14, lineHeight: 1.7 }}>
+              "Fiz um presente para minha mãe no aniversário dela. Ela chorou de emoção! Nunca vi algo tão carinhoso."
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 36, height: 36, background: 'rgba(232,98,122,.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>👩‍🦰</div>
               <div>
-                <div className="auth-testimonial-name">Ana Clara</div>
-                <div className="auth-testimonial-stars">★★★★★</div>
+                <div style={{ fontWeight: 700, fontSize: '.85rem', color: T }}>Ana Clara</div>
+                <div style={{ color: '#c9956a', fontSize: '.75rem' }}>★★★★★</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Lado direito */}
-        <div className="auth-right">
-          <div className="auth-form-wrap">
-            <h1>Bem-vindo de volta</h1>
-            <p className="subtitle">Entre na sua conta para gerenciar seus presentes.</p>
+        {/* Lado direito — formulário */}
+        <div className="auth-right auth-fade" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px 40px' }}>
+          <div style={{ width: '100%', maxWidth: 400 }}>
+            <h1 style={{ fontFamily: 'Fraunces, serif', fontSize: '2rem', color: T, marginBottom: 8, fontWeight: 400 }}>Bem-vindo de volta</h1>
+            <p style={{ color: TS, fontSize: '.95rem', marginBottom: 36 }}>Entre na sua conta para gerenciar seus presentes.</p>
 
             {/* Google */}
-            <button className="btn-google" onClick={handleGoogleLogin} disabled={loading}>
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <button onClick={handleGoogleLogin} disabled={loading} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, background: 'transparent', border: `1.5px solid ${B}`, borderRadius: 14, padding: 13, fontSize: '.95rem', fontWeight: 700, color: T, cursor: 'pointer', marginBottom: 24, fontFamily: 'Inter,system-ui,sans-serif', transition: 'border-color .2s' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -277,39 +118,53 @@ function LoginContent() {
               Entrar com Google
             </button>
 
-            <div className="divider"><span>ou entre com e-mail</span></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+              <div style={{ flex: 1, height: 1, background: B }} />
+              <span style={{ fontSize: '.8rem', color: TS, whiteSpace: 'nowrap' }}>ou entre com e-mail</span>
+              <div style={{ flex: 1, height: 1, background: B }} />
+            </div>
 
-            {erro && <div className="erro-box">{erro}</div>}
+            {erro && (
+              <div style={{ background: 'rgba(232,98,122,.12)', border: `1px solid rgba(232,98,122,.3)`, borderRadius: 10, padding: '12px 16px', fontSize: '.875rem', color: '#ff8da7', marginBottom: 18 }}>
+                {erro}
+              </div>
+            )}
 
             <form onSubmit={handleEmailLogin}>
-              <div className="field">
-                <label htmlFor="email">E-mail</label>
+              <div style={{ marginBottom: 18 }}>
+                <label htmlFor="email" style={{ display: 'block', fontSize: '.85rem', fontWeight: 600, color: T, marginBottom: 7 }}>E-mail</label>
                 <input
                   id="email" type="email" placeholder="seu@email.com"
                   value={email} onChange={e => setEmail(e.target.value)}
                   required autoComplete="email"
+                  style={{ width: '100%', border: `1.5px solid ${B}`, borderRadius: 12, padding: '13px 16px', fontSize: '.95rem', fontFamily: 'Inter,system-ui,sans-serif', color: T, background: S, outline: 'none', transition: 'border-color .2s' }}
+                  onFocus={e => e.target.style.borderColor = R}
+                  onBlur={e => e.target.style.borderColor = B}
                 />
               </div>
-              <div className="field">
-                <label htmlFor="senha">Senha</label>
+              <div style={{ marginBottom: 18 }}>
+                <label htmlFor="senha" style={{ display: 'block', fontSize: '.85rem', fontWeight: 600, color: T, marginBottom: 7 }}>Senha</label>
                 <input
                   id="senha" type="password" placeholder="••••••••"
                   value={senha} onChange={e => setSenha(e.target.value)}
                   required autoComplete="current-password"
+                  style={{ width: '100%', border: `1.5px solid ${B}`, borderRadius: 12, padding: '13px 16px', fontSize: '.95rem', fontFamily: 'Inter,system-ui,sans-serif', color: T, background: S, outline: 'none', transition: 'border-color .2s' }}
+                  onFocus={e => e.target.style.borderColor = R}
+                  onBlur={e => e.target.style.borderColor = B}
                 />
               </div>
 
-              <div className="forgot">
-                <Link href="/esqueci-senha">Esqueci minha senha</Link>
+              <div style={{ textAlign: 'right', marginTop: -10, marginBottom: 24 }}>
+                <Link href="/esqueci-senha" style={{ fontSize: '.82rem', color: R }}>Esqueci minha senha</Link>
               </div>
 
-              <button className="btn-submit" type="submit" disabled={loading}>
+              <button type="submit" disabled={loading} style={{ width: '100%', background: `linear-gradient(135deg, ${R}, #c94f68)`, color: 'white', border: 'none', borderRadius: 14, padding: 14, fontSize: '1rem', fontWeight: 700, fontFamily: 'Inter,system-ui,sans-serif', cursor: 'pointer', boxShadow: `0 6px 20px ${G}`, transition: 'opacity .2s, transform .2s', opacity: loading ? .6 : 1 }}>
                 {loading ? 'Entrando…' : 'Entrar'}
               </button>
             </form>
 
-            <p className="auth-switch">
-              Não tem conta? <Link href="/cadastro">Criar conta grátis</Link>
+            <p style={{ textAlign: 'center', marginTop: 24, fontSize: '.9rem', color: TS }}>
+              Não tem conta? <Link href="/cadastro" style={{ color: R, fontWeight: 700 }}>Criar conta grátis</Link>
             </p>
           </div>
         </div>
@@ -317,9 +172,10 @@ function LoginContent() {
     </>
   )
 }
+
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#fff8f9' }} />}>
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#150810' }} />}>
       <LoginContent />
     </Suspense>
   )

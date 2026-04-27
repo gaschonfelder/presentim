@@ -65,7 +65,15 @@ function ComprarContent() {
   const [copiado, setCopiado] = useState(false)
   const [verificando, setVerificando] = useState(false)
 
-  // Polling a cada 4s enquanto aguarda pagamento
+  const R = '#e8627a'
+  const R2 = '#ff8da7'
+  const R3 = '#ffa726'
+  const G = 'rgba(232,98,122,.35)'
+  const T = '#f5e8ec'
+  const TS = 'rgba(245,232,236,.65)'
+  const B = 'rgba(255,255,255,.08)'
+  const S = 'rgba(255,255,255,.04)'
+
   useEffect(() => {
     if (!pixData) return
     const interval = setInterval(async () => {
@@ -144,63 +152,61 @@ function ComprarContent() {
     return (
       <>
         <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Lato:wght@300;400;700&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap');
           *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-          body{font-family:'Lato',sans-serif;background:#fff8f9;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
-          .card{background:white;border-radius:24px;padding:40px 32px;max-width:460px;width:100%;box-shadow:0 8px 40px rgba(232,98,122,.12);border:1px solid #fce4ea;text-align:center}
-          .logo{font-family:'Playfair Display',serif;font-size:1.5rem;color:#e8627a;margin-bottom:24px;display:block;text-decoration:none}
-          h1{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:6px;color:#3d1f28}
-          .sub{color:#7a4f5a;font-size:.88rem;margin-bottom:24px;line-height:1.6}
-          .resumo{background:#fdf0f3;border-radius:12px;padding:14px 18px;margin-bottom:24px;font-size:.88rem;color:#3d1f28}
-          .resumo strong{color:#e8627a}
-          .qrcode{width:200px;height:200px;margin:0 auto 20px;border-radius:12px;border:2px solid #fce4ea;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fdf0f3}
-          .qrcode img{width:100%;height:100%;object-fit:contain}
-          .instrucao{font-size:.82rem;color:#7a4f5a;margin-bottom:16px;line-height:1.7}
-          .pix-code{background:#f8f0f3;border:1px solid #fce4ea;border-radius:10px;padding:12px;font-size:.7rem;color:#3d1f28;word-break:break-all;margin-bottom:14px;font-family:monospace;max-height:72px;overflow:hidden;text-align:left}
-          .btn{width:100%;padding:13px;border:none;border-radius:12px;font-family:'Lato',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;transition:all .2s;margin-bottom:10px}
-          .btn-copiar{background:linear-gradient(135deg,#e8627a,#c94f68);color:white;box-shadow:0 4px 16px rgba(232,98,122,.28)}
-          .btn-copiar:hover{transform:translateY(-1px)}
-          .btn-verificar{background:#fdf0f3;color:#e8627a;border:1.5px solid #fce4ea}
-          .btn-verificar:hover{background:#fce4ea}
-          .btn:disabled{opacity:.6;cursor:not-allowed;transform:none!important}
-          .aguardando{display:flex;align-items:center;justify-content:center;gap:8px;color:#7a4f5a;font-size:.82rem;margin-bottom:14px}
+          body{background:#150810!important;font-family:'Inter',system-ui,sans-serif!important;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
           @keyframes spin{to{transform:rotate(360deg)}}
-          .spinner{width:14px;height:14px;border:2px solid #fce4ea;border-top-color:#e8627a;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
-          .cancelar{display:block;text-align:center;color:#7a4f5a;font-size:.8rem;text-decoration:none;margin-top:4px;opacity:.7}
-          .cancelar:hover{opacity:1;color:#e8627a}
-          .erro-box{background:#fff0f2;border:1px solid #f9a8b8;border-radius:10px;padding:10px 14px;font-size:.82rem;color:#c0415a;margin-bottom:14px}
         `}</style>
-        <div className="card">
-          <Link href="/" className="logo">Presentim</Link>
-          <h1>Pague com PIX 🟢</h1>
-          <p className="sub">Escaneie o QR Code ou copie o código abaixo</p>
-          <div className="resumo">
-            Plano <strong>{planoInfo.nome}</strong> · {planoInfo.creditos} crédito{planoInfo.creditos > 1 ? 's' : ''} por <strong>{planoInfo.precoFmt}</strong>
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#150810', padding: 24, position: 'relative', overflow: 'hidden' }}>
+          <div aria-hidden="true" style={{ position: 'absolute', top: -200, right: -200, width: 700, height: 700, borderRadius: '50%', background: `radial-gradient(circle,${G},transparent 65%)`, filter: 'blur(40px)', pointerEvents: 'none' }} />
+
+          <div style={{ background: S, border: `1px solid ${B}`, borderRadius: 24, padding: '40px 32px', maxWidth: 460, width: '100%', boxShadow: '0 24px 64px -20px rgba(0,0,0,.4)', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+            <Link href="/" style={{ fontFamily: 'Fraunces, serif', fontSize: '1.5rem', color: R, marginBottom: 24, display: 'block' }}>Presentim</Link>
+            <h1 style={{ fontFamily: 'Fraunces, serif', fontSize: '1.5rem', marginBottom: 6, color: T, fontWeight: 500 }}>Pague com PIX 🟢</h1>
+            <p style={{ color: TS, fontSize: '.88rem', marginBottom: 24, lineHeight: 1.6 }}>Escaneie o QR Code ou copie o código abaixo</p>
+
+            <div style={{ background: 'rgba(232,98,122,.08)', borderRadius: 12, padding: '14px 18px', marginBottom: 24, fontSize: '.88rem', color: T }}>
+              Plano <strong style={{ color: R }}>{planoInfo.nome}</strong> · {planoInfo.creditos} crédito{planoInfo.creditos > 1 ? 's' : ''} por <strong style={{ color: R }}>{planoInfo.precoFmt}</strong>
+            </div>
+
+            <div style={{ width: 200, height: 200, margin: '0 auto 20px', borderRadius: 12, border: `2px solid ${B}`, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,.05)' }}>
+              {pixData.pix_qrcode_base64
+                ? <img src={pixData.pix_qrcode_base64} alt="QR Code PIX" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                : <span style={{ fontSize: '2.5rem' }}>📱</span>
+              }
+            </div>
+
+            <p style={{ fontSize: '.82rem', color: TS, marginBottom: 16, lineHeight: 1.7 }}>
+              1. Abra o app do seu banco<br />
+              2. Escolha <strong style={{ color: T }}>PIX Copia e Cola</strong><br />
+              3. Cole o código abaixo
+            </p>
+
+            <div style={{ background: 'rgba(255,255,255,.04)', border: `1px solid ${B}`, borderRadius: 10, padding: 12, fontSize: '.7rem', color: T, wordBreak: 'break-all', fontFamily: 'monospace', maxHeight: 72, overflow: 'hidden', textAlign: 'left', marginBottom: 14 }}>
+              {pixData.pix_copia_e_cola}
+            </div>
+
+            {erro && (
+              <div style={{ background: 'rgba(232,98,122,.12)', border: '1px solid rgba(232,98,122,.3)', borderRadius: 10, padding: '10px 14px', fontSize: '.82rem', color: '#ff8da7', marginBottom: 14 }}>
+                ⚠️ {erro}
+              </div>
+            )}
+
+            <button onClick={handleCopiar} style={{ width: '100%', padding: 13, border: 'none', borderRadius: 12, fontSize: '.92rem', fontWeight: 700, cursor: 'pointer', marginBottom: 10, background: `linear-gradient(135deg,${R},#c94f68)`, color: 'white', boxShadow: `0 4px 16px ${G}`, fontFamily: 'Inter,system-ui,sans-serif' }}>
+              {copiado ? '✅ Copiado!' : '📋 Copiar código PIX'}
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, color: TS, fontSize: '.82rem', marginBottom: 14 }}>
+              <div style={{ width: 14, height: 14, border: `2px solid ${B}`, borderTopColor: R, borderRadius: '50%', animation: 'spin .8s linear infinite', flexShrink: 0 }} />
+              Aguardando confirmação automática…
+            </div>
+
+            <button onClick={handleVerificarManual} disabled={verificando} style={{ width: '100%', padding: 13, borderRadius: 12, fontSize: '.92rem', fontWeight: 700, cursor: 'pointer', marginBottom: 10, background: 'transparent', color: R, border: `1.5px solid ${B}`, fontFamily: 'Inter,system-ui,sans-serif', opacity: verificando ? .6 : 1 }}>
+              {verificando ? '⏳ Verificando…' : 'Já paguei, verificar agora'}
+            </button>
+
+            <a href="/comprar" style={{ display: 'block', textAlign: 'center', color: TS, fontSize: '.8rem', marginTop: 4, opacity: .7 }}>← Cancelar e voltar</a>
           </div>
-          <div className="qrcode">
-            {pixData.pix_qrcode_base64
-              ? <img src={pixData.pix_qrcode_base64} alt="QR Code PIX" />
-              : <span style={{fontSize:'2.5rem'}}>📱</span>
-            }
-          </div>
-          <p className="instrucao">
-            1. Abra o app do seu banco<br/>
-            2. Escolha <strong>PIX Copia e Cola</strong><br/>
-            3. Cole o código abaixo
-          </p>
-          <div className="pix-code">{pixData.pix_copia_e_cola}</div>
-          {erro && <div className="erro-box">⚠️ {erro}</div>}
-          <button className="btn btn-copiar" onClick={handleCopiar}>
-            {copiado ? '✅ Copiado!' : '📋 Copiar código PIX'}
-          </button>
-          <div className="aguardando">
-            <div className="spinner" />
-            Aguardando confirmação automática…
-          </div>
-          <button className="btn btn-verificar" onClick={handleVerificarManual} disabled={verificando}>
-            {verificando ? '⏳ Verificando…' : 'Já paguei, verificar agora'}
-          </button>
-          <a href="/comprar" className="cancelar">← Cancelar e voltar</a>
         </div>
       </>
     )
@@ -210,143 +216,146 @@ function ComprarContent() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Lato:wght@300;400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap');
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        :root{--rose:#e8627a;--rose-light:#f9a8b8;--rose-pale:#fdf0f3;--rose-mid:#fce4ea;--cream:#fff8f9;--text:#3d1f28;--text-soft:#7a4f5a}
-        body{font-family:'Lato',sans-serif;background:var(--cream);color:var(--text)}
-        .navbar{background:white;border-bottom:1px solid var(--rose-mid);padding:0 48px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 1px 8px rgba(232,98,122,.06)}
-        .nav-logo{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--rose);text-decoration:none}
-        .nav-back{font-size:.88rem;color:var(--text-soft);text-decoration:none;transition:color .2s}
-        .nav-back:hover{color:var(--rose)}
-        .page{max-width:880px;margin:0 auto;padding:64px 24px 80px;text-align:center}
-        .header{margin-bottom:48px}
-        .header-eyebrow{font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--rose);opacity:.7;margin-bottom:12px}
-        .header h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,2.8rem);line-height:1.2;color:var(--text);margin-bottom:12px}
-        .header h1 em{font-style:italic;color:var(--rose)}
-        .header p{color:var(--text-soft);font-size:.95rem;line-height:1.7;max-width:460px;margin:0 auto}
-        .como{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:44px}
-        .como-item{display:flex;align-items:center;gap:6px;background:white;border:1.5px solid var(--rose-mid);border-radius:50px;padding:.4rem .95rem;font-size:.78rem;color:var(--text-soft);box-shadow:0 1px 4px rgba(232,98,122,.07)}
-        .como-item strong{color:var(--rose)}
-        .como-sep{color:var(--rose-light);display:flex;align-items:center;font-size:1.1rem}
-        .aviso{border-radius:14px;padding:14px 18px;margin-bottom:28px;font-size:.85rem;display:flex;align-items:center;gap:10px;text-align:left;max-width:560px;margin-left:auto;margin-right:auto}
-        .aviso.cancelado{background:#fffbea;border:1px solid #f0d080;color:#7a6020}
-        .aviso.erro{background:#fff0f2;border:1px solid var(--rose-light);color:#c0415a}
-        .planos{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:32px}
-        @media(max-width:720px){.planos{grid-template-columns:1fr;max-width:380px;margin-left:auto;margin-right:auto}}
-        .card{background:white;border:2px solid var(--rose-mid);border-radius:24px;padding:32px 24px 28px;position:relative;transition:all .2s;text-align:left;display:flex;flex-direction:column;box-shadow:0 2px 12px rgba(232,98,122,.06)}
-        .card:hover{border-color:var(--rose-light);box-shadow:0 8px 32px rgba(232,98,122,.12);transform:translateY(-3px)}
-        .card.destaque{border-color:var(--rose);box-shadow:0 8px 36px rgba(232,98,122,.18)}
-        .card-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--rose),#f9a8b8);color:white;font-size:.65rem;font-weight:700;padding:4px 14px;border-radius:20px;white-space:nowrap;letter-spacing:.04em;box-shadow:0 3px 10px rgba(232,98,122,.3)}
-        .card-badge.alt{background:linear-gradient(135deg,#e8a020,#e8627a)}
-        .card-emoji{font-size:2.2rem;margin-bottom:10px}
-        .card-nome{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--text);margin-bottom:4px}
-        .card-creditos{margin-bottom:18px}
-        .card-creditos-num{background:var(--rose-pale);border:1px solid var(--rose-mid);border-radius:50px;padding:.18rem .6rem;color:var(--rose);font-weight:700;font-size:.75rem}
-        .card-preco-val{font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:700;color:var(--text);line-height:1}
-        .card-preco-por{font-size:.7rem;color:var(--text-soft);opacity:.6;margin-top:4px;margin-bottom:4px}
-        .card-uso{font-size:.72rem;color:var(--rose);font-weight:700;margin-bottom:20px;letter-spacing:.01em}
-        .card-beneficios{list-style:none;margin-bottom:24px;flex:1}
-        .card-beneficios li{font-size:.83rem;color:var(--text-soft);padding:6px 0;border-bottom:1px solid var(--rose-pale);display:flex;align-items:flex-start;gap:8px;line-height:1.45}
-        .card-beneficios li:last-child{border:none}
-        .card-beneficios li::before{content:'✓';color:var(--rose);font-weight:700;flex-shrink:0;margin-top:1px}
-        .card.destaque .card-beneficios li{color:var(--text)}
-        .btn-comprar{width:100%;padding:14px;border:none;border-radius:14px;font-family:'Lato',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.01em}
-        .btn-comprar.primario{background:linear-gradient(135deg,var(--rose),#c94f68);color:white;box-shadow:0 6px 20px rgba(232,98,122,.28)}
-        .btn-comprar.primario:hover:not(:disabled){box-shadow:0 10px 28px rgba(232,98,122,.4);transform:translateY(-1px)}
-        .btn-comprar.secundario{background:var(--rose-pale);color:var(--rose);border:1.5px solid var(--rose-mid)}
-        .btn-comprar.secundario:hover:not(:disabled){background:var(--rose-mid);border-color:var(--rose-light)}
-        .btn-comprar:disabled{opacity:.55;cursor:not-allowed;transform:none!important}
-        .pix-info{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text-soft);font-size:.78rem;opacity:.6;margin-bottom:52px}
-        .pix-badge{background:#e8f7f0;border:1px solid #a8dfc0;border-radius:50px;padding:.22rem .7rem;color:#2a8a5a;font-size:.72rem;font-weight:700}
-        .divisor{height:1px;background:var(--rose-mid);margin:52px 0}
-        .faq{text-align:left;max-width:580px;margin:0 auto}
-        .faq-titulo{font-family:'Playfair Display',serif;font-size:1.5rem;text-align:center;margin-bottom:28px;color:var(--text)}
-        .faq-item{border-bottom:1px solid var(--rose-mid);padding:18px 0}
-        .faq-item:last-child{border:none}
-        .faq-item strong{display:block;color:var(--text);font-size:.9rem;margin-bottom:6px}
-        .faq-item p{color:var(--text-soft);font-size:.85rem;line-height:1.65}
-        @media(max-width:600px){.navbar{padding:0 16px}.como{gap:5px}}
+        body{background:#150810!important;color:#f5e8ec!important;font-family:'Inter',system-ui,sans-serif!important}
+        a{color:inherit;text-decoration:none}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        .comprar-fade{animation:fadeIn .6s ease both}
+        @media(max-width:720px){
+          .planos-grid{grid-template-columns:1fr!important;max-width:380px!important;margin-left:auto!important;margin-right:auto!important}
+          .comprar-nav{padding:0 16px!important}
+        }
+        @media(max-width:640px){
+          .comprar-nav .nav-links-inner{display:none!important}
+        }
+          .card-plano:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 20px 50px -10px rgba(0,0,0,.5);
+  border-color: #e8627a !important;
+}
       `}</style>
 
-      <nav className="navbar">
-                <Link href="/" className="nav-logo">
-          <Image src="/logo.png" alt="Presentim" width={1024} height={272} priority style={{ height: 44, width: 'auto' }} />
-        </Link>
-        <Link href="/dashboard" className="nav-back">← Voltar ao dashboard</Link>
-      </nav>
+      <div style={{ minHeight: '100vh', position: 'relative', overflowX: 'hidden', background: '#150810', color: T, fontFamily: 'Inter,system-ui,sans-serif', fontSize: 15 }}>
+        <div aria-hidden="true" style={{ position: 'absolute', top: -200, right: -200, width: 700, height: 700, borderRadius: '50%', background: `radial-gradient(circle,${G},transparent 65%)`, filter: 'blur(40px)', pointerEvents: 'none' }} />
+        <div aria-hidden="true" style={{ position: 'absolute', top: 600, left: -200, width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle,rgba(120,80,200,.22),transparent 65%)', filter: 'blur(40px)', pointerEvents: 'none', opacity: .8 }} />
 
-      <div className="page">
-        <div className="header">
-          <div className="header-eyebrow">Créditos</div>
-          <h1>Crie presentes que<br/><em>emocionam de verdade</em></h1>
-          <p>Compre créditos e use como quiser. Sem assinatura, sem prazo de validade.</p>
-        </div>
+        {/* NAV */}
+        <header className="comprar-nav" style={{ position: 'sticky', top: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 56px', background: 'rgba(21,8,16,.65)', backdropFilter: 'blur(16px)', borderBottom: `1px solid ${B}` }}>
+          <Link href="/">
+            <Image src="/logo.png" alt="Presentim" width={1024} height={272} priority style={{ height: 38, width: 'auto', filter: 'brightness(0) invert(1)' }} />
+          </Link>
+          <Link href="/dashboard" style={{ fontSize: 13, color: TS }}>← Voltar ao dashboard</Link>
+        </header>
 
-        <div className="como">
-          <div className="como-item">🎁 Página Virtual = <strong>1 crédito</strong></div>
-          <div className="como-sep">·</div>
-          <div className="como-item">💫 Retrospectiva = <strong>2 créditos</strong></div>
-          <div className="como-sep">·</div>
-          <div className="como-item">✨ Nunca expiram</div>
-        </div>
+        {/* CONTENT */}
+        <div className="comprar-fade" style={{ maxWidth: 920, margin: '0 auto', padding: '64px 24px 80px', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+          {/* Header */}
+          <div style={{ marginBottom: 48 }}>
+            <div style={{ fontSize: 11, letterSpacing: '.2em', textTransform: 'uppercase', color: R, fontWeight: 600, marginBottom: 12 }}>Créditos</div>
+            <h1 style={{ fontFamily: 'Fraunces, serif', fontSize: 'clamp(2rem, 4vw, 2.8rem)', lineHeight: 1.2, color: T, marginBottom: 12, fontWeight: 400 }}>
+              Crie presentes que<br />
+              <span style={{ fontStyle: 'italic', background: `linear-gradient(135deg,${R2},${R3})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>emocionam de verdade</span>
+            </h1>
+            <p style={{ color: TS, fontSize: '.95rem', lineHeight: 1.7, maxWidth: 460, margin: '0 auto' }}>Compre créditos e use como quiser. Sem assinatura, sem prazo de validade.</p>
+          </div>
 
-        {cancelado && <div className="aviso cancelado">⚠️ Pagamento cancelado. Seus créditos não foram alterados.</div>}
-        {erro && <div className="aviso erro">⚠️ {erro}</div>}
-
-        <div className="planos">
-          {PLANOS.map(p => (
-            <div key={p.id} className={`card ${p.destaque ? 'destaque' : ''}`}>
-              {p.badge && <div className={`card-badge ${p.badgeAlt ? 'alt' : ''}`}>{p.badge}</div>}
-              <div className="card-emoji">{p.emoji}</div>
-              <div className="card-nome">{p.nome}</div>
-              <div className="card-creditos">
-                <span className="card-creditos-num">{p.creditos} crédito{p.creditos > 1 ? 's' : ''}</span>
+          {/* Como funciona */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 44 }}>
+            {[
+              ['🎁', 'Página Virtual = ', '1 crédito'],
+              ['💫', 'Retrospectiva = ', '2 créditos'],
+              ['✨', '', 'Nunca expiram'],
+            ].map(([emoji, label, val], i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                {i > 0 && <span style={{ color: R, marginRight: 4, fontSize: '1.1rem' }}>·</span>}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: S, border: `1px solid ${B}`, borderRadius: 50, padding: '.4rem .95rem', fontSize: '.78rem', color: TS }}>
+                  {emoji} {label}<strong style={{ color: R }}>{val}</strong>
+                </div>
               </div>
-              <div className="card-preco-val">{p.precoFmt}</div>
-              <div className="card-preco-por">{p.porCredito}</div>
-              <div className="card-uso">{p.uso}</div>
-              <ul className="card-beneficios">
-                {p.beneficios.map((b, i) => <li key={i}>{b}</li>)}
-              </ul>
-              <button
-                className={`btn-comprar ${p.destaque ? 'primario' : 'secundario'}`}
-                onClick={() => handleComprar(p.id)}
-                disabled={!!loading}
-              >
-                {loading === p.id ? '⏳ Gerando PIX…' : `Comprar por ${p.precoFmt}`}
-              </button>
+            ))}
+          </div>
+
+          {cancelado && (
+            <div style={{ borderRadius: 14, padding: '14px 18px', marginBottom: 28, fontSize: '.85rem', display: 'flex', alignItems: 'center', gap: 10, textAlign: 'left', maxWidth: 560, margin: '0 auto 28px', background: 'rgba(240,208,128,.1)', border: '1px solid rgba(240,208,128,.3)', color: '#f0d080' }}>
+              ⚠️ Pagamento cancelado. Seus créditos não foram alterados.
             </div>
-          ))}
-        </div>
+          )}
+          {erro && (
+            <div style={{ borderRadius: 14, padding: '14px 18px', marginBottom: 28, fontSize: '.85rem', display: 'flex', alignItems: 'center', gap: 10, textAlign: 'left', maxWidth: 560, margin: '0 auto 28px', background: 'rgba(232,98,122,.1)', border: '1px solid rgba(232,98,122,.3)', color: '#ff8da7' }}>
+              ⚠️ {erro}
+            </div>
+          )}
 
-        <div className="pix-info">
-          <span className="pix-badge">PIX</span>
-          Pagamento exclusivo via Pix · Aprovação instantânea
-        </div>
+          {/* Cards */}
+          <div className="planos-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20, marginBottom: 32 }}>
+            {PLANOS.map(p => (
+              <div key={p.id} className="card-plano" style={{ background: S, border: `1.5px solid ${p.destaque ? R : B}`, borderRadius: 24, padding: '32px 24px 28px', position: 'relative', transition: 'all .2s', textAlign: 'left', display: 'flex', flexDirection: 'column', boxShadow: p.destaque ? `0 8px 36px ${G}` : '0 2px 12px rgba(0,0,0,.15)' }}>
+                {p.badge && (
+                  <div style={{ position: 'absolute', top: -13, left: '50%', transform: 'translateX(-50%)', background: p.badgeAlt ? `linear-gradient(135deg,#e8a020,${R})` : `linear-gradient(135deg,${R},${R2})`, color: 'white', fontSize: '.65rem', fontWeight: 700, padding: '4px 14px', borderRadius: 20, whiteSpace: 'nowrap', letterSpacing: '.04em', boxShadow: `0 3px 10px ${G}` }}>
+                    {p.badge}
+                  </div>
+                )}
+                <div style={{ fontSize: '2.2rem', marginBottom: 10 }}>{p.emoji}</div>
+                <div style={{ fontFamily: 'Fraunces, serif', fontSize: '1.3rem', color: T, marginBottom: 4 }}>{p.nome}</div>
+                <div style={{ marginBottom: 18 }}>
+                  <span style={{ background: 'rgba(232,98,122,.12)', border: '1px solid rgba(232,98,122,.2)', borderRadius: 50, padding: '.18rem .6rem', color: R, fontWeight: 700, fontSize: '.75rem' }}>
+                    {p.creditos} crédito{p.creditos > 1 ? 's' : ''}
+                  </span>
+                </div>
+                <div style={{ fontFamily: 'Fraunces, serif', fontSize: '2.5rem', fontWeight: 700, color: T, lineHeight: 1 }}>{p.precoFmt}</div>
+                <div style={{ fontSize: '.7rem', color: TS, opacity: .6, marginTop: 4, marginBottom: 4 }}>{p.porCredito}</div>
+                <div style={{ fontSize: '.72rem', color: R, fontWeight: 700, marginBottom: 20, letterSpacing: '.01em' }}>{p.uso}</div>
+                <ul style={{ listStyle: 'none', marginBottom: 24, flex: 1, padding: 0 }}>
+                  {p.beneficios.map((b, i) => (
+                    <li key={i} style={{ fontSize: '.83rem', color: p.destaque ? T : TS, padding: '6px 0', borderBottom: `1px solid ${B}`, display: 'flex', alignItems: 'flex-start', gap: 8, lineHeight: 1.45 }}>
+                      <span style={{ color: R, fontWeight: 700, flexShrink: 0, marginTop: 1 }}>✓</span>
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => handleComprar(p.id)}
+                  disabled={!!loading}
+                  style={{
+                    width: '100%', padding: 14, border: 'none', borderRadius: 14,
+                    fontFamily: 'Inter,system-ui,sans-serif', fontSize: '.92rem', fontWeight: 700,
+                    cursor: 'pointer', transition: 'all .2s', letterSpacing: '.01em',
+                    ...(p.destaque
+                      ? { background: `linear-gradient(135deg,${R},#c94f68)`, color: 'white', boxShadow: `0 6px 20px ${G}` }
+                      : { background: 'rgba(232,98,122,.1)', color: R, border: `1.5px solid rgba(232,98,122,.2)` }),
+                    opacity: loading ? .55 : 1,
+                  }}
+                >
+                  {loading === p.id ? '⏳ Gerando PIX…' : `Comprar por ${p.precoFmt}`}
+                </button>
+              </div>
+            ))}
+          </div>
 
-        <div className="divisor" />
+          {/* PIX info */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, color: TS, fontSize: '.78rem', opacity: .6, marginBottom: 52 }}>
+            <span style={{ background: 'rgba(42,138,90,.15)', border: '1px solid rgba(42,138,90,.3)', borderRadius: 50, padding: '.22rem .7rem', color: '#65d97a', fontSize: '.72rem', fontWeight: 700 }}>PIX</span>
+            Pagamento exclusivo via Pix · Aprovação instantânea
+          </div>
 
-        <div className="faq">
-          <div className="faq-titulo">Dúvidas frequentes</div>
-          <div className="faq-item">
-            <strong>Os créditos expiram?</strong>
-            <p>Nunca. Compre hoje e use daqui a um ano se quiser.</p>
-          </div>
-          <div className="faq-item">
-            <strong>Qual a diferença entre Página Virtual e Retrospectiva?</strong>
-            <p>A Página Virtual é um presente com contagem regressiva, fotos e mensagem. A Retrospectiva é uma experiência completa com slides animados, conquistas do casal e muito mais. Custa 2 créditos.</p>
-          </div>
-          <div className="faq-item">
-            <strong>Posso editar depois de publicar?</strong>
-            <p>Sim, quantas vezes quiser. Editar não gasta crédito.</p>
-          </div>
-          <div className="faq-item">
-            <strong>O pagamento é seguro?</strong>
-            <p>Sim. PIX processado pelo Mercado Pago com aprovação instantânea. Os créditos são adicionados automaticamente após confirmação.</p>
-          </div>
-          <div className="faq-item">
-            <strong>E se eu pagar e não receber os créditos?</strong>
-            <p>Se o PIX for aprovado e os créditos não aparecerem em até 5 minutos, entre em contato pelo suporte que resolvemos na hora.</p>
+          <div style={{ height: 1, background: `linear-gradient(90deg,transparent,${B},transparent)`, margin: '52px 0' }} />
+
+          {/* FAQ */}
+          <div style={{ textAlign: 'left', maxWidth: 580, margin: '0 auto' }}>
+            <div style={{ fontFamily: 'Fraunces, serif', fontSize: '1.5rem', textAlign: 'center', marginBottom: 28, color: T }}>Dúvidas frequentes</div>
+            {[
+              ['Os créditos expiram?', 'Nunca. Compre hoje e use daqui a um ano se quiser.'],
+              ['Qual a diferença entre Página Virtual e Retrospectiva?', 'A Página Virtual é um presente com contagem regressiva, fotos e mensagem. A Retrospectiva é uma experiência completa com slides animados, conquistas do casal e muito mais. Custa 2 créditos.'],
+              ['Posso editar depois de publicar?', 'Sim, quantas vezes quiser. Editar não gasta crédito.'],
+              ['O pagamento é seguro?', 'Sim. PIX processado pelo Mercado Pago com aprovação instantânea. Os créditos são adicionados automaticamente após confirmação.'],
+              ['E se eu pagar e não receber os créditos?', 'Se o PIX for aprovado e os créditos não aparecerem em até 5 minutos, entre em contato pelo suporte que resolvemos na hora.'],
+            ].map(([q, a], i) => (
+              <div key={i} style={{ borderBottom: `1px solid ${B}`, padding: '18px 0', ...(i === 4 ? { borderBottom: 'none' } : {}) }}>
+                <strong style={{ display: 'block', color: T, fontSize: '.9rem', marginBottom: 6 }}>{q}</strong>
+                <p style={{ color: TS, fontSize: '.85rem', lineHeight: 1.65, margin: 0 }}>{a}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -356,7 +365,7 @@ function ComprarContent() {
 
 export default function ComprarPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#fff8f9' }} />}>
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#150810' }} />}>
       <ComprarContent />
     </Suspense>
   )

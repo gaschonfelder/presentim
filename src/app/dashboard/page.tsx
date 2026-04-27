@@ -14,7 +14,6 @@ import ModalCompartilhar from './components/ModalCompartilhar'
 import CodigoResgate from './components/CodigoResgate'
 import Toast from './components/Toast'
 
-
 import styles from './dashboard.module.css'
 
 function DashboardContent() {
@@ -79,7 +78,6 @@ function DashboardContent() {
   }
 
   function handleNovo() {
-    // Agora permite criar mesmo sem créditos — pagamento é no final
     setEscolhendoTipo(true)
   }
 
@@ -95,71 +93,82 @@ function DashboardContent() {
 
   return (
     <>
-      {escolhendoTipo && (
-        <ModalEscolherTipo
-          creditos={profile?.creditos ?? 0}
-          onClose={() => setEscolhendoTipo(false)}
-        />
-      )}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap');
+        body { background: #150810 !important; color: #f5e8ec !important; font-family: 'Inter', system-ui, sans-serif !important; }
+      `}</style>
 
-      {compartilhando && (
-        <ModalCompartilhar
-          slug={compartilhando.slug}
-          cor={compartilhando.cor_primaria ?? '#e8627a'}
-          tipo={(compartilhando as Presente & { tipo?: string }).tipo}
-          onClose={() => setCompartilhando(null)}
-        />
-      )}
+      <div style={{ minHeight: '100vh', position: 'relative', overflowX: 'hidden', background: '#150810', color: '#f5e8ec', fontFamily: 'Inter,system-ui,sans-serif' }}>
+        {/* Ambient glows */}
+        <div aria-hidden="true" style={{ position: 'absolute', top: -200, right: -200, width: 700, height: 700, borderRadius: '50%', background: 'radial-gradient(circle, rgba(232,98,122,.35), transparent 65%)', filter: 'blur(40px)', pointerEvents: 'none' }} />
+        <div aria-hidden="true" style={{ position: 'absolute', top: 600, left: -200, width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(120,80,200,.22), transparent 65%)', filter: 'blur(40px)', pointerEvents: 'none', opacity: 0.8 }} />
 
-      {toast && <Toast mensagem={toast} />}
+        {escolhendoTipo && (
+          <ModalEscolherTipo
+            creditos={profile?.creditos ?? 0}
+            onClose={() => setEscolhendoTipo(false)}
+          />
+        )}
 
-      <nav className={styles.navbar}>
-        <Link href="/" className="nav-logo">
-          <Image src="/logo.png" alt="Presentim" width={1024} height={272} priority style={{ height: 44, width: 'auto' }} />
-        </Link>
-        <div className={styles.navbarRight}>
-          <span className={styles.navbarUser}>Olá, {nomeExibido} 👋</span>
-          <button className={styles.btnLogout} onClick={handleLogout}>
-            Sair
-          </button>
+        {compartilhando && (
+          <ModalCompartilhar
+            slug={compartilhando.slug}
+            cor={compartilhando.cor_primaria ?? '#e8627a'}
+            tipo={(compartilhando as Presente & { tipo?: string }).tipo}
+            onClose={() => setCompartilhando(null)}
+          />
+        )}
+
+        {toast && <Toast mensagem={toast} />}
+
+        <nav className={styles.navbar}>
+          <Link href="/">
+            <Image src="/logo.png" alt="Presentim" width={1024} height={272} priority style={{ height: 38, width: 'auto', filter: 'brightness(0) invert(1)' }} />
+          </Link>
+          <div className={styles.navbarRight}>
+            <span className={styles.navbarUser}>Olá, {nomeExibido} 👋</span>
+            <button className={styles.btnLogout} onClick={handleLogout}>
+              Sair
+            </button>
+          </div>
+        </nav>
+
+        <div className={styles.page}>
+          <div className={styles.pageHeader}>
+            <h1>
+              Meus <em>presentes</em>
+            </h1>
+            <p>Gerencie e acompanhe todos os presentes que você criou.</p>
+          </div>
+
+          <CardsResumo
+            creditos={profile?.creditos ?? 0}
+            totalPresentes={presentes.length}
+            totalVisualizacoes={totalVisualizacoes}
+          />
+
+          <CodigoResgate
+            onSucesso={(creditos) => {
+              setProfile(prev => prev ? { ...prev, creditos: (prev.creditos ?? 0) + creditos } : prev)
+              setToast(`🎉 +${creditos} crédito${creditos > 1 ? 's' : ''} adicionado${creditos > 1 ? 's' : ''}!`)
+              setTimeout(() => setToast(null), 4000)
+            }}
+          />
+
+          <div className={styles.sectionHeader}>
+            <h2>Seus presentes</h2>
+            <button className={styles.btnNovo} onClick={handleNovo}>
+              + Criar presente
+            </button>
+          </div>
+
+          <ListaPresentes
+            presentes={presentes}
+            onNovo={handleNovo}
+            onCompartilhar={setCompartilhando}
+            onDeletar={handleDeletar}
+          />
         </div>
-      </nav>
-
-      <div className={styles.page}>
-        <div className={styles.pageHeader}>
-          <h1>
-            Meus <em>presentes</em>
-          </h1>
-          <p>Gerencie e acompanhe todos os presentes que você criou.</p>
-        </div>
-
-        <CardsResumo
-          creditos={profile?.creditos ?? 0}
-          totalPresentes={presentes.length}
-          totalVisualizacoes={totalVisualizacoes}
-        />
-
-        <CodigoResgate
-          onSucesso={(creditos) => {
-            setProfile(prev => prev ? { ...prev, creditos: (prev.creditos ?? 0) + creditos } : prev)
-            setToast(`🎉 +${creditos} crédito${creditos > 1 ? 's' : ''} adicionado${creditos > 1 ? 's' : ''}!`)
-            setTimeout(() => setToast(null), 4000)
-          }}
-        />
-
-        <div className={styles.sectionHeader}>
-          <h2>Seus presentes</h2>
-          <button className={styles.btnNovo} onClick={handleNovo}>
-            + Criar presente
-          </button>
-        </div>
-
-        <ListaPresentes
-          presentes={presentes}
-          onNovo={handleNovo}
-          onCompartilhar={setCompartilhando}
-          onDeletar={handleDeletar}
-        />
       </div>
     </>
   )
@@ -168,7 +177,7 @@ function DashboardContent() {
 export default function DashboardPage() {
   return (
     <Suspense
-      fallback={<div style={{ minHeight: '100vh', background: '#fff8f9' }} />}
+      fallback={<div style={{ minHeight: '100vh', background: '#150810' }} />}
     >
       <DashboardContent />
     </Suspense>

@@ -5,14 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-
-import {
-  Gift, Heart, Music, Link2,
-  PenLine, Calendar, Share, HeartHandshake,
-  Stars, Trophy, Images, Smartphone,
-  Star, Flame,
-  ChevronDown,
-} from 'lucide-react'
+import { Gift, Heart, Music, Link2 } from 'lucide-react'
 
 export default function CadastroPage() {
   const router = useRouter()
@@ -24,6 +17,15 @@ export default function CadastroPage() {
   const [loading, setLoading] = useState(false)
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState(false)
+
+  const R = '#e8627a'
+  const R2 = '#ff8da7'
+  const R3 = '#ffa726'
+  const G = 'rgba(232,98,122,.35)'
+  const T = '#f5e8ec'
+  const TS = 'rgba(245,232,236,.65)'
+  const B = 'rgba(255,255,255,.08)'
+  const S = 'rgba(255,255,255,.04)'
 
   async function handleCadastro(e: React.FormEvent) {
     e.preventDefault()
@@ -68,31 +70,20 @@ export default function CadastroPage() {
     return (
       <>
         <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Lato:wght@300;400;700&display=swap');
-          *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-          :root { --rose: #e8627a; --rose-pale: #fdf0f3; --rose-mid: #fce4ea; --cream: #fff8f9; --text: #3d1f28; --text-soft: #7a4f5a; }
-          body { font-family: 'Lato', sans-serif; background: var(--cream); }
-          .sucesso-wrap {
-            min-height: 100vh; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            text-align: center; padding: 40px 24px;
-          }
-          .sucesso-icon { font-size: 4rem; margin-bottom: 24px; }
-          .sucesso-wrap h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--text); margin-bottom: 12px; }
-          .sucesso-wrap p { color: var(--text-soft); font-size: 1rem; max-width: 400px; line-height: 1.7; }
-          .sucesso-wrap a {
-            display: inline-block; margin-top: 32px;
-            background: linear-gradient(135deg, #e8627a, #c94f68);
-            color: white; padding: 14px 36px; border-radius: 50px;
-            font-weight: 700; text-decoration: none;
-            box-shadow: 0 6px 20px rgba(232,98,122,.3);
-          }
+          @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap');
+          *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+          body{background:#150810!important;font-family:'Inter',system-ui,sans-serif!important}
         `}</style>
-        <div className="sucesso-wrap">
-          <div className="sucesso-icon">💌</div>
-          <h2>Verifique seu e-mail!</h2>
-          <p>Enviamos um link de confirmação para <strong>{email}</strong>. Acesse seu e-mail e clique no link para ativar sua conta.</p>
-          <Link href="/login">Ir para o login</Link>
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '40px 24px', background: '#150810', color: T, fontFamily: 'Inter,system-ui,sans-serif', position: 'relative', overflow: 'hidden' }}>
+          <div aria-hidden="true" style={{ position: 'absolute', top: -200, right: -200, width: 700, height: 700, borderRadius: '50%', background: `radial-gradient(circle,${G},transparent 65%)`, filter: 'blur(40px)', pointerEvents: 'none' }} />
+          <div style={{ fontSize: '4rem', marginBottom: 24, position: 'relative', zIndex: 1 }}>💌</div>
+          <h2 style={{ fontFamily: 'Fraunces, serif', fontSize: '2rem', color: T, marginBottom: 12, position: 'relative', zIndex: 1 }}>Verifique seu e-mail!</h2>
+          <p style={{ color: TS, fontSize: '1rem', maxWidth: 400, lineHeight: 1.7, position: 'relative', zIndex: 1 }}>
+            Enviamos um link de confirmação para <strong style={{ color: T }}>{email}</strong>. Acesse seu e-mail e clique no link para ativar sua conta.
+          </p>
+          <Link href="/login" style={{ display: 'inline-block', marginTop: 32, background: `linear-gradient(135deg, ${R}, #c94f68)`, color: 'white', padding: '14px 36px', borderRadius: 50, fontWeight: 700, boxShadow: `0 6px 20px ${G}`, position: 'relative', zIndex: 1 }}>
+            Ir para o login
+          </Link>
         </div>
       </>
     )
@@ -101,171 +92,62 @@ export default function CadastroPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Lato:wght@300;400;700&display=swap');
-
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-          --rose:      #e8627a;
-          --rose-light:#f9a8b8;
-          --rose-pale: #fdf0f3;
-          --rose-mid:  #fce4ea;
-          --cream:     #fff8f9;
-          --text:      #3d1f28;
-          --text-soft: #7a4f5a;
-        }
-
-        body {
-          font-family: 'Lato', sans-serif;
-          background: var(--cream);
-          color: var(--text);
-          min-height: 100vh;
-        }
-
-        .auth-layout {
-          min-height: 100vh;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-        }
-
-        .auth-left {
-          background: linear-gradient(160deg, #fce4ea 0%, #f9c5d0 50%, #f0a8bc 100%);
-          display: flex; flex-direction: column;
-          align-items: center; justify-content: center;
-          padding: 48px;
-          position: relative; overflow: hidden;
-        }
-
-        .auth-left h2 {
-          font-family: 'Playfair Display', serif;
-          font-size: 2.2rem; color: var(--text);
-          line-height: 1.2; text-align: center; margin-bottom: 20px;
-        }
-        .auth-left h2 em { font-style: italic; color: var(--rose); }
-        .auth-left p {
-          color: var(--text-soft); text-align: center;
-          font-size: 1rem; line-height: 1.7; max-width: 360px;
-        }
-
-        .steps-list {
-          margin-top: 40px; list-style: none;
-          display: flex; flex-direction: column; gap: 16px;
-          width: 100%; max-width: 360px;
-        }
-        .steps-list li {
-          display: flex; align-items: center; gap: 14px;
-          background: white; border-radius: 14px;
-          padding: 14px 18px;
-          box-shadow: 0 4px 16px rgba(232,98,122,.1);
-          font-size: .9rem; color: var(--text);
-        }
-        .steps-list li span:first-child {
-          font-size: 1.3rem; flex-shrink: 0;
-        }
-
-        .auth-right {
-          display: flex; flex-direction: column;
-          align-items: center; justify-content: center;
-          padding: 48px 40px;
-        }
-        .auth-form-wrap { width: 100%; max-width: 400px; }
-        .auth-form-wrap h1 {
-          font-family: 'Playfair Display', serif;
-          font-size: 2rem; color: var(--text); margin-bottom: 8px;
-        }
-        .auth-form-wrap .subtitle {
-          color: var(--text-soft); font-size: .95rem; margin-bottom: 36px;
-        }
-
-        .btn-google {
-          width: 100%;
-          display: flex; align-items: center; justify-content: center; gap: 12px;
-          background: white; border: 2px solid #e0d0d4; border-radius: 14px;
-          padding: 13px; font-size: .95rem; font-weight: 700; color: var(--text);
-          cursor: pointer; transition: border-color .2s, box-shadow .2s;
-          margin-bottom: 24px;
-        }
-        .btn-google:hover { border-color: var(--rose-light); box-shadow: 0 4px 16px rgba(232,98,122,.1); }
-        .btn-google svg { width: 20px; height: 20px; }
-
-        .divider {
-          display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
-        }
-        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--rose-mid); }
-        .divider span { font-size: .8rem; color: var(--text-soft); white-space: nowrap; }
-
-        .field { margin-bottom: 18px; }
-        .field label { display: block; font-size: .85rem; font-weight: 700; color: var(--text); margin-bottom: 7px; }
-        .field input {
-          width: 100%; border: 2px solid var(--rose-mid); border-radius: 12px;
-          padding: 13px 16px; font-size: .95rem; font-family: 'Lato', sans-serif;
-          color: var(--text); background: white;
-          transition: border-color .2s, box-shadow .2s; outline: none;
-        }
-        .field input:focus { border-color: var(--rose); box-shadow: 0 0 0 3px rgba(232,98,122,.12); }
-
-        .senha-hint { font-size: .78rem; color: var(--text-soft); margin-top: 5px; }
-
-        .erro-box {
-          background: #fff0f2; border: 1px solid var(--rose-light); border-radius: 10px;
-          padding: 12px 16px; font-size: .875rem; color: #c0415a; margin-bottom: 18px;
-        }
-
-        .btn-submit {
-          width: 100%;
-          background: linear-gradient(135deg, var(--rose), #c94f68);
-          color: white; border: none; border-radius: 14px; padding: 14px;
-          font-size: 1rem; font-weight: 700; font-family: 'Lato', sans-serif;
-          cursor: pointer; box-shadow: 0 6px 20px rgba(232,98,122,.35);
-          transition: opacity .2s, transform .2s;
-        }
-        .btn-submit:hover:not(:disabled) { opacity: .9; transform: translateY(-1px); }
-        .btn-submit:disabled { opacity: .6; cursor: not-allowed; }
-
-        .auth-switch {
-          text-align: center; margin-top: 24px;
-          font-size: .9rem; color: var(--text-soft);
-        }
-        .auth-switch a { color: var(--rose); font-weight: 700; text-decoration: none; }
-        .auth-switch a:hover { text-decoration: underline; }
-
-        .terms {
-          font-size: .78rem; color: var(--text-soft);
-          text-align: center; margin-top: 16px; line-height: 1.5;
-        }
-        .terms a { color: var(--rose); text-decoration: none; }
-
-        @media (max-width: 768px) {
-          .auth-layout { grid-template-columns: 1fr; }
-          .auth-left { display: none; }
-          .auth-right { padding: 40px 24px; }
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap');
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{background:#150810!important;color:#f5e8ec!important;font-family:'Inter',system-ui,sans-serif!important}
+        a{color:inherit;text-decoration:none}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        .auth-fade{animation:fadeIn .6s ease both}
+        @media(max-width:768px){
+          .auth-layout{grid-template-columns:1fr!important}
+          .auth-left{display:none!important}
+          .auth-right{padding:40px 24px!important}
         }
       `}</style>
 
-      <div className="auth-layout">
+      <div className="auth-layout" style={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: '1fr 1fr', background: '#150810', fontFamily: 'Inter,system-ui,sans-serif', color: T }}>
         {/* Lado esquerdo */}
-        <div className="auth-left">
-        <Link href="/" className="nav-logo">
-          <Image src="/logo.png" alt="Presentim" width={1024} height={272} priority style={{ height: 44, width: 'auto' }} />
-        </Link>
-          <h2>Seu presente em<br /><em>menos de 5 minutos</em></h2>
-          <p>Crie, personalize e compartilhe. É simples assim.</p>
-          <ul className="steps-list">
-            <li><span><Gift size={25} strokeWidth={2} color="#ff4d6d" /></span><span>Escreva textos e adicione fotos</span></li>
-            <li><span><Music size={25} strokeWidth={2} color="#ff4d6d" /></span><span>Escolha uma música especial</span></li>
-            <li><span><Link2 size={25} strokeWidth={2} color="#ff4d6d" /></span><span>Receba um link único + QR Code</span></li>
-            <li><span><Heart size={25} strokeWidth={2} color="#ff4d6d" /></span><span>Compartilhe e emocione!</span></li>
+        <div className="auth-left" style={{ background: 'linear-gradient(160deg, #1f0f1a 0%, #2a1422 50%, #1a0c15 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 48, position: 'relative', overflow: 'hidden' }}>
+          <div aria-hidden="true" style={{ position: 'absolute', top: -100, right: -100, width: 500, height: 500, borderRadius: '50%', background: `radial-gradient(circle,${G},transparent 65%)`, filter: 'blur(40px)', pointerEvents: 'none' }} />
+          <div aria-hidden="true" style={{ position: 'absolute', bottom: -100, left: -100, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle,rgba(120,80,200,.2),transparent 65%)', filter: 'blur(40px)', pointerEvents: 'none' }} />
+
+          <Link href="/" style={{ marginBottom: 32, position: 'relative', zIndex: 1 }}>
+            <Image src="/logo.png" alt="Presentim" width={1024} height={272} priority style={{ height: 44, width: 'auto', filter: 'brightness(0) invert(1)' }} />
+          </Link>
+          <h2 style={{ fontFamily: 'Fraunces, serif', fontSize: '2.2rem', color: T, lineHeight: 1.2, textAlign: 'center', marginBottom: 20, position: 'relative', zIndex: 1 }}>
+            Seu presente em<br />
+            <span style={{ fontStyle: 'italic', background: `linear-gradient(135deg,${R2},${R3})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>menos de 5 minutos</span>
+          </h2>
+          <p style={{ color: TS, textAlign: 'center', fontSize: '1rem', lineHeight: 1.7, maxWidth: 360, position: 'relative', zIndex: 1 }}>
+            Crie, personalize e compartilhe. É simples assim.
+          </p>
+
+          <ul style={{ marginTop: 40, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 16, width: '100%', maxWidth: 360, position: 'relative', zIndex: 1 }}>
+            {[
+              [Gift, 'Escreva textos e adicione fotos'],
+              [Music, 'Escolha uma música especial'],
+              [Link2, 'Receba um link único + QR Code'],
+              [Heart, 'Compartilhe e emocione!'],
+            ].map(([Icon, text], i) => (
+              <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, background: S, border: `1px solid ${B}`, borderRadius: 14, padding: '14px 18px', fontSize: '.9rem', color: T }}>
+                <span style={{ flexShrink: 0 }}>
+                  {/* @ts-ignore */}
+                  <Icon size={25} strokeWidth={2} color={R} />
+                </span>
+                <span>{text as string}</span>
+              </li>
+            ))}
           </ul>
         </div>
 
-        {/* Lado direito */}
-        <div className="auth-right">
-          <div className="auth-form-wrap">
-            <h1>Criar conta</h1>
-            <p className="subtitle">Comece agora — criar a conta é gratuito.</p>
+        {/* Lado direito — formulário */}
+        <div className="auth-right auth-fade" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px 40px' }}>
+          <div style={{ width: '100%', maxWidth: 400 }}>
+            <h1 style={{ fontFamily: 'Fraunces, serif', fontSize: '2rem', color: T, marginBottom: 8, fontWeight: 400 }}>Criar conta</h1>
+            <p style={{ color: TS, fontSize: '.95rem', marginBottom: 36 }}>Comece agora — criar a conta é gratuito.</p>
 
-            <button className="btn-google" onClick={handleGoogleLogin} disabled={loading}>
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <button onClick={handleGoogleLogin} disabled={loading} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, background: 'transparent', border: `1.5px solid ${B}`, borderRadius: 14, padding: 13, fontSize: '.95rem', fontWeight: 700, color: T, cursor: 'pointer', marginBottom: 24, fontFamily: 'Inter,system-ui,sans-serif', transition: 'border-color .2s' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -274,49 +156,67 @@ export default function CadastroPage() {
               Cadastrar com Google
             </button>
 
-            <div className="divider"><span>ou cadastre com e-mail</span></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+              <div style={{ flex: 1, height: 1, background: B }} />
+              <span style={{ fontSize: '.8rem', color: TS, whiteSpace: 'nowrap' }}>ou cadastre com e-mail</span>
+              <div style={{ flex: 1, height: 1, background: B }} />
+            </div>
 
-            {erro && <div className="erro-box">{erro}</div>}
+            {erro && (
+              <div style={{ background: 'rgba(232,98,122,.12)', border: '1px solid rgba(232,98,122,.3)', borderRadius: 10, padding: '12px 16px', fontSize: '.875rem', color: '#ff8da7', marginBottom: 18 }}>
+                {erro}
+              </div>
+            )}
 
             <form onSubmit={handleCadastro}>
-              <div className="field">
-                <label htmlFor="nome">Seu nome</label>
+              <div style={{ marginBottom: 18 }}>
+                <label htmlFor="nome" style={{ display: 'block', fontSize: '.85rem', fontWeight: 600, color: T, marginBottom: 7 }}>Seu nome</label>
                 <input
                   id="nome" type="text" placeholder="Como você se chama?"
                   value={nome} onChange={e => setNome(e.target.value)}
                   required autoComplete="name"
+                  style={{ width: '100%', border: `1.5px solid ${B}`, borderRadius: 12, padding: '13px 16px', fontSize: '.95rem', fontFamily: 'Inter,system-ui,sans-serif', color: T, background: S, outline: 'none', transition: 'border-color .2s' }}
+                  onFocus={e => e.target.style.borderColor = R}
+                  onBlur={e => e.target.style.borderColor = B}
                 />
               </div>
-              <div className="field">
-                <label htmlFor="email">E-mail</label>
+              <div style={{ marginBottom: 18 }}>
+                <label htmlFor="email" style={{ display: 'block', fontSize: '.85rem', fontWeight: 600, color: T, marginBottom: 7 }}>E-mail</label>
                 <input
                   id="email" type="email" placeholder="seu@email.com"
                   value={email} onChange={e => setEmail(e.target.value)}
                   required autoComplete="email"
+                  style={{ width: '100%', border: `1.5px solid ${B}`, borderRadius: 12, padding: '13px 16px', fontSize: '.95rem', fontFamily: 'Inter,system-ui,sans-serif', color: T, background: S, outline: 'none', transition: 'border-color .2s' }}
+                  onFocus={e => e.target.style.borderColor = R}
+                  onBlur={e => e.target.style.borderColor = B}
                 />
               </div>
-              <div className="field">
-                <label htmlFor="senha">Senha</label>
+              <div style={{ marginBottom: 18 }}>
+                <label htmlFor="senha" style={{ display: 'block', fontSize: '.85rem', fontWeight: 600, color: T, marginBottom: 7 }}>Senha</label>
                 <input
                   id="senha" type="password" placeholder="Mínimo 6 caracteres"
                   value={senha} onChange={e => setSenha(e.target.value)}
                   required autoComplete="new-password"
+                  style={{ width: '100%', border: `1.5px solid ${B}`, borderRadius: 12, padding: '13px 16px', fontSize: '.95rem', fontFamily: 'Inter,system-ui,sans-serif', color: T, background: S, outline: 'none', transition: 'border-color .2s' }}
+                  onFocus={e => e.target.style.borderColor = R}
+                  onBlur={e => e.target.style.borderColor = B}
                 />
-                <p className="senha-hint">Mínimo de 6 caracteres</p>
+                <p style={{ fontSize: '.78rem', color: TS, marginTop: 5 }}>Mínimo de 6 caracteres</p>
               </div>
 
-              <button className="btn-submit" type="submit" disabled={loading}>
+              <button type="submit" disabled={loading} style={{ width: '100%', background: `linear-gradient(135deg, ${R}, #c94f68)`, color: 'white', border: 'none', borderRadius: 14, padding: 14, fontSize: '1rem', fontWeight: 700, fontFamily: 'Inter,system-ui,sans-serif', cursor: 'pointer', boxShadow: `0 6px 20px ${G}`, transition: 'opacity .2s, transform .2s', opacity: loading ? .6 : 1 }}>
                 {loading ? 'Criando conta…' : 'Criar conta grátis'}
               </button>
             </form>
 
-            <p className="terms">
+            <p style={{ fontSize: '.78rem', color: TS, textAlign: 'center', marginTop: 16, lineHeight: 1.5 }}>
               Ao criar sua conta, você concorda com nossos{' '}
-              <a href="#">Termos de uso</a> e <a href="#">Política de privacidade</a>.
+              <Link href="/termos" style={{ color: R }}>Termos de uso</Link> e{' '}
+              <Link href="/privacidade" style={{ color: R }}>Política de privacidade</Link>.
             </p>
 
-            <p className="auth-switch">
-              Já tem conta? <Link href="/login">Entrar</Link>
+            <p style={{ textAlign: 'center', marginTop: 24, fontSize: '.9rem', color: TS }}>
+              Já tem conta? <Link href="/login" style={{ color: R, fontWeight: 700 }}>Entrar</Link>
             </p>
           </div>
         </div>

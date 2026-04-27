@@ -1,946 +1,352 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import {
-  Gift, Heart, Sparkles, Lock,
-  PenLine, Calendar, Share, HeartHandshake,
-  Stars, Trophy, Images, Smartphone,
-  Star, Flame,
-  ChevronDown,
-} from 'lucide-react'
 
-// ─── Floating petals background ───────────────────────────────────────────────
-function Petals() {
-  const [petals, setPetals] = useState<Array<{
-    id: number; left: string; delay: string; duration: string; size: string; emoji: string
-  }>>([])
+/* ───────────────────── Typewriter hook ───────────────────── */
+function useTypewriter(words: string[]) {
+  const [idx, setIdx] = useState(0)
+  const [txt, setTxt] = useState('')
+  const [del, setDel] = useState(false)
 
   useEffect(() => {
-    setPetals(Array.from({ length: 25 }, (_, i) => ({
-      id: i,
-      left: `${Math.random() * 100}%`,
-      delay: `${Math.random() * 8}s`,
-      duration: `${6 + Math.random() * 6}s`,
-      size: `${12 + Math.random() * 16}px`,
-      emoji: ['🌸', '✿', '❀', '🌷', '💮'][Math.floor(Math.random() * 5)],
-    })))
-  }, [])
+    if (!words?.length) return
+    const cur = words[idx]
+    const t = setTimeout(() => {
+      if (!del) {
+        setTxt(cur.substring(0, txt.length + 1))
+        if (txt === cur) setTimeout(() => setDel(true), 2200)
+      } else {
+        setTxt(cur.substring(0, txt.length - 1))
+        if (txt === '') { setDel(false); setIdx((i) => (i + 1) % words.length) }
+      }
+    }, del ? 70 : 110)
+    return () => clearTimeout(t)
+  }, [txt, del, idx, words])
 
+  return txt
+}
+
+/* ───────────────────── Template previews ───────────────────── */
+function PreviewPagina() {
+    return (
+    <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+      <img
+        src="/pagina.png"
+        alt="Preview Página Virtual"
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover'
+        }}
+      />
+    </div>
+  );
+}
+
+function PreviewRetro() {
   return (
-    <div className="petals-container" aria-hidden="true">
-      {petals.map((p) => (
-        <span
-          key={p.id}
-          className="petal"
-          style={{
-            left: p.left,
-            animationDelay: p.delay,
-            animationDuration: p.duration,
-            fontSize: p.size,
-          }}
-        >
-          {p.emoji}
-        </span>
-      ))}
+    <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+      <img
+        src="/retro.png"
+        alt="Preview Página Virtual"
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover'
+        }}
+      />
     </div>
   )
 }
 
-// ─── Testimonials data ─────────────────────────────────────────────────────────
-const testimonials = [
-  {
-    name: 'Ana Clara',
-    avatar: '👩‍🦰',
-    text: 'Fiz um presente para minha mãe no aniversário dela. Ela chorou de emoção! Nunca vi algo tão carinhoso.',
-    stars: 5,
-  },
-  {
-    name: 'Rafael M.',
-    avatar: '👨',
-    text: 'Surprendi minha namorada no dia dos namorados com um link personalizado. Foi incrível ver a reação dela.',
-    stars: 5,
-  },
-  {
-    name: 'Juliana K.',
-    avatar: '👩',
-    text: 'Super fácil de configurar e o resultado ficou lindo. Comprei o combo e ainda tenho presentes sobrando!',
-    stars: 5,
-  },
-  {
-    name: 'Pedro H.',
-    avatar: '🧑',
-    text: 'A minha amiga ficou sem acreditar quando abriu o link. O efeito de contagem regressiva é demais!',
-    stars: 5,
-  },
-]
-
-// ─── FAQ data ─────────────────────────────────────────────────────────────────
-const faqs = [
-  {
-    q: 'Preciso saber programar para usar?',
-    a: 'Não! O Presentim foi feito para qualquer pessoa. Você preenche um formulário simples, adiciona suas fotos e textos, e o site gera tudo automaticamente.',
-  },
-  {
-    q: 'Por quanto tempo o link fica ativo?',
-    a: 'Por 3 meses a partir da data de criação. Tempo mais que suficiente para o presente ser visto e guardado com carinho.',
-  },
-  {
-    q: 'Posso editar o presente depois de criar?',
-    a: 'Sim! Você pode editar textos, fotos e configurações a qualquer momento pelo seu painel.',
-  },
-  {
-    q: 'Os créditos expiram?',
-    a: 'Não! Seus créditos ficam disponíveis para sempre. Compre agora e use quando quiser.',
-  },
-  {
-    q: 'Funciona no celular?',
-    a: 'Perfeitamente! Tanto a criação quanto a visualização do presente são totalmente adaptadas para celular.',
-  },
-]
-
-// ─── FAQ Item ─────────────────────────────────────────────────────────────────
-function FaqItem({ q, a }: { q: string; a: string }) {
-  const [open, setOpen] = useState(false)
+function PreviewCinema() {
   return (
-    <div
-      className={`faq-item ${open ? 'open' : ''}`}
-      onClick={() => setOpen(!open)}
-    >
-      <div className="faq-question">
-        <span>{q}</span>
-        <ChevronDown
-          className="faq-icon"
-          size={20}
-          strokeWidth={2}
-          style={{ transition: 'transform .2s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
-        />
-      </div>
-      {open && <div className="faq-answer">{a}</div>}
+    <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+      <img
+        src="/cinema.png"
+        alt="Preview Página Virtual"
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover'
+        }}
+      />
     </div>
   )
 }
 
-// ─── Main Landing Page ────────────────────────────────────────────────────────
+/* ───────────────────── Section heading ───────────────────── */
+function SectionHead({ eyebrow, children }: { eyebrow: string; children: React.ReactNode }) {
+  return (
+    <div style={{ textAlign:'center', maxWidth:760, margin:'0 auto 64px' }}>
+      <div style={{ fontSize:11, letterSpacing:'.2em', textTransform:'uppercase', color:'#e8627a', fontWeight:600, marginBottom:18 }}>{eyebrow}</div>
+      <h2 style={{ fontFamily:'Fraunces, serif', fontSize:'clamp(2rem, 3.6vw, 3rem)', fontWeight:400, lineHeight:1.15, letterSpacing:'-.02em', color:'#f5e8ec', margin:0 }}>{children}</h2>
+    </div>
+  )
+}
+
+const fotos = ['/retro-mob.png', '/pag-mob.png', '/cinema-mob.png']
+/* ───────────────────── MAIN PAGE ───────────────────── */
 export default function LandingPage() {
-  const [scrolled, setScrolled] = useState(false)
+  const typedWord = useTypewriter(['ama!','cuida!','adora!','quer!','valoriza!','respeita!','admira!','protege!'])
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40)
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  const [demoSlide, setDemoSlide] = useState(0)
+  useEffect(() => { const id = setInterval(() => setDemoSlide(s => (s+1)%3), 3200); return () => clearInterval(id) }, [])
 
-const words = [  'ama!', 'cuida!', 'adora!', 'quer!', 'valoriza!', 'respeita!', 'admira!', 'protege!']
 
-const [currentWordIndex, setCurrentWordIndex] = useState(0)
-const [displayText, setDisplayText] = useState('')
-const [isDeleting, setIsDeleting] = useState(false)
+  const slide = fotos[demoSlide]
 
-useEffect(() => {
-  const currentWord = words[currentWordIndex]
-  
-  const timeout = setTimeout(() => {
-    if (!isDeleting) {
-      setDisplayText(currentWord.substring(0, displayText.length + 1))
+  const [stars, setStars] = useState<Array<{id:number;left:string;top:string;size:number;opacity:number}>>([])
+  useEffect(() => { setStars(Array.from({length:30}, (_,i) => ({ id:i, left:`${(i*37)%100}%`, top:`${(i*53)%100}%`, size:(i%3)+1, opacity:0.3+(i%5)*0.15 }))) }, [])
 
-      if (displayText === currentWord) {
-        setTimeout(() => setIsDeleting(true), 3000) // pausa antes de apagar
+  const R = '#e8627a', R2 = '#ff8da7', R3 = '#ffa726', G = 'rgba(232,98,122,.35)', T = '#f5e8ec', TS = 'rgba(245,232,236,.65)', S = 'rgba(255,255,255,.04)', B = 'rgba(255,255,255,.08)'
+
+  const tpls = [
+    { name:'Página Virtual',href: 'https://www.presentim.com.br/p/jbka676s', tagline:'Para celebrar agora.', desc:'Uma página dedicada, com fotos, frases e música. Perfeita pra aniversários, declarações ou aquela desculpa que precisa de capricho.', features:['Layout limpo e responsivo','Fotos, frases e música','Contagem regressiva','Link permanente + QR Code'], duration:'5 min para criar', price:'1 crédito', pv:'R$ 5,90', Preview:PreviewPagina, bg:'linear-gradient(160deg,#f8a5b9 0%,#e8627a 60%,#c8395a 100%)', glow:'rgba(232,98,122,.45)', label:'MAIS RÁPIDO', featured:false },
+    { name:'Retrospectiva',href: 'https://www.presentim.com.br/retrospectiva/ai4469tu', tagline:'Para contar a história.', desc:'Slides animados, cinematográficos, com o céu estrelado exato da data, conquistas raras do casal e Stories prontos pra postar.', features:['Slides cinematográficos animados','Céu estrelado da data exata','Conquistas e marcos do casal','Exportação para Stories'], duration:'Impactante', price:'2 créditos', pv:'R$ 9,90', Preview:PreviewRetro, bg:'linear-gradient(160deg,#1a0a2e 0%,#3b1565 50%,#5b2a8a 100%)', glow:'rgba(248,87,166,.55)', label:'MAIS POPULAR', featured:true },
+    { name:'Cinema',href: 'https://www.presentim.com.br/streaming/sdiduqww', tagline:'Para os amores épicos.', desc:'Estilo telão. Abertura cinematográfica, narrativa em ato, identidade visual de filme romântico do começo ao fim.', features:['Abertura cinematográfica','Narrativa em ato','Destaques visuais épicos','Trilha sonora curada'], duration:'Único', price:'2 créditos', pv:'R$ 9,90', Preview:PreviewCinema, bg:'linear-gradient(160deg,#2d1810 0%,#5a2a1a 60%,#8b4a2a 100%)', glow:'rgba(212,165,116,.45)', label:'MAIS IMPACTO', featured:false },
+  ]
+  const prices = [
+    { name:'Starter', price:'5,90', desc:'1 ocasião', features:['1 Página Virtual','Fotos + frases + música','Link + QR Code','Contagem regressiva'], featured:false },
+    { name:'Popular', price:'14,90', desc:'3 créditos · R$ 4,97/un', features:['1 Retrospectiva + 1 Página','Slides animados','Conquistas + Stories','Créditos eternos'], featured:true },
+    { name:'Max', price:'24,90', desc:'6 créditos · R$ 4,15/un', features:['3 Retros OU 6 Páginas','Misture como quiser','Suporte prioritário','Créditos eternos'], featured:false },
+  ]
+
+  const faqs = [['Preciso saber programar?','Não. Formulário, fotos, link pronto.'],['Quanto tempo o link fica ativo?','3 meses a partir da criação.'],['Posso editar depois?','Sim, no painel, a qualquer momento.'],['Os créditos expiram?','Nunca. Use quando quiser.'],['Funciona no celular?','Perfeitamente.'],['Como recebo o link?','Por e-mail, na hora do pagamento.']]
+
+  return (<>
+    <style>{`
+      @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap');
+      *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+      html{scroll-behavior:smooth}
+      body{background:#150810!important;color:#f5e8ec!important;font-family:'Inter',system-ui,sans-serif!important}
+      a{color:inherit;text-decoration:none}
+      details summary::-webkit-details-marker{display:none}
+      details summary{list-style:none}
+      details[open] summary .faq-plus{transform:rotate(45deg)}
+      @keyframes twkBlink{50%{opacity:0}}
+      @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+      .slide-fade{animation:fadeIn .5s ease both}
+      @media(max-width:900px){
+        .hero-grid{grid-template-columns:1fr!important}
+        .hero-phone-wrap{display:none!important}
+        .tpl-grid,.price-grid,.test-grid{grid-template-columns:1fr!important}
+        .stats-grid,.how-grid{grid-template-columns:repeat(2,1fr)!important}
+        .nav-links-inner{display:none!important}
+        .hero-section{padding:60px 24px 80px!important}
+        .section-pad{padding-left:24px!important;padding-right:24px!important}
       }
-    } else {
-      setDisplayText(currentWord.substring(0, displayText.length - 1))
+    `}</style>
 
-      if (displayText === '') {
-        setIsDeleting(false)
-        setCurrentWordIndex((prev) => (prev + 1) % words.length)
-      }
-    }
-  }, isDeleting ? 100 : 150)
+    <div style={{ minHeight:'100vh', position:'relative', overflowX:'hidden', background:'#150810', color:T, fontFamily:'Inter,system-ui,sans-serif', fontSize:15 }}>
+      {/* Ambient glows */}
+      <div aria-hidden="true" style={{ position:'absolute', top:-200, right:-200, width:700, height:700, borderRadius:'50%', background:`radial-gradient(circle,${G},transparent 65%)`, filter:'blur(40px)', pointerEvents:'none' }}/>
+      <div aria-hidden="true" style={{ position:'absolute', top:600, left:-200, width:600, height:600, borderRadius:'50%', background:'radial-gradient(circle,rgba(120,80,200,.22),transparent 65%)', filter:'blur(40px)', pointerEvents:'none', opacity:.8 }}/>
 
-  return () => clearTimeout(timeout)
-}, [displayText, isDeleting, currentWordIndex])
-
-
-  return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap');
-
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-          --rose:      #e8627a;
-          --rose-light:#f9a8b8;
-          --rose-pale: #fdf0f3;
-          --rose-mid:  #fce4ea;
-          --cream:     #fff8f9;
-          --text:      #3d1f28;
-          --text-soft: #7a4f5a;
-          --gold:      #c9956a;
-        }
-
-        html { scroll-behavior: smooth; }
-
-        body {
-          font-family: 'Lato', sans-serif;
-          background: var(--cream);
-          color: var(--text);
-          overflow-x: hidden;
-        }
-
-        /* ── Petals ── */
-        .petals-container {
-          position: fixed; inset: 0;
-          pointer-events: none; z-index: 0;
-          overflow: hidden;
-        }
-        .petal {
-          position: absolute; top: -40px;
-          animation: fall linear infinite;
-          opacity: 0.55;
-          user-select: none;
-        }
-        @keyframes fall {
-          0%   { transform: translateY(-40px) rotate(0deg);   opacity: 0; }
-          10%  { opacity: 0.55; }
-          90%  { opacity: 0.3; }
-          100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
-        }
-
-        /* ── Navbar ── */
-        nav {
-          position: fixed; top: 0; left: 0; right: 0;
-          z-index: 100;
-          padding: 18px 48px;
-          display: flex; align-items: center; justify-content: space-between;
-          transition: background .3s, box-shadow .3s;
-        }
-        nav.scrolled {
-          background: rgba(253,240,243,.92);
-          backdrop-filter: blur(12px);
-          box-shadow: 0 2px 20px rgba(232,98,122,.12);
-        }
-        .nav-logo {
-          font-family: 'Playfair Display', serif;
-          font-size: 1.7rem; font-weight: 700;
-          color: var(--rose);
-          text-decoration: none;
-          letter-spacing: -0.5px;
-        }
-        .nav-logo span { color: var(--gold); }
-        .nav-links { display: flex; gap: 32px; align-items: center; }
-        .nav-links a {
-          font-size: .9rem; font-weight: 400;
-          color: var(--text-soft); text-decoration: none;
-          transition: color .2s;
-        }
-        .nav-links a:hover { color: var(--rose); }
-        .btn-nav {
-          background: var(--rose);
-          color: white !important;
-          padding: 10px 24px;
-          border-radius: 50px;
-          font-weight: 700 !important;
-          transition: background .2s, transform .2s !important;
-          box-shadow: 0 4px 14px rgba(232,98,122,.35);
-        }
-        .btn-nav:hover {
-          background: #d44d66 !important;
-          transform: translateY(-1px) !important;
-        }
-
-        /* ── Hero ── */
-        .hero {
-          min-height: 100vh;
-          display: flex; flex-direction: column;
-          align-items: center; justify-content: center;
-          text-align: center;
-          padding: 120px 24px 80px;
-          position: relative; z-index: 1;
-          background: radial-gradient(ellipse 80% 60% at 50% 0%, #fce4ea 0%, transparent 70%);
-        }
-        .hero-badge {
-          display: inline-flex; align-items: center; gap: 8px;
-          background: white;
-          border: 1px solid var(--rose-light);
-          border-radius: 50px;
-          padding: 6px 18px;
-          font-size: .8rem; color: var(--rose);
-          font-weight: 700; letter-spacing: .5px;
-          margin-bottom: 28px;
-          box-shadow: 0 2px 12px rgba(232,98,122,.1);
-          animation: fadeUp .7s ease both;
-        }
-        .hero h1 {
-          font-family: 'Playfair Display', serif;
-          font-size: clamp(2.8rem, 7vw, 5.5rem);
-          line-height: 1.1;
-          color: var(--text);
-          max-width: 800px;
-          animation: fadeUp .7s .1s ease both;
-        }
-        .hero h1 em {
-          font-style: italic; color: var(--rose);
-          position: relative;
-        }
-
-        .hero-sub {
-          margin-top: 24px;
-          font-size: 1.15rem; color: var(--text-soft);
-          max-width: 520px; line-height: 1.7;
-          font-weight: 300;
-          animation: fadeUp .7s .2s ease both;
-        }
-        .hero-ctas {
-          margin-top: 44px;
-          display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
-          animation: fadeUp .7s .3s ease both;
-        }
-        .btn-primary {
-          background: linear-gradient(135deg, var(--rose), #c94f68);
-          color: white;
-          padding: 16px 40px;
-          border-radius: 50px;
-          font-size: 1rem; font-weight: 700;
-          text-decoration: none;
-          box-shadow: 0 8px 28px rgba(232,98,122,.4);
-          transition: transform .2s, box-shadow .2s;
-          display: inline-flex; align-items: center; gap: 8px;
-        }
-        .btn-primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 12px 36px rgba(232,98,122,.5);
-        }
-        .btn-secondary {
-          background: white;
-          color: var(--rose);
-          padding: 16px 32px;
-          border-radius: 50px;
-          font-size: 1rem; font-weight: 700;
-          text-decoration: none;
-          border: 2px solid var(--rose-light);
-          transition: border-color .2s, transform .2s;
-        }
-        .btn-secondary:hover {
-          border-color: var(--rose);
-          transform: translateY(-2px);
-        }
-        .hero-note {
-          margin-top: 20px;
-          font-size: .82rem; color: var(--text-soft);
-          animation: fadeUp .7s .4s ease both;
-        }
-
-        /* Mock preview */
-        .hero-preview {
-          margin-top: 72px;
-          position: relative;
-          animation: fadeUp .9s .5s ease both;
-          width: 100%; max-width: 680px;
-        }
-        .mock-phone {
-          background: white;
-          border-radius: 28px;
-          box-shadow: 0 32px 80px rgba(61,31,40,.15), 0 0 0 1px var(--rose-mid);
-          overflow: hidden;
-          padding: 24px;
-        }
-        .mock-top {
-          background: linear-gradient(135deg, #fce4ea, #fdf0f3);
-          border-radius: 16px;
-          padding: 32px 24px;
-          text-align: center;
-        }
-        .mock-countdown {
-          display: flex; gap: 12px; justify-content: center; margin-bottom: 20px;
-        }
-        .mock-box {
-          background: white;
-          border-radius: 12px;
-          padding: 10px 16px;
-          box-shadow: 0 2px 8px rgba(232,98,122,.1);
-        }
-        .mock-box .num {
-          font-family: 'Playfair Display', serif;
-          font-size: 1.8rem; font-weight: 700; color: var(--rose);
-          display: block;
-        }
-        .mock-box .label {
-          font-size: .65rem; color: var(--text-soft); letter-spacing: .5px;
-        }
-        .mock-btn {
-          background: var(--rose); color: white;
-          border-radius: 12px; padding: 12px 32px;
-          font-weight: 700; font-size: 1rem;
-          display: inline-block; margin-top: 8px;
-        }
-
-        /* ── Section shared ── */
-        section { position: relative; z-index: 1; }
-        .section-label {
-          font-size: .75rem; font-weight: 700; letter-spacing: 2px;
-          color: var(--rose); text-transform: uppercase;
-          margin-bottom: 12px;
-        }
-        .section-title {
-          font-family: 'Playfair Display', serif;
-          font-size: clamp(2rem, 4vw, 3rem);
-          color: var(--text); line-height: 1.2;
-        }
-        .section-title em { font-style: italic; color: var(--rose); }
-
-        /* ── How it works ── */
-        .how {
-          padding: 100px 24px;
-          background: white;
-        }
-        .how-inner { max-width: 1100px; margin: 0 auto; }
-        .how-header { text-align: center; margin-bottom: 64px; }
-        .how-steps {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-          gap: 32px;
-        }
-        .step {
-          background: var(--rose-pale);
-          border-radius: 24px;
-          padding: 40px 32px;
-          text-align: center;
-          border: 1px solid var(--rose-mid);
-          transition: transform .25s, box-shadow .25s;
-          position: relative; overflow: hidden;
-        }
-        .step::before {
-          content: '';
-          position: absolute; top: 0; left: 0; right: 0;
-          height: 4px;
-          background: linear-gradient(90deg, var(--rose-light), var(--rose));
-        }
-        .step:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(232,98,122,.12); }
-        .step-num {
-          width: 52px; height: 52px;
-          background: linear-gradient(135deg, var(--rose-light), var(--rose));
-          color: white;
-          border-radius: 50%;
-          display: flex; align-items: center; justify-content: center;
-          font-family: 'Playfair Display', serif;
-          font-size: 1.4rem; font-weight: 700;
-          margin: 0 auto 20px;
-          box-shadow: 0 6px 18px rgba(232,98,122,.3);
-        }
-        .step h3 {
-          font-family: 'Playfair Display', serif;
-          font-size: 1.25rem; color: var(--text);
-          margin-bottom: 12px;
-        }
-        .step p { font-size: .92rem; color: var(--text-soft); line-height: 1.7; }
-        .step-emoji { font-size: 2.2rem; margin-bottom: 16px; align-items: center; justify-content: center; display: inline-flex; color: var(--rose); }
-
-        /* ── Pricing ── */
-        .pricing {
-          padding: 100px 24px;
-          background: linear-gradient(180deg, var(--rose-pale) 0%, white 100%);
-        }
-        .pricing-inner { max-width: 900px; margin: 0 auto; }
-        .pricing-header { text-align: center; margin-bottom: 56px; }
-        .pricing-cards {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-          gap: 20px;
-        }
-        .price-card {
-          background: white;
-          border-radius: 28px;
-          padding: 44px 36px;
-          border: 2px solid var(--rose-mid);
-          position: relative;
-          transition: transform .25s, box-shadow .25s;
-        }
-        .price-card:hover { transform: translateY(-6px); box-shadow: 0 24px 56px rgba(232,98,122,.12); }
-        .price-card.featured {
-          border-color: var(--rose);
-          box-shadow: 0 16px 48px rgba(232,98,122,.18);
-        }
-        .badge-featured {
-          position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
-          background: linear-gradient(135deg, var(--rose), #c94f68);
-          color: white;
-          padding: 5px 20px; border-radius: 50px;
-          font-size: .75rem; font-weight: 700; letter-spacing: .5px;
-          white-space: nowrap;
-        }
-        .price-card h3 {
-          font-family: 'Playfair Display', serif;
-          font-size: 1.5rem; color: var(--text);
-          margin-bottom: 8px;
-        }
-        .price-card .price {
-          font-size: 3rem; font-weight: 700; color: var(--rose);
-          font-family: 'Playfair Display', serif;
-          line-height: 1;
-          margin: 20px 0 4px;
-        }
-        .price-card .price sup { font-size: 1.4rem; vertical-align: super; }
-        .price-card .price-desc { font-size: .85rem; color: var(--text-soft); margin-bottom: 28px; }
-        .price-features { list-style: none; margin-bottom: 32px; }
-        .price-features li {
-          padding: 10px 0;
-          border-bottom: 1px solid var(--rose-pale);
-          font-size: .92rem; color: var(--text-soft);
-          display: flex; align-items: center; gap: 10px;
-        }
-        .price-features li:last-child { border: none; }
-        .price-features li::before { content: '✦'; color: var(--rose); font-size: .7rem; }
-        .btn-buy {
-          display: block; width: 100%;
-          background: linear-gradient(135deg, var(--rose), #c94f68);
-          color: white; text-align: center;
-          padding: 14px; border-radius: 14px;
-          font-weight: 700; font-size: 1rem;
-          text-decoration: none;
-          transition: opacity .2s, transform .2s;
-          box-shadow: 0 6px 20px rgba(232,98,122,.3);
-        }
-        .btn-buy:hover { opacity: .9; transform: translateY(-1px); }
-        .btn-buy.outline {
-          background: transparent;
-          border: 2px solid var(--rose);
-          color: var(--rose);
-          box-shadow: none;
-        }
-        .btn-buy.outline:hover { background: var(--rose-pale); }
-
-        /* ── Testimonials ── */
-        .testimonials {
-          padding: 100px 24px;
-          background: white;
-        }
-        .testimonials-inner { max-width: 1100px; margin: 0 auto; }
-        .testimonials-header { text-align: center; margin-bottom: 56px; }
-        .testimonials-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-          gap: 24px;
-        }
-        .tcard {
-          background: var(--rose-pale);
-          border-radius: 20px;
-          padding: 28px;
-          border: 1px solid var(--rose-mid);
-          transition: transform .2s;
-        }
-
-@keyframes blink {
-  0%, 50%, 100% { opacity: 1; }
-  25%, 75% { opacity: 0; }
-}
-.word-animated {
-  display: inline-block;
-  min-width: 90px; /* ajuste aqui */
-  text-align: left;
-}
-
-        .tcard:hover { transform: translateY(-4px); }
-        .tcard-top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-        .tcard-avatar {
-          width: 44px; height: 44px;
-          background: var(--rose-mid);
-          border-radius: 50%;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 1.4rem;
-        }
-        .tcard-name { font-weight: 700; color: var(--text); font-size: .95rem; }
-        .tcard-stars { color: var(--gold); font-size: .85rem; }
-        .tcard p { font-size: .9rem; color: var(--text-soft); line-height: 1.7; font-style: italic; }
-        .tcard p::before { content: '"'; font-size: 1.4rem; color: var(--rose-light); font-family: 'Playfair Display', serif; }
-
-        /* ── FAQ ── */
-        .faq {
-          padding: 100px 24px;
-          background: var(--rose-pale);
-        }
-        .faq-inner { max-width: 720px; margin: 0 auto; }
-        .faq-header { text-align: center; margin-bottom: 48px; }
-        .faq-item {
-          background: white;
-          border-radius: 16px;
-          margin-bottom: 12px;
-          padding: 20px 24px;
-          cursor: pointer;
-          border: 1px solid var(--rose-mid);
-          transition: box-shadow .2s;
-        }
-        .faq-item:hover { box-shadow: 0 4px 20px rgba(232,98,122,.1); }
-        .faq-question {
-          display: flex; justify-content: space-between; align-items: center;
-          font-weight: 700; color: var(--text); font-size: .95rem;
-        }
-        .faq-icon { color: var(--rose); font-size: 1.4rem; font-weight: 300; }
-        .faq-answer {
-          margin-top: 14px; padding-top: 14px;
-          border-top: 1px solid var(--rose-pale);
-          font-size: .9rem; color: var(--text-soft); line-height: 1.7;
-        }
-
-        /* ── CTA Final ── */
-        .cta-final {
-          padding: 120px 24px;
-          background: linear-gradient(135deg, #f9c5d0 0%, #fce4ea 50%, #fdf0f3 100%);
-          text-align: center;
-          position: relative; overflow: hidden;
-        }
-        .cta-final::before {
-          content: '💝';
-          position: absolute; font-size: 20rem;
-          opacity: .05; top: -40px; right: -60px;
-          pointer-events: none;
-        }
-        .cta-final h2 {
-          font-family: 'Playfair Display', serif;
-          font-size: clamp(2rem, 5vw, 3.5rem);
-          color: var(--text); margin-bottom: 20px; line-height: 1.2;
-        }
-        .cta-final h2 em { font-style: italic; color: var(--rose); }
-        .cta-final p {
-          font-size: 1.1rem; color: var(--text-soft);
-          max-width: 480px; margin: 0 auto 44px; line-height: 1.7;
-        }
-
-        /* ── Footer ── */
-        footer {
-          background: var(--text);
-          color: rgba(255,255,255,.6);
-          text-align: center;
-          padding: 40px 24px;
-          font-size: .85rem;
-        }
-        footer a { color: var(--rose-light); text-decoration: none; }
-        footer .footer-logo {
-          font-family: 'Playfair Display', serif;
-          font-size: 1.5rem; color: white;
-          margin-bottom: 12px; display: block;
-        }
-
-        /* ── Animations ── */
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(24px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ── Responsive ── */
-        @media (max-width: 640px) {
-          nav { padding: 16px 20px; }
-          .nav-links { gap: 16px; }
-          .nav-links a:not(.btn-nav) { display: none; }
-        }
-
-      `}</style>
-
-      <Petals />
-
-      {/* NAVBAR */}
-      <nav className={scrolled ? 'scrolled' : ''}>
-        <Link href="/" className="nav-logo">
-          <Image src="/logo.png" alt="Presentim" width={1024} height={272} priority style={{ height: 44, width: 'auto' }} />
+      {/* NAV */}
+      <header style={{ position:'sticky', top:0, zIndex:50, display:'grid', gridTemplateColumns:'auto 1fr auto', alignItems:'center', gap:32, padding:'18px 56px', background:'rgba(21,8,16,.65)', backdropFilter:'blur(16px)', borderBottom:`1px solid ${B}` }}>
+        <Link href="/">
+          <Image src="/logo.png" alt="Presentim" width={1024} height={272} priority style={{ height:38, width:'auto', filter:'brightness(0) invert(1)' }} />
         </Link>
-        <div className="nav-links">
-          <a href="#como-funciona">Como funciona</a>
-          <a href="#precos">Preços</a>
-          <a href="#faq">FAQ</a>
-          <Link href="/historia">História</Link>
-          <Link href="/demo">Ver demo</Link>
-          <Link href="/cadastro" className="btn-nav" style={{ display:'inline-flex', alignItems:'center', gap:6 }}>
-            <Gift size={16} strokeWidth={2} /> Criar presente
-          </Link>
+        <nav className="nav-links-inner" style={{ display:'flex', gap:28, justifyContent:'center' }}>
+          <a href="#como-funciona" style={{ fontSize:13, color:TS, fontWeight:500, cursor:'pointer' }}>Como funciona</a>
+          <a href="#precos" style={{ fontSize:13, color:TS, fontWeight:500, cursor:'pointer' }}>Preços</a>
+          <a href="#faq" style={{ fontSize:13, color:TS, fontWeight:500, cursor:'pointer' }}>FAQ</a>
+          <Link href="/historia" style={{ fontSize:13, color:TS, fontWeight:500 }}>História</Link>
+          <Link href="/demo" style={{ fontSize:13, color:TS, fontWeight:500 }}>Ver demo</Link>
+        </nav>
+        <div style={{ display:'flex', gap:12, alignItems:'center' }}>
+          <Link href="/login" style={{ fontSize:13, color:TS }}>Entrar</Link>
+          <Link href="/cadastro" style={{ background:R, color:'white', padding:'10px 18px', borderRadius:99, fontSize:13, fontWeight:600, boxShadow:`0 8px 24px -8px ${G}` }}>Criar presente →</Link>
         </div>
-      </nav>
+      </header>
 
       {/* HERO */}
-      <section className="hero">
-        <div className="hero-badge" style={{ display:'inline-flex', alignItems:'center', gap:6 }}>
-          <Sparkles size={14} strokeWidth={2} /> Presente virtual que emociona de verdade
-        </div>
-        <h1 className="hero-title">
-          Surpreenda quem você<br />
-          <em>
-            <span className="word-animated">
-            {displayText}
-            </span>
-          </em>
-        </h1>
-        <p className="hero-sub">
-          Crie uma <strong>Página Virtual</strong> ou uma <strong>Retrospectiva animada</strong> com fotos, músicas e mensagens. Compartilhe um link único — e veja a emoção no rosto de quem você ama.
-        </p>
-        <div className="hero-ctas">
-          <Link href="/cadastro" className="btn-primary" style={{ display:'inline-flex', alignItems:'center', gap:8 }}>
-            <Gift size={20} strokeWidth={2} /> Criar meu presente
-          </Link>
-          <Link href="/demo" className="btn-secondary">Ver exemplos</Link>
-        </div>
-        <p className="hero-note" style={{ display:'inline-flex', alignItems:'center', gap:6, justifyContent:'center' }}>
-          <Lock size={14} strokeWidth={2} /> Sem assinatura — pague só pelo que usar
-        </p>
+      <section className="hero-section section-pad" style={{ padding:'80px 56px 100px', position:'relative', zIndex:1 }}>
+        <div className="hero-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:72, alignItems:'center', maxWidth:1400, margin:'0 auto' }}>
+          <div>
+            <div style={{ display:'inline-flex', alignItems:'center', gap:10, background:S, border:`1px solid ${B}`, borderRadius:99, padding:'7px 16px', fontSize:12, color:TS, marginBottom:32 }}>
+              <span style={{ width:6, height:6, borderRadius:99, background:'#65d97a', boxShadow:'0 0 8px #65d97a' }}/> +423 presentes criados nas últimas 24h
+            </div>
+            <h1 style={{ fontFamily:'Fraunces,serif', fontSize:'clamp(3rem,5.5vw,5.5rem)', fontWeight:400, lineHeight:1, letterSpacing:'-.025em', color:T, margin:0 }}>
+              Surpreenda quem<br/>
+              <span style={{ fontStyle:'italic', background:`linear-gradient(135deg,${R2},${R3})`, WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', filter:`drop-shadow(0 0 24px ${G})`, display:'inline-block', minWidth:'4ch' }}>
+                {typedWord}<span style={{ display:'inline-block', width:'.05em', height:'.9em', verticalAlign:'-0.1em', background:R, marginLeft:2, animation:'twkBlink 1s steps(1) infinite', WebkitTextFillColor:'initial' }}/>
+              </span>
+            </h1>
+            <p style={{ fontSize:'1.1rem', lineHeight:1.6, color:TS, maxWidth:480, marginTop:28 }}>Crie uma página única ou uma retrospectiva animada com fotos, músicas e mensagens. Compartilhe um link — e veja a emoção acontecer ao vivo.</p>
+            <div style={{ display:'flex', gap:14, marginTop:40, alignItems:'center', flexWrap:'wrap' }}>
+              <Link href="/dashboard" style={{ background:R, color:'white', padding:'15px 28px', borderRadius:99, fontSize:14, fontWeight:600, display:'inline-flex', alignItems:'center', gap:10, boxShadow:`0 12px 32px -8px ${G}` }}>Criar meu presente <span>→</span></Link>
 
-        {/* Mock preview */}
-        <div className="hero-preview">
-          <div className="mock-phone">
-            <div className="mock-top">
-              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: '1rem', color: 'var(--text-soft)', marginBottom: 16 }}>
-                Sua surpresa está quase chegando…
-              </p>
-              <div className="mock-countdown">
-                {[['02', 'dias'], ['14', 'horas'], ['37', 'min'], ['09', 's']].map(([n, l]) => (
-                  <div className="mock-box" key={l}>
-                    <span className="num">{n}</span>
-                    <span className="label">{l}</span>
+            </div>
+            <div style={{ display:'flex', gap:18, marginTop:56, paddingTop:28, borderTop:`1px solid ${B}`, fontSize:13, color:TS, alignItems:'center', flexWrap:'wrap' }}>
+              <div><strong style={{ color:T }}>R$ 5,90</strong> a partir de</div>
+              <div style={{ width:1, height:14, background:B }}/><div><strong style={{ color:T }}>5 min</strong> para criar</div>
+              <div style={{ width:1, height:14, background:B }}/><div><strong style={{ color:T }}>★ 4.9</strong> · 12k+ avaliações</div>
+            </div>
+          </div>
+
+          {/* Phone mock */}
+          <div className="hero-phone-wrap" style={{ position:'relative', display:'grid', placeItems:'center', minHeight:600 }}>
+            <div style={{ width:300, height:600, background:'#000', borderRadius:42, padding:8, boxShadow:`0 40px 80px -20px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.08), 0 0 80px -20px ${G}`, position:'relative' }}>
+              <div style={{ position:'absolute', top:18, left:'50%', transform:'translateX(-50%)', width:90, height:24, background:'#000', borderRadius:14, zIndex:10 }}/>
+              <div style={{
+                width:'100%',
+                height:'100%',
+                borderRadius:34,
+                overflow:'hidden',
+                backgroundImage:`url(${fotos[demoSlide] ?? fotos[0]})`,
+                backgroundSize:'cover',
+                backgroundPosition:'center',
+                position:'relative'
+              }}>
+                <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.4)', zIndex:1 }}/>
+
+                <div key={demoSlide} className="slide-fade" style={{ position:'absolute', inset:0, padding:'80px 28px 48px', display:'flex', flexDirection:'column', justifyContent:'flex-end', zIndex:2 }}>
+                  <div style={{ height:3, background:'rgba(255,255,255,.15)', borderRadius:99, overflow:'hidden', marginBottom:14 }}>
+                    <div style={{ height:'100%', width:`${33+demoSlide*30}%`, background:`linear-gradient(90deg,${R2},${R3})`, borderRadius:99, transition:'width .4s' }}/>
                   </div>
-                ))}
-              </div>
-              <div className="mock-btn" style={{ display:'inline-flex', alignItems:'center', gap:6 }}>
-                Vamos lá <Gift size={16} strokeWidth={2} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* HOW IT WORKS */}
-      <section className="how" id="como-funciona">
-        <div className="how-inner">
-          <div className="how-header">
-            <p className="section-label">Como funciona</p>
-            <h2 className="section-title">Tão simples quanto <em>escrever uma carta</em></h2>
-          </div>
-          <div className="how-steps">
-            {[
-              { n: '1', Icon: PenLine, title: 'Personalize', desc: 'Escreva textos, escolha cores, adicione fotos e uma música especial. Tudo no seu jeito.' },
-              { n: '2', Icon: Calendar, title: 'Defina a data', desc: 'Escolha quando o presente será revelado. Uma contagem regressiva vai aumentar a expectativa!' },
-              { n: '3', Icon: Share, title: 'Compartilhe', desc: 'Receba um link único e um QR Code para enviar por WhatsApp, e-mail ou imprimir.' },
-              { n: '4', Icon: HeartHandshake, title: 'Emocione', desc: 'A pessoa abre o link e vive uma experiência única, com fotos e mensagens animadas.' },
-            ].map((s) => (
-              <div className="step" key={s.n}>
-                <div className="step-emoji"><s.Icon size={36} strokeWidth={1.75} color="var(--rose)" /></div>
-                <div className="step-num">{s.n}</div>
-                <h3>{s.title}</h3>
-                <p>{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* RETROSPECTIVA */}
-      <section style={{ padding:'100px 24px', background:'linear-gradient(135deg,#1a0a2e,#2d1155)', position:'relative', zIndex:1, overflow:'hidden' }}>
-        <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(248,87,166,.15), transparent)', pointerEvents:'none' }} />
-        <div style={{ maxWidth:1000, margin:'0 auto', textAlign:'center', position:'relative' }}>
-          <p style={{ fontSize:'.75rem', fontWeight:700, letterSpacing:'2px', color:'rgba(248,87,166,.8)', textTransform:'uppercase', marginBottom:12 }}>Novo</p>
-          <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:'clamp(2rem,4vw,3rem)', color:'white', lineHeight:1.2, marginBottom:20 }}>
-            Retrospectiva <em style={{ fontStyle:'italic', background:'linear-gradient(135deg,#f857a6,#ffa726)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>animada</em>
-          </h2>
-          <p style={{ color:'rgba(255,255,255,.5)', fontSize:'1rem', lineHeight:1.7, maxWidth:520, margin:'0 auto 56px' }}>
-            Mais do que um presente — uma experiência completa que conta a história do casal slide por slide.
-          </p>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))', gap:20, marginBottom:48 }}>
-            {[
-              { Icon: Stars, title:'Céu estrelado', desc:'Veja o céu exato da data especial do casal' },
-              { Icon: Trophy, title:'Conquistas', desc:'Marcos do relacionamento em raridades épicas' },
-              { Icon: Images, title:'Carrossel de fotos', desc:'Fotos animadas em slides cinematográficos' },
-              { Icon: Smartphone, title:'Stories', desc:'Exporte slides prontos para o Instagram' },
-            ].map(f => (
-              <div key={f.title} style={{ background:'rgba(255,255,255,.05)', border:'1px solid rgba(255,255,255,.1)', borderRadius:20, padding:'28px 20px', textAlign:'center' }}>
-                <div style={{ marginBottom:12, display:'flex', justifyContent:'center' }}>
-                  <f.Icon size={36} strokeWidth={1.5} color="#f857a6" />
-                </div>
-                <div style={{ fontFamily:"'Playfair Display',serif", fontSize:'1.05rem', color:'white', marginBottom:8 }}>{f.title}</div>
-                <div style={{ fontSize:'.82rem', color:'rgba(255,255,255,.4)', lineHeight:1.5 }}>{f.desc}</div>
-              </div>
-            ))}
-          </div>
-          <Link href="/cadastro" style={{ display:'inline-flex', alignItems:'center', gap:10, background:'linear-gradient(135deg,#f857a6,#ff5858)', color:'white', padding:'16px 40px', borderRadius:50, fontWeight:700, fontSize:'1rem', textDecoration:'none', boxShadow:'0 8px 28px rgba(248,87,166,.4)' }}>
-            <Sparkles size={20} strokeWidth={2} />
-            Criar minha Retrospectiva
-          </Link>
-        </div>
-      </section>
-    {/* ESTILO CINEMA */}
-      <section style={{ padding:'96px 24px', background:'linear-gradient(180deg,#12081f 0%,#1c1030 100%)', position:'relative', zIndex:1 }}>
-        <div style={{ maxWidth:1100, margin:'0 auto', display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:28, alignItems:'stretch' }}>
-          <div style={{ background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.12)', borderRadius:24, padding:'32px 28px' }}>
-            <p style={{ fontSize:'.72rem', fontWeight:700, letterSpacing:'2px', color:'rgba(255,167,38,.95)', textTransform:'uppercase', marginBottom:12 }}>
-              Novo estilo exclusivo
-            </p>
-            <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:'clamp(1.8rem,3.8vw,2.5rem)', color:'#fff', lineHeight:1.2, marginBottom:14 }}>
-              Retrospectiva <em style={{ color:'#ffa726', fontStyle:'italic' }}>Cinema</em>
-            </h3>
-            <p style={{ color:'rgba(255,255,255,.65)', lineHeight:1.75, fontSize:'.98rem', marginBottom:22 }}>
-              Criado para quem quer transformar memórias em uma experiência de filme: clima romântico, narrativa envolvente e visual de telão do começo ao fim.
-            </p>
-            <Link href="/cadastro" style={{ display:'inline-flex', alignItems:'center', gap:10, background:'linear-gradient(135deg,#ffa726,#ff7043)', color:'white', padding:'14px 28px', borderRadius:999, textDecoration:'none', fontWeight:700, boxShadow:'0 10px 28px rgba(255,167,38,.28)' }}>
-              <Sparkles size={18} strokeWidth={2} />
-              Quero criar no estilo Cinema
-            </Link>
-          </div>
-
-          <div style={{ display:'grid', gap:14 }}>
-            {[
-              { Icon: Images, title:'Abertura cinematográfica', desc:'Slides com identidade visual inspirada em cenas de romance.' },
-              { Icon: Heart, title:'História com emoção', desc:'A jornada do casal ganha ritmo e destaque em cada momento.' },
-              { Icon: Trophy, title:'Destaques do relacionamento', desc:'Conquistas e marcos aparecem com mais impacto visual.' },
-            ].map((item) => (
-              <div key={item.title} style={{ background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.1)', borderRadius:18, padding:'20px 18px', display:'flex', gap:14, alignItems:'flex-start' }}>
-                <div style={{ minWidth:42, height:42, borderRadius:12, background:'rgba(255,167,38,.18)', display:'grid', placeItems:'center' }}>
-                  <item.Icon size={20} strokeWidth={1.9} color="#ffb74d" />
-                </div>
-                <div>
-                  <p style={{ color:'#fff', fontWeight:700, marginBottom:4 }}>{item.title}</p>
-                  <p style={{ color:'rgba(255,255,255,.6)', fontSize:'.9rem', lineHeight:1.55 }}>{item.desc}</p>
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', fontSize:11, color:'rgba(255,255,255,.6)' }}>
+                    <span>0{demoSlide+1} / 12</span><span style={{ color:'#fff' }}>▮▮</span><span>02:14</span>
+                  </div>
                 </div>
               </div>
-            ))}
+            </div>
+
+            <div style={{ position:'absolute', top:40, left:-50, background:S, backdropFilter:'blur(10px)', border:`1px solid ${B}`, borderRadius:99, padding:'8px 14px', fontSize:12, color:T, display:'inline-flex', gap:8, boxShadow:'0 8px 24px rgba(0,0,0,.3)' }}><span style={{ color:'#ffa726' }}>★</span> Stories prontos pra Instagram</div>
+            <div style={{ position:'absolute', bottom:80, right:-30, background:S, backdropFilter:'blur(10px)', border:`1px solid ${B}`, borderRadius:99, padding:'8px 14px', fontSize:12, color:T, display:'inline-flex', gap:8, boxShadow:'0 8px 24px rgba(0,0,0,.3)' }}><span style={{ color:R2 }}>♥</span> Música personalizada</div>
+            <div style={{ position:'absolute', top:'45%', right:-70, background:S, backdropFilter:'blur(10px)', border:`1px solid ${B}`, borderRadius:99, padding:'8px 14px', fontSize:12, color:T, display:'inline-flex', gap:8, boxShadow:'0 8px 24px rgba(0,0,0,.3)' }}><span style={{ color:'#7dd3fc' }}>✦</span> Céu da data exata</div>
           </div>
         </div>
       </section>
 
-      {/* PRICING */}
-      <section className="pricing" id="precos">
-        <div className="pricing-inner">
-          <div className="pricing-header">
-            <p className="section-label">Preços</p>
-            <h2 className="section-title">Simples e <em>sem surpresas</em></h2>
-            <p style={{ color: 'var(--text-soft)', marginTop: 12, fontSize: '.95rem' }}>
-              Sem mensalidade. Pague uma vez e crie quando quiser.
-            </p>
-          </div>
-          {/* Como funciona os créditos */}
-          <div style={{ display:'flex', justifyContent:'center', gap:8, flexWrap:'wrap', marginBottom:40 }}>
-            {[
-              { Icon: Gift, label:'Página Virtual', cost:'1 crédito' },
-              { Icon: Sparkles, label:'Retrospectiva', cost:'2 créditos' },
-              { Icon: Calendar, label:'Links ativos', cost:'por 3 meses' },
-            ].map(item => (
-              <div key={item.label} style={{ display:'flex', alignItems:'center', gap:8, background:'white', border:'1.5px solid var(--rose-mid)', borderRadius:50, padding:'.4rem 1rem', fontSize:'.8rem', color:'var(--text-soft)', boxShadow:'0 1px 4px rgba(232,98,122,.07)' }}>
-                <item.Icon size={16} strokeWidth={2} color="var(--rose)" />
-                <strong style={{ color:'var(--text)' }}>{item.label}</strong> = <span style={{ color:'var(--rose)', fontWeight:700 }}>{item.cost}</span>
+      {/* COMO FUNCIONA */}
+      <section className="section-pad" id="como-funciona" style={{ padding:'120px 56px' }}>
+        <SectionHead eyebrow="Como funciona">Em 4 passos. <span style={{ color:TS }}>De uma ideia a um link em 5 minutos.</span></SectionHead>
+        <div className="how-grid" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:32, position:'relative', maxWidth:1100, margin:'0 auto' }}>
+          <div style={{ position:'absolute', top:24, left:'12%', right:'12%', height:1, background:`linear-gradient(90deg,transparent,${B},transparent)` }}/>
+          {[['01','Personalize','Textos, fotos, música, cores. Você manda em tudo.'],['02','Marque a data','Quando o link revela? Hoje? Aniversário? Daqui 3 meses?'],['03','Compartilhe','Link único + QR Code para WhatsApp ou impressão.'],['04','Emocione','A pessoa abre. O resto é amor.']].map(([n,t,d])=>(
+            <div key={n} style={{ textAlign:'center' }}>
+              <div style={{ width:48, height:48, borderRadius:99, background:`linear-gradient(135deg,${R},#8b3a50)`, display:'grid', placeItems:'center', margin:'0 auto 20px', fontFamily:'Fraunces,serif', fontWeight:600, color:'#fff', position:'relative', zIndex:1, boxShadow:`0 8px 24px -6px ${G}` }}>{n}</div>
+              <div style={{ fontFamily:'Fraunces,serif', fontSize:'1.3rem', color:T, marginBottom:8 }}>{t}</div>
+              <div style={{ fontSize:14, color:TS, lineHeight:1.6 }}>{d}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* TEMPLATES */}
+      <section className="section-pad" id="templates" style={{ padding:'120px 56px', background:S, borderTop:`1px solid ${B}`, borderBottom:`1px solid ${B}` }}>
+        <SectionHead eyebrow="Três formatos">O presente certo <span style={{ color:TS }}>para cada momento.</span></SectionHead>
+        <div className="tpl-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:24, maxWidth:1280, margin:'0 auto', alignItems:'stretch' }}>
+          {tpls.map(t=>{ const P=t.Preview; return (
+            <article key={t.name} style={{ background:S, border:t.featured?`1.5px solid ${R}`:`1px solid ${B}`, borderRadius:24, display:'flex', flexDirection:'column', boxShadow:t.featured?`0 24px 64px -20px ${G}`:'0 8px 24px -12px rgba(0,0,0,.15)', position:'relative', transform:t.featured?'translateY(-8px)':'none', overflow:'hidden' }}>
+              <div style={{ position:'absolute', top:14, right:14, zIndex:2, fontSize:9, letterSpacing:1.4, fontWeight:700, color:t.featured?'#fff':TS, background:t.featured?R:'rgba(5, 5, 5, 0.85)', padding:'5px 10px', borderRadius:99 }}>{t.label}</div>
+              <div style={{ position:'relative', width:'100%', aspectRatio:'4/3', background:t.bg, boxShadow:'inset 0 -40px 60px -30px rgba(0,0,0,.4)', overflow:'hidden' }}>
+                <P/><div style={{ position:'absolute', inset:0, background:`radial-gradient(circle at 50% 100%,${t.glow},transparent 60%)`, pointerEvents:'none' }}/>
               </div>
-            ))}
-          </div>
+              <div style={{ padding:'28px 28px 32px', display:'flex', flexDirection:'column', flex:1 }}>
+                <div style={{ fontSize:11, letterSpacing:1.5, textTransform:'uppercase', color:TS, marginBottom:8, fontWeight:600 }}>{t.duration}</div>
+                <h3 style={{ fontFamily:'Fraunces,serif', fontSize:'1.7rem', fontWeight:400, color:T, margin:'0 0 6px' }}>{t.name}</h3>
+                <div style={{ fontFamily:'Fraunces,serif', fontStyle:'italic', fontSize:'1rem', color:R, marginBottom:14 }}>{t.tagline}</div>
+                <p style={{ fontSize:14, color:TS, lineHeight:1.6, margin:'0 0 18px' }}>{t.desc}</p>
+                <ul style={{ listStyle:'none', padding:0, margin:'0 0 22px', borderTop:`1px solid ${B}` }}>
+                  {t.features.map(f=>(<li key={f} style={{ padding:'10px 0', fontSize:13, color:T, opacity:.85, display:'flex', gap:10, borderBottom:`1px solid ${B}` }}><span style={{ color:R, flexShrink:0 }}>✓</span><span>{f}</span></li>))}
+                </ul>
+                <div style={{ marginTop:'auto' }}>
+                  <div style={{ fontSize:13, color:TS, marginBottom:14, display:'flex', justifyContent:'space-between', alignItems:'baseline' }}><span style={{ fontWeight:600, color:T }}>{t.price}</span><span style={{ fontSize:11 }}>{t.pv}</span></div>
+                  <Link href={t.href} style={{ background:t.featured?R:'transparent', color:t.featured?'#fff':T, padding:'13px 22px', borderRadius:99, fontSize:13, fontWeight:600, display:'flex', alignItems:'center', justifyContent:'center', gap:8, border:t.featured?'none':`1.5px solid ${B}`, boxShadow:t.featured?`0 12px 28px -8px ${G}`:'none' }}>Ver exemplo ao vivo →</Link>
+                </div>
+              </div>
+            </article>
+          )})}
+        </div>
+      </section>
 
-          <div className="pricing-cards" style={{ gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))' }}>
-            {/* Starter */}
-            <div className="price-card">
-              <h3>Starter</h3>
-              <p style={{ color:'var(--text-soft)', fontSize:'.9rem' }}>Para uma ocasião especial</p>
-              <div className="price"><sup>R$</sup>5<span style={{ fontSize:'1.6rem' }}>,90</span></div>
-              <p className="price-desc">1 crédito · pagamento único</p>
-              <ul className="price-features">
-                <li>1 Página Virtual completa</li>
-                <li>Fotos, frases e música</li>
-                <li>Link eterno + QR Code</li>
-                <li>Contagem regressiva</li>
-              </ul>
-              <Link href="/cadastro" className="btn-buy outline">Começar agora</Link>
-            </div>
-
-            {/* Popular */}
-            <div className="price-card featured">
-              <span className="badge-featured" style={{ display:'inline-flex', alignItems:'center', gap:6 }}>
-                <Star size={14} strokeWidth={0} fill="white" /> Mais popular
-              </span>
-              <h3>Popular</h3>
-              <p style={{ color:'var(--text-soft)', fontSize:'.9rem' }}>Para criar mais de um presente</p>
-              <div className="price"><sup>R$</sup>14<span style={{ fontSize:'1.6rem' }}>,90</span></div>
-              <p className="price-desc">3 créditos · R$4,97 por crédito</p>
-              <ul className="price-features">
-                <li>1 Retrospectiva + 1 Página</li>
-                <li>Slides animados + conquistas</li>
-                <li>Exportar para Stories</li>
-                <li>Créditos nunca expiram</li>
-              </ul>
-              <Link href="/cadastro" className="btn-buy" style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', gap:8 }}>
-                <Sparkles size={18} strokeWidth={2} /> Quero esse
-              </Link>
-            </div>
-
-            {/* Max */}
-            <div className="price-card">
-              <span className="badge-featured" style={{ background:'linear-gradient(135deg,#ffa726,#e8627a)', display:'inline-flex', alignItems:'center', gap:6 }}>
-                <Flame size={14} strokeWidth={0} fill="white" /> Melhor valor
-              </span>
-              <h3>Max</h3>
-              <p style={{ color:'var(--text-soft)', fontSize:'.9rem' }}>Para quem ama presentear</p>
-              <div className="price"><sup>R$</sup>24<span style={{ fontSize:'1.6rem' }}>,90</span></div>
-              <p className="price-desc">6 créditos · R$4,15 por crédito</p>
-              <ul className="price-features">
-                <li>3 Retrospectivas completas</li>
-                <li>OU 6 Páginas Virtuais</li>
-                <li>Misture como quiser</li>
-                <li>Créditos nunca expiram</li>
-              </ul>
-              <Link href="/cadastro" className="btn-buy outline" style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', gap:8 }}>
-                <Heart size={18} strokeWidth={2} /> Quero o Max
-              </Link>
-            </div>
-          </div>
+      {/* SOCIAL PROOF */}
+      <section className="section-pad" style={{ padding:'120px 56px', textAlign:'center', maxWidth:1000, margin:'0 auto' }}>
+        <div className="stats-grid" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:32, marginBottom:80, padding:'40px 0', borderTop:`1px solid ${B}`, borderBottom:`1px solid ${B}` }}>
+          {[['12.400+','presentes criados'],['★ 4.9','nota média'],['97%','recomendam'],['5 min','para criar']].map(([n,l])=>(
+            <div key={l}><div style={{ fontFamily:'Fraunces,serif', fontSize:'2.6rem', color:T, fontWeight:400, marginBottom:6 }}>{n}</div><div style={{ fontSize:13, color:TS }}>{l}</div></div>
+          ))}
+        </div>
+        <blockquote style={{ fontFamily:'Fraunces,serif', fontSize:'clamp(1.5rem,2.6vw,2.2rem)', fontWeight:400, lineHeight:1.35, color:T, margin:'0 0 32px' }}>
+          &ldquo;Minha mãe abriu o link, ficou em silêncio, depois <em style={{ color:R, fontStyle:'italic' }}>chorou por 10 minutos</em>. Disse que foi o presente mais lindo que já recebeu na vida.&rdquo;
+        </blockquote>
+        <div style={{ display:'inline-flex', gap:14, alignItems:'center' }}>
+          <div style={{ width:48, height:48, borderRadius:99, background:`linear-gradient(135deg,${R2},${R})` }}/>
+          <div style={{ textAlign:'left' }}><div style={{ fontWeight:600, color:T }}>Ana Clara, 28</div><div style={{ fontSize:13, color:TS }}>presente para a mãe · São Paulo</div></div>
         </div>
       </section>
 
       {/* TESTIMONIALS */}
-      <section className="testimonials">
-        <div className="testimonials-inner">
-          <div className="testimonials-header">
-            <p className="section-label">Depoimentos</p>
-            <h2 className="section-title">Momentos que <em>emocionaram</em></h2>
-          </div>
-          <div className="testimonials-grid">
-            {testimonials.map((t) => (
-              <div className="tcard" key={t.name}>
-                <div className="tcard-top">
-                  <div className="tcard-avatar">{t.avatar}</div>
-                  <div>
-                    <div className="tcard-name">{t.name}</div>
-                    <div className="tcard-stars" style={{ display:'inline-flex', gap:2 }}>
-                      {Array.from({ length: t.stars }).map((_, i) => (
-                        <Star key={i} size={14} strokeWidth={0} fill="#ffa726" />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <p>{t.text}</p>
-              </div>
-            ))}
-          </div>
+      <section className="section-pad" style={{ padding:'0 56px 100px', maxWidth:1200, margin:'0 auto' }}>
+        <div className="test-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:20 }}>
+          {[['Surpreendi minha namorada no Dia dos Namorados. A reação dela…','Rafael M.'],['Comprei o combo, fiz pro meu pai e ainda sobrou crédito.','Juliana K.'],['Imprimi o QR Code, colei dentro de um cartão. Ela travou.','Pedro H.']].map(([q,n])=>(
+            <div key={n} style={{ background:S, border:`1px solid ${B}`, borderRadius:20, padding:28 }}>
+              <div style={{ color:'#ffa726', fontSize:13, marginBottom:10 }}>★★★★★</div>
+              <p style={{ fontSize:14, lineHeight:1.65, color:T, marginBottom:18, opacity:.9 }}>{q}</p>
+              <div style={{ fontSize:13, color:TS }}>— {n}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section className="section-pad" id="precos" style={{ padding:'120px 56px' }}>
+        <SectionHead eyebrow="Preços">Pague uma vez. <span style={{ color:TS }}>Sem mensalidade. Sem pegadinha.</span></SectionHead>
+        <div className="price-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:20, maxWidth:1100, margin:'0 auto' }}>
+          {prices.map(c=>(
+            <div key={c.name} style={{ background:c.featured?'linear-gradient(180deg,rgba(232,98,122,.25),rgba(40,20,30,.9))':S, border:`1px solid ${c.featured?R:B}`, borderRadius:24, padding:36, position:'relative', display:'flex', flexDirection:'column', transform:c.featured?'scale(1.04)':'none', boxShadow:c.featured?`0 24px 64px -16px ${G}`:'none' }}>
+              {c.featured && <div style={{ position:'absolute', top:-12, left:'50%', transform:'translateX(-50%)', background:R, color:'#fff', padding:'5px 16px', borderRadius:99, fontSize:11, fontWeight:600 }}>Mais escolhido</div>}
+              <div style={{ fontFamily:'Fraunces,serif', fontSize:'1.4rem', marginBottom:14, color:T }}>{c.name}</div>
+              <div style={{ fontFamily:'Fraunces,serif', fontSize:'2.8rem', color:R, fontWeight:500, lineHeight:1 }}>R$ {c.price}</div>
+              <div style={{ fontSize:13, color:TS, marginBottom:28, marginTop:6 }}>{c.desc}</div>
+              <ul style={{ listStyle:'none', padding:0, margin:'0 0 28px', flex:1 }}>
+                {c.features.map(x=>(<li key={x} style={{ padding:'10px 0', borderTop:`1px solid ${B}`, fontSize:13, color:T, opacity:.9, display:'flex', gap:10 }}><span style={{ color:R }}>✓</span> {x}</li>))}
+              </ul>
+              <Link href="/cadastro" style={c.featured?{ background:R, color:'#fff', padding:14, borderRadius:12, textAlign:'center' as const, fontWeight:600, fontSize:14, display:'block', boxShadow:`0 8px 24px -6px ${G}` }:{ padding:14, borderRadius:12, textAlign:'center' as const, fontWeight:600, fontSize:14, border:`1.5px solid ${B}`, color:T, display:'block' }}>{c.featured?'Quero esse':'Começar'} →</Link>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="faq" id="faq">
-        <div className="faq-inner">
-          <div className="faq-header">
-            <p className="section-label">Dúvidas</p>
-            <h2 className="section-title">Perguntas <em>frequentes</em></h2>
-          </div>
-          {faqs.map((f) => <FaqItem key={f.q} q={f.q} a={f.a} />)}
+      <section className="section-pad" id="faq" style={{ padding:'120px 56px', background:S }}>
+        <SectionHead eyebrow="Dúvidas">Tem alguma dúvida? <span style={{ color:TS }}>Provavelmente respondida.</span></SectionHead>
+        <div style={{ maxWidth:760, margin:'0 auto' }}>
+          {faqs.map(([q,a],i)=>(
+            <details key={q} {...(i===0?{open:true}:{})} style={{ background:'rgba(255,255,255,.03)', borderRadius:14, padding:'18px 24px', marginBottom:8, border:`1px solid ${B}`, cursor:'pointer' }}>
+              <summary style={{ display:'flex', justifyContent:'space-between', alignItems:'center', fontWeight:600, fontSize:15, color:T, listStyle:'none' }}>{q}<span className="faq-plus" style={{ color:R, fontSize:'1.4rem', fontWeight:300, transition:'transform .2s' }}>+</span></summary>
+              <p style={{ marginTop:14, paddingTop:14, borderTop:`1px solid ${B}`, fontSize:14, color:TS, lineHeight:1.6, marginBottom:0 }}>{a}</p>
+            </details>
+          ))}
         </div>
       </section>
 
       {/* CTA FINAL */}
-      <section className="cta-final">
-        <h2>Pronto para criar um<br /><em>momento inesquecível?</em></h2>
-        <p>Em menos de 5 minutos você cria um presente que a pessoa vai guardar para sempre.</p>
-        <Link href="/cadastro" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontSize: '1.1rem', padding: '18px 48px' }}>
-          <Gift size={22} strokeWidth={2} /> Criar meu presente agora
-        </Link>
+      <section className="section-pad" style={{ padding:'140px 56px', textAlign:'center', position:'relative', overflow:'hidden' }}>
+        <div aria-hidden="true" style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', width:800, height:400, borderRadius:'50%', background:`radial-gradient(ellipse,${G},transparent 70%)`, filter:'blur(40px)', pointerEvents:'none' }}/>
+        <h2 style={{ fontFamily:'Fraunces,serif', fontSize:'clamp(2.4rem,4.5vw,4.5rem)', fontWeight:400, lineHeight:1.05, letterSpacing:'-.02em', color:T, position:'relative', margin:'0 0 40px' }}>
+          Em 5 minutos<br/><span style={{ fontStyle:'italic', background:`linear-gradient(135deg,${R2},${R3})`, WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', filter:`drop-shadow(0 0 24px ${G})` }}>vocês têm um momento eterno.</span>
+        </h2>
+        <Link href="/cadastro" style={{ background:R, color:'white', padding:'18px 36px', borderRadius:99, fontSize:'1.05rem', fontWeight:600, display:'inline-flex', alignItems:'center', gap:10, position:'relative', boxShadow:`0 16px 40px -10px ${G}` }}>Criar meu presente agora <span>→</span></Link>
+        <p style={{ fontSize:13, color:TS, marginTop:18, position:'relative' }}>R$ 5,90 · sem mensalidade · sem cartão recorrente</p>
       </section>
 
       {/* FOOTER */}
-      <footer>
-        <span className="footer-logo">Presentim</span>
-        <p>Feito com 💝 para eternizar momentos especiais</p>
-        <p style={{ marginTop: 8 }}>
-          <Link href="/termos">Termos de uso</Link> · <Link href="/privacidade">Privacidade</Link> · <Link href="/contato">Contato</Link> · <Link href="/historia">História</Link>
-        </p>
+      <footer style={{ padding:56, textAlign:'center', borderTop:`1px solid ${B}`, fontSize:13, color:TS }}>
+        <div style={{ fontFamily:'Fraunces,serif', fontSize:'1.4rem', color:T }}>presentim<span style={{ color:R }}>·</span></div>
+        <p style={{ opacity:.7, marginTop:8 }}>Feito com 💝 para eternizar momentos especiais</p>
+        <div style={{ marginTop:16, display:'flex', gap:20, justifyContent:'center' }}>
+          <Link href="/termos" style={{ color:TS }}>Termos de uso</Link>
+          <Link href="/privacidade" style={{ color:TS }}>Privacidade</Link>
+          <Link href="/contato" style={{ color:TS }}>Contato</Link>
+          <Link href="/historia" style={{ color:TS }}>História</Link>
+        </div>
       </footer>
-    </>
-  )
+    </div>
+  </>)
 }
